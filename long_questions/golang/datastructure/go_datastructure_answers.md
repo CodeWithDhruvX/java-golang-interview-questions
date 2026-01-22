@@ -2019,3 +2019,714 @@ timer.Reset(newDuration)
 
 **Answer:**
 	ime.Time implements json.Marshaler interface. It serializes to an RFC 3339 formatted string (e.g., "2023-10-25T08:00:00Z").
+
+### Question 118: What is the difference between passing by value and passing by pointer in Go?
+
+**Answer:**
+In Go, everything is passed by value. When you pass a variable by value, a copy of the data is created and passed to the function. Modifying the copy inside the function does not affect the original variable.
+
+When you pass a pointer (which is also passed by value), you pass a copy of the memory address. This allows the function to modify the value at that memory address, effectively modifying the original variable.
+
+```go
+func modifyVal(x int) { x = 10 }
+func modifyPtr(x *int) { *x = 10 }
+
+func main() {
+    a := 5
+    modifyVal(a) // a is still 5
+    modifyPtr(&a) // a becomes 10
+}
+```
+
+---
+
+### Question 119: How do you define a method on a struct type?
+
+**Answer:**
+A method is a function with a special receiver argument. You define it by specifying the receiver type between the `func` keyword and the method name.
+
+```go
+type User struct {
+    Name string
+}
+
+// Method on User struct
+func (u User) Greet() string {
+    return "Hello " + u.Name
+}
+```
+
+---
+
+### Question 120: Can you define methods on non-struct types (e.g., `type MyInt int`)?
+
+**Answer:**
+Yes, you can define methods on any type you define in the same package, except for pointer types or interfaces. This includes aliases for built-in types like `int`, `string`, slice, map, etc.
+
+```go
+type MyInt int
+
+func (m MyInt) IsEven() bool {
+    return m%2 == 0
+}
+```
+
+---
+
+### Question 121: What is the difference between a Value Receiver and a Pointer Receiver?
+
+**Answer:**
+*   **Value Receiver (`func (t T) ...`):** The method operates on a copy of the value. Changes made to the receiver inside the method are not visible to the caller. It is generally safer for concurrency but can be expensive if the struct is large.
+*   **Pointer Receiver (`func (t *T) ...`):** The method operates on the actual value (via its address). Changes are visible to the caller. It avoids copying the value.
+
+---
+
+### Question 122: When should you use a Pointer Receiver?
+
+**Answer:**
+Use a pointer receiver when:
+1.  **Modifying state:** The method needs to modify the receiver.
+2.  **Performance:** The struct is large, and copying it is expensive.
+3.  **Consistency:** If some methods of the type have pointer receivers, usually all methods should have pointer receivers for consistency.
+4.  **Sync primitives:** If the struct contains a Mutex or similar synchronization primitive, it must not be copied.
+
+---
+
+### Question 123: Can you call a pointer receiver method on a value variable?
+
+**Answer:**
+Yes, Go automatically takes the address of the value if it is addressable.
+
+```go
+type Data struct {
+    Val int
+}
+func (d *Data) Set(v int) { d.Val = v }
+
+d := Data{}
+d.Set(5) // Compiler interprets as (&d).Set(5)
+```
+
+---
+
+### Question 124: Can you call a value receiver method on a pointer variable?
+
+**Answer:**
+Yes, Go automatically dereferences the pointer to get the value.
+
+```go
+func (d Data) Get() int { return d.Val }
+
+ptr := &Data{Val: 10}
+val := ptr.Get() // Compiler interprets as (*ptr).Get()
+```
+*Note: This works only if the pointer is not nil; calling a value method on a nil pointer causes a panic.*
+
+---
+
+### Question 125: What is a "Method Set" in Go?
+
+**Answer:**
+The method set determines which interfaces a type implements.
+*   The method set of a type `T` consists of all methods declared with receiver `T`.
+*   The method set of a type `*T` consists of all methods declared with receiver `*T` **AND** receiver `T`.
+
+---
+
+### Question 126: What methods belong to the method set of type `T` vs `*T`?
+
+**Answer:**
+*   **T:** Contains only methods with value receivers (`(t T)`).
+*   **T:** Contains methods with pointer receivers (`(t *T)`) AND methods with value receivers (due to automatic dereferencing capabilities, but strictly speaking, the interface satisfaction rule says *T has both).
+
+This distinction is crucial for interface implementation. If an interface requires a method defined with a pointer receiver, only `*T` implements that interface, not `T`.
+
+---
+
+### Question 127: How does `new()` differ from `make()` exactly?
+
+**Answer:**
+*   **`new(T)`**: Allocates zeroed storage for a new item of type `T` and returns its address, a value of type `*T`. It applies to value types like structs, ints, arrays.
+*   **`make(T, args)`**: Creates an initialized (not zeroed) value of type `T` (not `*T`). It is used **only** for slices, maps, and channels. These types require internal data structure initialization (e.g., allocating an underlying array for a slice) before use.
+
+---
+
+### Question 128: What types can be created using `make()`?
+
+**Answer:**
+`make()` is restricted to three built-in reference types:
+1.  **Slices** (`make([]int, len, cap)`)
+2.  **Maps** (`make(map[string]int, hint)`)
+3.  **Channels** (`make(chan int, bufSize)`)
+
+---
+
+### Question 129: What is the return value of `new(T)`?
+
+**Answer:**
+`new(T)` returns a **pointer** to the newly allocated zero value of type `T`. So, the return type is `*T`.
+
+---
+
+### Question 130: How are interfaces represented in memory (itab and data)?
+
+**Answer:**
+An interface value is conceptually a pair of words (pointers):
+1.  **itab (Interface Table) pointer:** Points to a table containing type information about the concrete type and a list of function pointers for the methods required by the interface.
+2.  **data pointer:** Points to the actual copy of the concrete data (if it's a value type) or the pointer to the data (if it's a pointer type) that implements the interface.
+
+If an interface is nil, both words are zero (nil).
+
+---
+
+### Question 131: What is a Type Assertion and how is it used?
+
+**Answer:**
+A type assertion provides access to the underlying concrete value of an interface.
+Syntax: `t := i.(T)`
+
+*   If `i` holds a `T`, `t` will be the underlying value.
+*   If `i` does not hold a `T`, it panics.
+
+To avoid panic, use the comma-ok idiom:
+```go
+t, ok := i.(T)
+if ok {
+    // success
+} else {
+    // failure, no panic
+}
+```
+
+---
+
+### Question 132: What is a Type Switch?
+
+**Answer:**
+A type switch is a construct that permits several type assertions in series. It looks like a regular switch statement but uses `.(type)`.
+
+```go
+switch v := i.(type) {
+case int:
+    fmt.Printf("Twice %v is %v\n", v, v*2)
+case string:
+    fmt.Printf("%q is %v bytes long\n", v, len(v))
+default:
+    fmt.Printf("I don't know about type %T!\n", v)
+}
+```
+
+---
+
+### Question 133: How do you check if an interface value is `nil`?
+
+**Answer:**
+An interface value is `nil` only if both its value and dynamic type are nil. You can check:
+```go
+if i == nil { ... }
+```
+However, beware of the "nil pointer inside interface" trap.
+
+---
+
+### Question 134: Can an interface holding a nil concrete pointer be nil?
+
+**Answer:**
+**No.** If you store a nil pointer of a concrete type (e.g., `*int(nil)`) in an interface, the interface variable itself is **not nil**.
+It has a concrete type (`*int`) but a nil value.
+
+```go
+var p *int = nil
+var i interface{} = p
+fmt.Println(i == nil) // False
+```
+
+---
+
+### Question 135: What are the methods required to implement `sort.Interface`?
+
+**Answer:**
+To sort a collection using `sort.Sort`, the collection must implement `sort.Interface` which requires three methods:
+1.  `Len() int`: The number of elements in the collection.
+2.  `Less(i, j int) bool`: Reports whether the element at index `i` should sort before the element at index `j`.
+3.  `Swap(i, j int)`: Swaps the elements with indexes `i` and `j`.
+
+---
+
+### Question 136: How do you get the capacity (`cap`) and length (`len`) of a channel?
+
+**Answer:**
+You use the built-in functions `cap()` and `len()`.
+*   `cap(ch)`: Returns the buffer size (capacity) of the channel.
+*   `len(ch)`: Returns the number of elements currently queued in the channel buffer.
+
+---
+
+### Question 137: What happens if you send to a closed channel?
+
+**Answer:**
+Sending to a closed channel causes a **runtime panic**.
+
+```go
+ch := make(chan int)
+close(ch)
+ch <- 1 // Panic: send on closed channel
+```
+
+---
+
+### Question 138: What happens if you receive from a closed channel?
+
+**Answer:**
+Receiving from a closed channel returns the **zero value** of the channel's element type immediately, without blocking. It does not panic.
+You can detect if it's closed using the second return value: `v, ok := <-ch`. If `ok` is false, the channel is closed.
+
+---
+
+### Question 139: How do you check if a channel is closed ensuring no panic?
+
+**Answer:**
+You cannot check if a channel is closed without receiving from it (or trying to send, which might panic). The idiomatic way to "check" is to receive with the comma-ok idiom.
+Since sending to a closed channel panics, the sender should be the one responsible for closing it, so they naturally know it is closed.
+
+---
+
+### Question 140: What is the zero value of a function type?
+
+**Answer:**
+The zero value of a function type is `nil`. Calling a nil function value causes a panic.
+
+---
+
+### Question 141: Can functions be used as map keys?
+
+**Answer:**
+**No**, functions are not comparable in Go (you cannot check `func1 == func2`), so they cannot be used as map keys.
+
+---
+
+### Question 142: How do anonymous functions (closures) capture variables?
+
+**Answer:**
+Closures capture variables by **reference**, not by value. If the captured variable is modified outside the closure (or inside), the change is reflected everywhere.
+Loop variable capture is a common pitfall (fixed in Go 1.22), where all strict closures in a loop used to capture the same loop variable instance.
+
+---
+
+### Question 143: What is a variadic function and how do you pass a slice to it?
+
+**Answer:**
+A variadic function accepts a variable number of arguments (e.g., `func sum(nums ...int)`).
+To pass a slice to a variadic function, you must unpack it using the `...` suffix.
+
+```go
+nums := []int{1, 2, 3}
+sum(nums...)
+```
+
+---
+
+### Question 144: How does `defer` work with method evaluation (arguments vs execution)?
+
+**Answer:**
+When a `defer` statement is executed, the **arguments** to the deferred function are evaluated immediately (at the time of the defer call). However, the **function body** is executed only when the surrounding function returns.
+
+```go
+func example() {
+    i := 0
+    defer fmt.Println(i) // i evaluates to 0 here
+    i++
+    return
+} // prints 0
+```
+
+---
+
+### Question 145: What is `unsafe.Pointer` and when is it used?
+
+**Answer:**
+`unsafe.Pointer` is a special pointer type that bypasses Go's type safety.
+*   It can convert any pointer type to `unsafe.Pointer` and vice versa.
+*   It allows pointer arithmetic when converted to `uintptr`.
+*   **Usage:** It is used for interacting with C code (cgo), low-level memory manipulation, or system calls where type safety must be explicitly overridden. It is dangerous and should be avoided unless absolutely necessary.
+
+---
+
+### Question 146: How does `uintptr` differ from `*int`?
+
+**Answer:**
+*   `*int`: A standard pointer to an integer. The Garbage Collector tracks it and knows it points to memory.
+*   `uintptr`: An integer type properly sized to hold a pointer address. However, for the GC, it is just an integer. The GC does **not** track the memory it points to. If the object pointed to by `uintptr` is moved or collected, the `uintptr` becomes invalid. It is primarily used with `unsafe.Pointer` for arithmetic.
+
+---
+
+### Question 147: How do you manually manage memory alignment (padding)?
+
+**Answer:**
+Go structs are aligned based on the field with the largest alignment requirement. To optimize memory (reduce padding), you should order struct fields from largest (in bytes) to smallest.
+For manual alignment, you can use blank fields `_ [N]byte` to force padding, but usually, simple reordering is sufficient.
+
+```go
+// Improved alignment
+type Good struct {
+    a int64 // 8 bytes
+    b int32 // 4 bytes
+    c int32 // 4 bytes
+}
+```
+
+---
+
+### Question 148: How do you define a generic Stack data structure in Go?
+
+**Answer:**
+You use type parameters (Generics, introduced in Go 1.18).
+
+```go
+type Stack[T any] struct {
+    elements []T
+}
+
+func (s *Stack[T]) Push(v T) {
+    s.elements = append(s.elements, v)
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+    if len(s.elements) == 0 {
+        var zero T
+        return zero, false
+    }
+    index := len(s.elements) - 1
+    val := s.elements[index]
+    s.elements = s.elements[:index]
+    return val, true
+}
+```
+
+---
+
+### Question 149: How do you use the `comparable` constraint in generic maps?
+
+**Answer:**
+The keys of a map must be comparable (support `==` and `!=`). In generic functions or types involving maps as keys, you must use the `comparable` constraint for the key type.
+
+```go
+func Keys[K comparable, V any](m map[K]V) []K {
+    keys := make([]K, 0, len(m))
+    for k := range m {
+        keys = append(keys, k)
+    }
+    return keys
+}
+```
+
+---
+
+### Question 150: Can you use a generic type as a receiver for a method?
+
+**Answer:**
+Yes, methods on a generic type simply declare the type parameter in the receiver.
+
+```go
+type Box[T any] struct {
+    val T
+}
+
+// Method on generic type Box
+func (b *Box[T]) Set(v T) {
+    b.val = v
+}
+```
+*Note: You cannot introduce **new** type parameters in a method declaration; they must come from the type definition.*
+
+---
+
+### Question 151: How to implement a generic Linked List?
+
+**Answer:**
+
+```go
+type Node[T any] struct {
+    Val  T
+    Next *Node[T]
+}
+
+type LinkedList[T any] struct {
+    Head *Node[T]
+}
+
+func (ll *LinkedList[T]) Push(v T) {
+    newNode := &Node[T]{Val: v, Next: ll.Head}
+    ll.Head = newNode
+}
+```
+
+---
+
+### Question 152: What is `sync.Map` and when should you use it over a regular map?
+
+**Answer:**
+`sync.Map` is a specialized concurrent-safe map implementation provided by the standard library. You should use it **only** in specific cases:
+1.  When an entry is written once but read many times (append-only caches).
+2.  When multiple goroutines read, write, and overwrite entries for disjoint sets of keys.
+
+For standard use cases (frequent reads and writes to the same keys), a regular `map` protected by `sync.RWMutex` is often faster and type-safe.
+
+---
+
+### Question 153: How does `sync.Pool` work and what is it used for?
+
+**Answer:**
+`sync.Pool` caches allocated but unused objects for later reuse, relieving pressure on the garbage collector. It is thread-safe.
+It is commonly used for frequently allocated short-lived objects like buffers (`bytes.Buffer`).
+*Items in the pool may be deallocated by the runtime at any time (usually during GC).*
+
+---
+
+### Question 154: What is the downside of using `sync.Map` for all concurrent map needs?
+
+**Answer:**
+1.  **Type Safety:** `sync.Map` stores `interface{}`, so you lose compile-time type safety and incur the overhead of type assertions and interface wrapping/unwrapping.
+2.  **Performance:** For general R/W workloads, `sync.Map` can be slower than a `map` + `RWMutex` due to its complex internal logic aimed at specialized disjoint access patterns.
+
+---
+
+### Question 155: How do you use `sync.WaitGroup` to wait for multiple goroutines?
+
+**Answer:**
+A `WaitGroup` waits for a collection of goroutines to finish.
+1.  `wg.Add(n)` increments the counter.
+2.  `wg.Done()` decrements the counter (call in the goroutine).
+3.  `wg.Wait()` blocks until the counter is zero.
+
+```go
+var wg sync.WaitGroup
+for i := 0; i < 5; i++ {
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        // work
+    }()
+}
+wg.Wait()
+```
+
+---
+
+### Question 156: What is `sync.Cond` and how do you use it for signaling?
+
+**Answer:**
+`sync.Cond` implements a condition variable, a rendezvous point for goroutines waiting for or announcing the occurrence of an event.
+It requires a `Locker` (usually a `Mutex`).
+*   `Wait()`: Unlocks the mutex and suspends execution until signaled.
+*   `Signal()`: Wakes one waiting goroutine.
+*   `Broadcast()`: Wakes all waiting goroutines.
+
+```go
+c := sync.NewCond(&sync.Mutex{})
+// Wait
+c.L.Lock()
+for !condition {
+    c.Wait()
+}
+// act on condition
+c.L.Unlock()
+```
+
+---
+
+### Question 157: How does `sync.Once` ensure a function is called exactly once?
+
+**Answer:**
+`sync.Once` uses an internal atomic counter (and a mutex for the slow path) to track if the function has been executed.
+If `once.Do(f)` is called multiple times, only the first call executes `f`, even if called concurrently.
+
+```go
+var once sync.Once
+once.Do(func() { fmt.Println("Only once") })
+```
+
+---
+
+### Question 158: What is the difference between `sync.Mutex` and `sync.RWMutex`?
+
+**Answer:**
+*   **`sync.Mutex` (Mutual Exclusion):** Allows only one goroutine to access the critical section at a time.
+*   **`sync.RWMutex` (Read-Write Mutual Exclusion):** Allows multiple readers **OR** one writer.
+    *   `RLock()`: Read lock (multiple allowed).
+    *   `Lock()`: Write lock (exclusive).
+    *   Use `RWMutex` when you have many reads and few writes to improve concurrency.
+
+---
+
+### Question 159: What defines an "Atomic Operation" in Go (`sync/atomic`)?
+
+**Answer:**
+An atomic operation is indivisible; it completes entirely or not at all, without interference from other goroutines. The `sync/atomic` package provides low-level atomic memory primitives (Swap, CAS, Add, Load, Store) useful for implementing synchronization algorithms without mutexes.
+
+---
+
+### Question 160: How do you strictly type atomic values using `atomic.Pointer[T]` (Go 1.19+)?
+
+**Answer:**
+`atomic.Pointer[T]` provides a type-safe atomic pointer. You don't need `unsafe.Pointer`.
+
+```go
+var ptr atomic.Pointer[User]
+u := &User{Name: "Alice"}
+ptr.Store(u)
+readUser := ptr.Load()
+```
+
+---
+
+### Question 161: How to implement a semaphore using a buffered channel?
+
+**Answer:**
+A buffered channel of capacity `N` can act as a semaphore allowing `N` concurrent operations.
+
+```go
+sem := make(chan struct{}, 5) // Max 5 concurrent
+
+func work() {
+    sem <- struct{}{} // Acquire token
+    defer func() { <-sem }() // Release token
+    // Critical work
+}
+```
+
+---
+
+### Question 162: What is `errgroup.Group` and how does it help with structured concurrency?
+
+**Answer:**
+`errgroup.Group` (from `golang.org/x/sync/errgroup`) provides synchronization, error propagation, and Context cancellation for groups of goroutines working on a common task.
+*   If any goroutine returns an error, the Group's `Wait()` returns that error.
+*   It simplifies managing multiple goroutines where failure of one should cancel the others (using `WithContext`).
+
+---
+
+### Question 163: How to implement a Thread-Safe Queue using Mutex?
+
+**Answer:**
+Wrap a slice (or list) and a Mutex in a struct. Lock the mutex for every Push and Pop operation.
+
+```go
+type SafeQueue struct {
+    q   []int
+    mu  sync.Mutex
+}
+
+func (s *SafeQueue) Push(v int) {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    s.q = append(s.q, v)
+}
+
+func (s *SafeQueue) Pop() int {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    // handle empty check
+    v := s.q[0]
+    s.q = s.q[1:]
+    return v
+}
+```
+
+---
+
+### Question 164: How to implement a Worker Pool using channels?
+
+**Answer:**
+Create a pool of worker goroutines that listen on a "jobs" channel.
+
+```go
+func worker(id int, jobs <-chan int, results chan<- int) {
+    for j := range jobs {
+        results <- j * 2
+    }
+}
+
+func main() {
+    jobs := make(chan int, 100)
+    results := make(chan int, 100)
+    
+    // Start 3 workers
+    for w := 1; w <= 3; w++ {
+        go worker(w, jobs, results)
+    }
+
+    // Send jobs
+    for j := 1; j <= 5; j++ {
+        jobs <- j
+    }
+    close(jobs)
+    // Collect results
+}
+```
+
+---
+
+### Question 165: What is the `context.Context` structure used for?
+
+**Answer:**
+`context.Context` carries:
+1.  **Deadlines/Timeouts:** Signals when work should stop.
+2.  **Cancellation Signals:** Propagates cancellation down the call graph.
+3.  **Request-scoped values:** Passes data (like RequestID, UserAuth) through API boundaries and between processes.
+
+It is essential for controlling the lifecycle of concurrent operations.
+
+---
+
+### Question 166: How to implement a generic "Set" using a map [T]struct{}?
+
+**Answer:**
+Since Go doesn't have a built-in Set, use a map where the key is the element and the value is an empty struct (consuming 0 bytes).
+
+```go
+type Set[T comparable] map[T]struct{}
+
+func NewSet[T comparable]() Set[T] {
+    return make(Set[T])
+}
+
+func (s Set[T]) Add(v T) {
+    s[v] = struct{}{}
+}
+
+func (s Set[T]) Contains(v T) bool {
+    _, exists := s[v]
+    return exists
+}
+```
+
+---
+
+### Question 167: How to implement a generic "Option Pattern" for struct initialization?
+
+**Answer:**
+The Functional Option Pattern uses functions to modify a configuration struct. Generics allow one set of logic for strict typing if needed, but often the config struct itself is specific.
+
+```go
+type Server struct {
+    Port int
+    Host string
+}
+
+type Option func(*Server)
+
+func WithPort(p int) Option {
+    return func(s *Server) {
+        s.Port = p
+    }
+}
+
+func NewServer(opts ...Option) *Server {
+    s := &Server{Host: "localhost", Port: 8080} // defaults
+    for _, opt := range opts {
+        opt(s)
+    }
+    return s
+}
+```
