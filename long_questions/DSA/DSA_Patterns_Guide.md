@@ -193,7 +193,7 @@ Instead of searching for a value in a list, you search for the *answer* itself. 
 
 ### 🧠 Deep Dive
 *   **How it works**: Define a range `[min, max]` for the possible answer. Write a `check(x)` function that returns `True/False` if `x` is valid. Binary search over this range using `check(x)`.
-*   **Complexity**: Time **O(N log(Range))**.
+*   **Complexity**: Time **O(N log(Range))**, Space **O(1)**.
 *   **Snippet**: `if check(mid): ans = mid; high = mid - 1`
 
 ### 🏢 FAANG Context
@@ -261,7 +261,7 @@ Same as Tree DFS/BFS, but for cities connected by roads.
 *   **How it works**:
     *   **DFS**: Stack/Recursion + `visited = set()`.
     *   **BFS**: Queue + `visited = set()`.
-*   **Complexity**: Time **O(V + E)**.
+*   **Complexity**: Time **O(V + E)**, Space **O(V)**.
 
 ### 🏢 FAANG Context
 *   **When to use**: Connectivity (Is there a path?), Shortest Path (BFS), Cycle Detection (DFS).
@@ -277,7 +277,7 @@ Imagine a party with many small groups of friends.
 
 ### 🧠 Deep Dive
 *   **How it works**: Maintains a parent array where `parent[i]` is the parent of `i`. Two optimizations: **Path Compression** (points directly to ultimate leader) and **Union by Rank** (attach small tree to big tree).
-*   **Complexity**: Time **O(α(N))** (Inverse Ackermann function, practically **O(1)**).
+*   **Complexity**: Time **O(α(N))**, Space **O(N)**.
 *   **Snippet**: `def find(x): if x != p[x]: p[x] = find(p[x]); return p[x]`
 
 ### 🏢 FAANG Context
@@ -292,7 +292,7 @@ Imagine you are exploring a cave system. You go down a tunnel. If it's a dead en
 
 ### 🧠 Deep Dive
 *   **How it works**: Recursion. "Choose" an option, "Explore" recursivley, then "Un-choose" (backtrack) to restore state for the next option.
-*   **Complexity**: Exponential Time **O(2^N)** or **O(N!)**.
+*   **Complexity**: Time **O(2^N)** or **O(N!)**, Space **O(N)** (recursion stack).
 *   **Snippet**: `def backtrack(path): if goal: res.append(path); return; for choice in options: path.add(choice); backtrack(); path.remove(choice)`
 
 ### 🏢 FAANG Context
@@ -337,7 +337,7 @@ Imagine you are given a 1-hour break to eat. There are many plates of food. A "G
 
 ### 🧠 Deep Dive
 *   **How it works**: At each step, make the choice that looks best at the moment. Never look back.
-*   **Complexity**: Generally **O(N log N)** (if sorting needed).
+*   **Complexity**: Time **O(N log N)**, Space **O(1)** or **O(N)** (depends on sorting).
 *   **Snippet**: `sort(events); count=0; end=-1; for s,e in events: if s >= end: count++; end=e;`
 
 ### 🏢 FAANG Context
@@ -352,7 +352,7 @@ Imagine a waiting room where the sickest patient always sees the doctor next, re
 
 ### 🧠 Deep Dive
 *   **How it works**: Binary Heap. `pop()` gives Min (or Max) in **O(log N)**. `push()` adds in **O(log N)**.
-*   **Complexity**: Time **O(log N)** per operation.
+*   **Complexity**: Time **O(log N)** per operation, Space **O(N)**.
 *   **Snippet**: `heapq.heappush(h, x); val = heapq.heappop(h)`
 
 ### 🏢 FAANG Context
@@ -382,7 +382,7 @@ Imagine a dictionary where words are stored as a tree. "Cat", "Car", and "Cap" a
 
 ### 🧠 Deep Dive
 *   **How it works**: Tree where keys are characters. Good for prefix lookups.
-*   **Complexity**: Time **O(L)** where L is word length.
+*   **Complexity**: Time **O(L)**, Space **O(N * L)**.
 *   **Snippet**: `node = root; for char in word: node = node.children[char]`
 
 ### 🏢 FAANG Context
@@ -397,7 +397,7 @@ Imagine a calendar. You have meetings from 9-10, 10-11, and 8-12. Interval proce
 
 ### 🧠 Deep Dive
 *   **How it works**: **Sort** by start time. Iterate and compare `current_end` with `next_start`.
-*   **Complexity**: Time **O(N log N)** (due to sorting).
+*   **Complexity**: Time **O(N log N)**, Space **O(N)** (sorting).
 *   **Snippet**: `sort(intervals); if curr_end >= next_start: merge()`
 
 ### 🏢 FAANG Context
@@ -416,7 +416,7 @@ You can't put on the belt before the pants. Topological sort gives you the corre
 
 ### 🧠 Deep Dive
 *   **How it works**: Graph algorithm on DAG (Directed Acyclic Graph). Uses Degree array (Kahn's Algo) or DFS.
-*   **Complexity**: Time **O(V + E)**.
+*   **Complexity**: Time **O(V + E)**, Space **O(V + E)**.
 *   **Snippet**: `queue = [nodes where in_degree == 0]; while queue: process(node); reduce_neighbors_degree()`
 
 ### 🏢 FAANG Context
@@ -431,7 +431,7 @@ Imagine a chessboard or a grid map. You want to move a knight from A1 to H8, or 
 
 ### 🧠 Deep Dive
 *   **How it works**: Graph traversal on a grid. Nodes are cells `(r, c)`. Neighbors are `(r+1, c), (r-1, c)...`.
-*   **Complexity**: Time **O(N*M)**.
+*   **Complexity**: Time **O(N*M)**, Space **O(N*M)**.
 *   **Snippet**: `directions = [(0,1), (0,-1), (1,0), (-1,0)]; for dr, dc in directions: nr, nc = r+dr, c+dc`
 
 ### 🏢 FAANG Context
@@ -446,7 +446,7 @@ A special tree where everything to the left is smaller, and everything to the ri
 
 ### 🧠 Deep Dive
 *   **How it works**: Utilizes the property: `Left < Root < Right`. Inorder traversal yields sorted values.
-*   **Complexity**: Search/Insert/Delete **O(log N)** (balanced) or **O(N)** (skewed).
+*   **Complexity**: Time **O(log N)** (balanced) or **O(N)** (skewed). Space **O(H)**.
 *   **Snippet**: `if val < root.val: go_left() else: go_right()`
 
 ### 🏢 FAANG Context
@@ -461,7 +461,7 @@ Imagine reading a sentence with special codes like "3[a]2[bc]". You need to read
 
 ### 🧠 Deep Dive
 *   **How it works**: Often uses a **Stack** to handle nested brackets/structures. Or simple iteration with state variables.
-*   **Complexity**: Time **O(N)**.
+*   **Complexity**: Time **O(N)**, Space **O(N)**.
 *   **Snippet**: `stack = []; for char in s: if char == ']': resolve(stack)`
 
 ### 🏢 FAANG Context
@@ -493,7 +493,7 @@ Imagine a vertical line moving across a plane from left to right. As it moves, i
 
 ### 🧠 Deep Dive
 *   **How it works**: Sort events by coordinate (usually X-axis). Iterate through sorted events. Maintain active state (active intervals).
-*   **Complexity**: Time **O(N log N)** (sorting).
+*   **Complexity**: Time **O(N log N)**, Space **O(N)**.
 *   **Snippet**: `events.sort(); for x, type in events: process(type)`
 
 ### 🏢 FAANG Context
@@ -508,7 +508,7 @@ Similar to Line Sweep. Instead of checking every second of time, you only wake u
 
 ### 🧠 Deep Dive
 *   **How it works**: Decompose intervals into `(start, +1)` and `(end, -1)`. Sort all limit points.
-*   **Complexity**: Time **O(N log N)**.
+*   **Complexity**: Time **O(N log N)**, Space **O(N)**.
 *   **Snippet**: `events = [(s, 1), (e, -1)]; sort(events)`
 
 ### 🏢 FAANG Context
@@ -523,7 +523,7 @@ Imagine cutting a tunnel through a mountain. Itâ€™s faster if two teams sta
 
 ### 🧠 Deep Dive
 *   **How it works**: Split the search space into two halves. Generate all possibilities for both halves (**O(2^(N/2))**). Then efficiently match them (using Hash Map or Two Pointers).
-*   **Complexity**: Reduces **O(2^N)** to **O(2^(N/2))**.
+*   **Complexity**: Time **O(2^(N/2))**, Space **O(2^(N/2))**.
 *   **Snippet**: `A = generate(set1); B = generate(set2); find_pairs(A, B)`
 
 ### 🏢 FAANG Context
@@ -538,7 +538,7 @@ Imagine keeping a checklist of 10 chores. Instead of writing "Chore 1 done, Chor
 
 ### 🧠 Deep Dive
 *   **How it works**: Use an integer as a bitmask to represent the set of visited nodes or used items.
-*   **Complexity**: Time **O(2^N * N^2)**.
+*   **Complexity**: Time **O(2^N * N^2)**, Space **O(2^N)**.
 *   **Snippet**: `dp[mask | (1<<i)] = ...`
 
 ### 🏢 FAANG Context
@@ -553,7 +553,7 @@ Imagine counting how many house numbers between 1 and 1000 have the digit '7'. I
 
 ### 🧠 Deep Dive
 *   **How it works**: Construct numbers position by position. State: `(index, tight_constraint, leading_zeros, ...).`
-*   **Complexity**: Time **O(Digits * 10 * State)**.
+*   **Complexity**: Time **O(Digits * 10 * State)**, Space **O(Digits * State)**.
 *   **Snippet**: `memo = {}; dfs(idx, is_tight, ...)`
 
 ### 🏢 FAANG Context
@@ -568,7 +568,7 @@ Imagine a company hierarchy. The boss wants to know "How much sales did my entir
 
 ### 🧠 Deep Dive
 *   **How it works**: Post-order traversal (DFS). Compute answer for children, combine them to get answer for root.
-*   **Complexity**: Time **O(N)**.
+*   **Complexity**: Time **O(N)**, Space **O(N)**.
 *   **Snippet**: `left = dfs(node.left); right = dfs(node.right); return max(left, right) + node.val`
 
 ### 🏢 FAANG Context
@@ -583,7 +583,7 @@ Finding the shortest path or longest path in a maze that might have cycles or co
 
 ### 🧠 Deep Dive
 *   **How it works**: Often combined with Topological Sort (for DAGs) or Bitmask (for TSP).
-*   **Complexity**: **O(V+E)** for DAG.
+*   **Complexity**: Time **O(V + E)**, Space **O(V)**.
 *   **Snippet**: `dist[u] = min(dist[u], dist[v] + weight)`
 
 ### 🏢 FAANG Context
@@ -601,7 +601,7 @@ Finding the shortest path or longest path in a maze that might have cycles or co
 *   **How it works**:
     *   **Multi-source**: Add all sources to Queue at `t=0`.
     *   **0-1 BFS**: Use Deque. Push 0-cost to front, 1-cost to back.
-*   **Complexity**: Time **O(V+E)**.
+*   **Complexity**: Time **O(V + E)**, Space **O(V)**.
 *   **Snippet**: `q.appendleft(v) if weight == 0 else q.append(v)`
 
 ### 🏢 FAANG Context
@@ -620,7 +620,7 @@ Google Maps. Finding the fastest route from A to B considering traffic (weights)
 *   **How it works**:
     *   **Dijkstra**: Priority Queue `(dist, node)`.
     *   **Bellman**: Relax all edges V-1 times.
-*   **Complexity**: Dijkstra **O(E log V)**. Bellman **O(VE)**.
+*   **Complexity**: Dijkstra **O(E log V)**, Bellman **O(VE)**. Space **O(V)**.
 *   **Snippet**: `heapq.heappush(pq, (0, start))`
 
 ### 🏢 FAANG Context
@@ -635,7 +635,7 @@ Imagine a long receipt. You want to know the sum of items 5 to 10 quickly. A Seg
 
 ### 🧠 Deep Dive
 *   **How it works**: Binary tree where each node represents an interval. Root is `[0, N-1]`.
-*   **Complexity**: Build **O(N)**, Query/Update **O(log N)**.
+*   **Complexity**: Build **O(N)**, Query/Update **O(log N)**. Space **O(N)**.
 *   **Snippet**: `update(pos, val); query(left, right)`
 
 ### 🏢 FAANG Context
@@ -665,7 +665,7 @@ Imagine you have 100 questions about a dataset. Instead of answering them in ord
 
 ### 🧠 Deep Dive
 *   **How it works**: Sort queries by blocks. Move `L` and `R` pointers gradually.
-*   **Complexity**: Time **O((N+Q) * sqrt(N))**.
+*   **Complexity**: Time **O((N+Q) * sqrt(N))**, Space **O(N)**.
 *   **Snippet**: `sort(queries, key=lambda q: (q.l // block, q.r))`
 
 ### 🏢 FAANG Context
@@ -680,7 +680,7 @@ Imagine trying to match a DNA sequence. Instead of comparing letter by letter, y
 
 ### 🧠 Deep Dive
 *   **How it works**: `NewHash = (OldHash - OldChar) * Base + NewChar`.
-*   **Complexity**: Time **O(N)** average.
+*   **Complexity**: Time **O(N)**, Space **O(1)**.
 *   **Snippet**: `h = (h * 26 + char) % mod`
 
 ### 🏢 FAANG Context
@@ -695,7 +695,7 @@ Smart string search. If you match "ABCD" but fail at "E", you know you don't nee
 
 ### 🧠 Deep Dive
 *   **How it works**: Build a "Longest Prefix Suffix" (LPS) array. Use it to skip comparisons.
-*   **Complexity**: Time **O(N + M)**.
+*   **Complexity**: Time **O(N + M)**, Space **O(M)**.
 *   **Snippet**: `while j > 0 and s[i] != p[j]: j = lps[j-1]`
 
 ### 🏢 FAANG Context
@@ -710,7 +710,7 @@ Similar to KMP but calculates a "Z-array" where `Z[i]` is the length of the subs
 
 ### 🧠 Deep Dive
 *   **How it works**: Maintain a "Z-box" (window of match).
-*   **Complexity**: Time **O(N)**.
+*   **Complexity**: Time **O(N)**, Space **O(N)**.
 *   **Snippet**: `if i <= R: z[i] = min(R - i + 1, z[i - L])`
 
 ### 🏢 FAANG Context
@@ -725,7 +725,7 @@ Sometimes guessing is faster than thinking. If you need to pick a leader, just p
 
 ### 🧠 Deep Dive
 *   **How it works**: Use `random()` to make decisions (e.g., Pivot in Quicksort, QuickSelect).
-*   **Complexity**: Expected **O(N)**, Worst case **O(N^2)** (but very rare).
+*   **Complexity**: Time **O(N)**, Space **O(1)**.
 *   **Snippet**: `pivot = random.choice(nums)`
 
 ### 🏢 FAANG Context
@@ -758,7 +758,7 @@ Imagine you have a map of cities. You want to know the shortest path between **e
 
 ### 🧠 Deep Dive
 *   **How it works**: 3 Nested Loops. `dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])`.
-*   **Complexity**: Time **O(V^3)**.
+*   **Complexity**: Time **O(V^3)**, Space **O(V^2)**.
 *   **Snippet**: `for k: for i: for j: d[i][j] = min(d[i][j], d[i][k] + d[k][j])`
 
 ### 🏢 FAANG Context
@@ -775,7 +775,7 @@ You need to connect 10 islands with bridges so everyone can visit everyone else,
 *   **How it works**:
     *   **Kruskal's**: Sort edges by weight. Add if it doesn't form a cycle (Union-Find).
     *   **Prim's**: Start at one node. Greedily add cheapest edge connecting "visited" set to "unvisited" set (Priority Queue).
-*   **Complexity**: **O(E log E)** or **O(E log V)**.
+*   **Complexity**: Time **O(E log E)**, Space **O(V + E)**.
 *   **Snippet**: `sort(edges); for u,v,w in edges: if union(u,v): cost += w`
 
 ### 🏢 FAANG Context
@@ -807,7 +807,7 @@ In a city with one-way streets, a "Strongly Connected Component" is a neighborho
 *   **How it works**:
     *   **Kosaraju**: DFS Order -> Transpose Graph -> DFS again.
     *   **Tarjan**: Single DFS using `discovery_time` and `low_link` values.
-*   **Complexity**: Time **O(V+E)**.
+*   **Complexity**: Time **O(V + E)**, Space **O(V)**.
 *   **Snippet**: `if low[u] == disc[u]: pop_stack_until_u()`
 
 ### 🏢 FAANG Context
@@ -857,7 +857,7 @@ Imagine sorting a pile of mail by Zip Code. You don't compare every letter to ev
     1.  **Divide**: Split into subproblems.
     2.  **Conquer**: Solve subproblems (often recursively).
     3.  **Combine**: Merge solutions.
-*   **Complexity**: Defined by Master Theorem (e.g., **O(N log N)** for Merge Sort).
+*   **Complexity**: Varies (e.g., **O(N log N)**). Space **O(N)** or **O(log N)**.
 *   **Snippet**: `mid = n // 2; left = solve(0, mid); right = solve(mid, n); return merge(left, right)`
 
 ### 🏢 FAANG Context
