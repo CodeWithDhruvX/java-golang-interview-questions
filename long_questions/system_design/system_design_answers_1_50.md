@@ -262,7 +262,7 @@ Determines which item to discard when the cache is full to make room for new ite
 | **Persistence** | Yes (RDB snapshots, AOF logs). | No (In-memory only). |
 | **Replication** | Yes (Master-Slave). | No. |
 | **Pub/Sub** | Yes. | No. |
-| **Use Case** | Complex Caching, Message Broker, Leaderboards. | Simple  Key-Value Caching. |
+| **Use Case** | Complex Caching, Message Broker, Leaderboards. | Simple Key-Value Caching. |
 
 ### Question 24: What are the downsides of caching?
 
