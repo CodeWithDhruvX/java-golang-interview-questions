@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "example.com/order-processor/proto";
+
+// The Order service definition.
+service OrderService {
+  // Submits a new order
+  rpc SubmitOrder (OrderRequest) returns (OrderResponse) {}
+}
+
+// The request message containing the order details.
+message OrderRequest {
+  string id = 1;
+  double value = 2;
+  repeated string items = 3;
+}
+
+// The response message containing the status.
+message OrderResponse {
+  string id = 1;
+  string status = 2;
+  bool success = 3;
+}

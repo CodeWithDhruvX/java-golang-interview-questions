@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 2s # Scrape frequently for this demo
+
+scrape_configs:
+  - job_name: 'order-processor'
+    metrics_path: '/metrics'
+    static_configs:
+      # When running Prometheus in Docker on Windows, use 'host.docker.internal' to reach the host
+      # When running Prometheus as a binary on the host, use 'localhost'
+      - targets: ['host.docker.internal:8080', 'localhost:8080']
