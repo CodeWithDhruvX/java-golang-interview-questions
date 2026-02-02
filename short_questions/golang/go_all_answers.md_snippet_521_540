@@ -1,0 +1,88 @@
+
+## 🚀 **521–540: Performance Optimization**
+
+### **521. How do you benchmark Go code using `testing.B`?**
+Use a loop `for i := 0; i < b.N; i++` inside a `func BenchmarkX(b *testing.B)`.
+*   Run: `go test -bench=.`.
+
+### **522. What tools can you use to profile a Go application?**
+*   **pprof**: Std lib. CPU/Memory/Mutex/Block profiles.
+*   **trace**: `go tool trace` to see scheduler/GC events.
+
+### **523. How does memory allocation affect Go performance?**
+Heap allocations trigger GC. High allocation rate = High GC freq = CPU wasted on GC.
+*   Optimize by allocating on stack (Escape Analysis).
+
+### **524. How do you detect and fix memory leaks in Go?**
+*   Take Heap profile (`-inuse_space`).
+*   Wait.
+*   Take another.
+*   Diff: `go tool pprof -base p1.prof p2.prof`.
+
+### **525. How do you avoid unnecessary allocations in hot paths?**
+*   Reuse buffers (`sync.Pool`).
+*   Size slices correctly (`make([]T, 0, capacity)`).
+*   Avoid `interface{}`/Reflection.
+
+### **526. What is escape analysis and how does it impact performance?**
+Compiler decides if a var needs Heap. Stack is "free" (pointer bump). Heap is "expensive" (GC).
+*   Keeping vars on stack > performance.
+
+### **527. How do you use `pprof` to trace CPU usage?**
+`go tool pprof http://localhost:PORT/debug/pprof/profile?seconds=30`.
+*   Analyze via `top` (text) or `web` (graph).
+
+### **528. How do you optimize slice operations for speed?**
+*   Pre-allocate capacity.
+*   Copy via `copy()` (optimized assembly).
+*   Avoid sub-slicing causing "memory leaks" (keep large array alive).
+
+### **529. What is object pooling and how is it implemented in Go?**
+Reusing objects to reduce ALLOCs.
+*   Use `sync.Pool`.
+*   Crucial: Reset object state before putting back (e.g., `buf.Reset()`).
+
+### **530. How does GC tuning affect latency in Go services?**
+Default `GOGC=100` (GC when heap doubles).
+*   **Lower GOGC**: More GC, lower RAM usage.
+*   **Higher GOGC**: Less GC, higher RAM usage. Better latency if RAM is plentiful.
+
+### **531. How do you measure and reduce goroutine contention?**
+*   **Measure**: Mutex profile (`go test -bench=. -mutexprofile=m.out`).
+*   **Reduce**: Shard locks (Map sharding), atomic operations, or Channels.
+
+### **532. What is lock contention and how to identify it in Go?**
+Multiple goroutines waiting for the same Mutex.
+*   Use `pprof` block profile.
+
+### **533. How do you batch DB operations for better throughput?**
+Use `INSERT INTO ... VALUES (...), (...), (...)`.
+*   Reduces network round-trips.
+
+### **534. How would you profile goroutine leaks?**
+Look at `runtime.NumGoroutine()` or `debug/pprof/goroutine` count over time.
+*   If strictly increasing -> Leak.
+
+### **535. What are the downsides of excessive goroutines?**
+*   Memory Usage (2KB+ stack each).
+*   Scheduler overhead (scanning large number of Gs).
+*   GC overhead (scanning stacks).
+
+### **536. How would you measure and fix cold starts in Go Lambdas?**
+*   **Measurement**: CloudWatch logs / X-Ray.
+*   **Fix**: Minimize init logic (var initialization), reduce binary size, use connection reuse.
+
+### **537. How do you decide between a map vs slice for performance?**
+*   **Small N**: Slice linear scan is often faster (cache locality).
+*   **Large N**: Map O(1) lookup wins.
+*   Benchmark to find the pivot point (usually around N=20-50).
+
+### **538. How would you write a memory-efficient parser in Go?**
+Stream data using `io.Reader` and `bufio.Scanner`. Never load whole file into RAM.
+
+### **539. How do you use channels efficiently under heavy load?**
+*   Use Buffered channels to absorb bursts.
+*   Don't use channels for everything (mutex is faster for simple state).
+
+### **540. When should you use sync.Pool?**
+When you have high-frequency allocation/deallocation of the **same type** of object (e.g., Request Context objects, JSON encoders).

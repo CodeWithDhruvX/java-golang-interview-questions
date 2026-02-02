@@ -1,0 +1,106 @@
+
+## 🔐 **501–520: Security in Golang**
+
+### **501. How do you prevent SQL injection in Go?**
+Use **Parameterized Queries** (`$1`, `?`).
+*   `db.Query("SELECT * FROM users WHERE id=$1", id)`.
+*   Avoid `fmt.Sprintf` for SQL construction.
+
+### **502. How do you securely store user passwords in Go?**
+Use **Argon2** or **Bcrypt**.
+*   `bcrypt.GenerateFromPassword(pwd, cost)` stores hash + salt.
+*   Never use MD5/SHA1.
+
+### **503. How do you implement OAuth 2.0 in Go?**
+Use `golang.org/x/oauth2` library.
+*   Handles redirection to provider (Google/GitHub), token exchange, and refreshes.
+
+### **504. What is CSRF and how do you prevent it in Go web apps?**
+Cross-Site Request Forgery.
+*   Use **CSRF Tokens** (middleware injects a unique token in forms/headers).
+*   Set `SameSite=Strict` on cookies.
+
+### **505. How do you use JWT securely in a Go backend?**
+*   **Sign**: Use HS256 (HMAC) or RS256 (RSA).
+*   **Validate**: Always check `alg` header matches expected method.
+*   **Store**: HttpOnly Secure Cookies (mostly) or LocalStorage (if careful with XSS).
+
+### **506. How do you validate and sanitize user input in Go?**
+*   **HTML**: `bluemonday` library to sanitize HTML.
+*   **Structs**: `go-playground/validator`.
+*   **SQL**: Parameterization.
+
+### **507. How do you set secure cookies in Go?**
+```go
+http.Cookie{
+    Secure:   true, // HTTPS only
+    HttpOnly: true, // No JS access
+    SameSite: http.SameSiteStrictMode,
+}
+```
+
+### **508. How do you avoid path traversal vulnerabilities?**
+Use `filepath.Clean(path)` and verify it starts with absolute root directory.
+*   Avoid `os.Open(userInputWithoutChecks)`.
+
+### **509. How do you prevent XSS in Go HTML templates?**
+`html/template` automatically escapes output by default.
+*   Do NOT use `template.HTML(str)` on untrusted input.
+
+### **510. How would you encrypt sensitive fields before storing in DB?**
+Use **AES-GCM**.
+*   Encrypt data in app layer before `INSERT`.
+*   Manage keys (DEK/KEK) using a Key Management System (Vault).
+
+### **511. How do you securely generate random strings or tokens?**
+Use `crypto/rand`, NOT `math/rand`.
+```go
+b := make([]byte, 32)
+rand.Read(b) // from crypto/rand
+```
+
+### **512. How do you verify digital signatures in Go?**
+Use `crypto/rsa` or `crypto/ed25519`.
+*   `rsa.VerifyPKCS1v15(pubKey, hash, signedData, signature)`.
+
+### **513. What are best practices for TLS config in Go HTTP servers?**
+*   Disable old versions (SSLv3, TLS 1.0, 1.1). Set `MinVersion: tls.VersionTLS12`.
+*   Prefer modern cipher suites (`TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384`).
+
+### **514. How do you implement rate limiting in Go to avoid DDoS?**
+**Token Bucket** (x/time/rate) per IP.
+*   Middleware checks if IP bucket has tokens. Use Redis for distributed limiting.
+
+### **515. How do you handle secrets in Go apps (Vault, env, etc.)?**
+*   **Dev**: `.env` files.
+*   **Prod**: Env vars injected by platform (K8s Secrets).
+*   **Advanced**: Hashicorp Vault agents fetch secrets dynamically.
+
+### **516. How do you perform mutual TLS authentication in Go?**
+Configure `ClientAuth` in `tls.Config`.
+```go
+tls.Config{
+    ClientAuth: tls.RequireAndVerifyClientCert,
+    ClientCAs:  caPool,
+}
+```
+
+### **517. What is the difference between `crypto/rand` and `math/rand`?**
+*   **math/rand**: Pseudo-random (deterministic if seeded). Fast. Unsafe for secrets.
+*   **crypto/rand**: Cryptographically Secure (OS entropy). Slow. Safe for secrets.
+
+### **518. How do you prevent replay attacks using Go?**
+Use **Nonces** (random numbers used once) and **Timestamps** in requests.
+*   Verify signature covers timestamp. Reject messages older than N seconds.
+
+### **519. How do you build a secure authentication system in Go?**
+Combine:
+1.  Bcrypt for passwords.
+2.  MFA (TOTP) using `pquerna/otp`.
+3.  JWT/PASETO for sessions.
+4.  Secure Cookies.
+
+### **520. How do you scan Go projects for vulnerabilities?**
+*   `govulncheck ./...`
+*   `trivy fs .` (Containers/Deps).
+*   `gosec ./...` (Code analysis).
