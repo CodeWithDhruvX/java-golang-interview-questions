@@ -1500,7 +1500,7 @@ func merge(left, right []int) []int {
 }
 ```
 
-##  68–97: Basics of Arrays, Maps, Structs & Loops
+##  68ï¿½97: Basics of Arrays, Maps, Structs & Loops
 
 ### Question 68: What is the difference between an Array and a Slice in Go?
 
@@ -1679,7 +1679,8 @@ fmt.Println(u.City) // Promoted field
 
 **Answer:**
 - By default, you can use == if **all fields are comparable**.
-- If fields contain non-comparable types (slices, maps), you must use eflect.DeepEqual (slow) or write a custom comparison method.
+- If fields contain non-comparable types (slices, maps), you must use 
+eflect.DeepEqual (slow) or write a custom comparison method.
 
 ---
 
@@ -1785,7 +1786,8 @@ It jumps execution to a label.
 ### Question 95: How do you iterate over a channel?
 
 **Answer:**
-Use ange. It keeps reading until the channel is closed.
+Use 
+ange. It keeps reading until the channel is closed.
 `go
 for msg := range ch {
     fmt.Println(msg)
@@ -1810,12 +1812,13 @@ If the channel is never closed, this blocks forever (deadlock).
   `go
   for i := 0; i < len(s); i++ { fmt.Println(s[i]) }
   `
-- **Runes (Characters):** ange loop.
+- **Runes (Characters):** 
+ange loop.
   `go
   for _, r := range s { fmt.Println(r) }
   `
 
-##  98–117: Time & Date Handling
+##  98ï¿½117: Time & Date Handling
 
 ### Question 98: How do you get the current time in Go?
 
