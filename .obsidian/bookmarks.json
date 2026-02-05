@@ -19,32 +19,17 @@
         },
         {
           "type": "file",
-          "ctime": 1770266806706,
-          "path": "System_Design_Practical_Solutions.md",
-          "subpath": "#1. Global E-Commerce Microservices Architecture",
-          "title": "Demo"
-        }
-      ],
-      "title": "Golang"
-    },
-    {
-      "type": "group",
-      "ctime": 1770263468484,
-      "items": [
-        {
-          "type": "file",
-          "ctime": 1770264108049,
-          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_381_400.md",
-          "subpath": "#Question 382 What are some common security vulnerabilities in Go apps?"
+          "ctime": 1770304004255,
+          "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
+          "subpath": "#Question 21 How to format strings using fmt.Sprintf?"
         },
         {
           "type": "file",
-          "ctime": 1770263480374,
-          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_301_320.md",
-          "subpath": "#Question 303 How does the Go garbage collector work?"
+          "ctime": 1770304793859,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md"
         }
       ],
-      "title": "Golang_bookmark_Group"
+      "title": "Golang"
     }
   ]
 }
