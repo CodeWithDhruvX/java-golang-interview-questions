@@ -1,11 +1,50 @@
 {
   "items": [
     {
-      "type": "file",
-      "ctime": 1770262808528,
-      "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_answers_301_400.md",
-      "subpath": "#Question 302 What is M N scheduling in Golang?",
+      "type": "group",
+      "ctime": 1770263167365,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770263197301,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_301_320.md",
+          "subpath": "#Question 302 What is M N scheduling in Golang?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770263224366,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_381_400.md",
+          "subpath": "#Question 381 How do you prevent SQL injection in Go?",
+          "title": ""
+        },
+        {
+          "type": "file",
+          "ctime": 1770266806706,
+          "path": "System_Design_Practical_Solutions.md",
+          "subpath": "#1. Global E-Commerce Microservices Architecture",
+          "title": "Demo"
+        }
+      ],
       "title": "Golang"
+    },
+    {
+      "type": "group",
+      "ctime": 1770263468484,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770264108049,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_381_400.md",
+          "subpath": "#Question 382 What are some common security vulnerabilities in Go apps?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770263480374,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_301_320.md",
+          "subpath": "#Question 303 How does the Go garbage collector work?"
+        }
+      ],
+      "title": "Golang_bookmark_Group"
     }
   ]
 }
