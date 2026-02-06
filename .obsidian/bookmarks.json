@@ -19,17 +19,93 @@
         },
         {
           "type": "file",
+          "ctime": 1770345756836,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Arrays",
+          "title": ""
+        },
+        {
+          "type": "file",
+          "ctime": 1770345776989,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Slices"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345790042,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Maps"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345874358,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#🟣 Functions, Variadic Functions & Methods"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345480661,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Anonymous Functions & Closures",
+          "title": "Clsoures & Annonymous Function"
+        },
+        {
+          "type": "file",
           "ctime": 1770304004255,
           "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
           "subpath": "#Question 21 How to format strings using fmt.Sprintf?"
         },
         {
           "type": "file",
-          "ctime": 1770304793859,
-          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md"
+          "ctime": 1770345162531,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Methods",
+          "title": "Go Methods"
+        },
+        {
+          "type": "file",
+          "ctime": 1770346007245,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Context Package",
+          "title": "Context Cancellation"
+        },
+        {
+          "type": "file",
+          "ctime": 1770346031323,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#JSON Handling"
         }
       ],
-      "title": "Golang"
+      "title": "Golang_Basics"
+    },
+    {
+      "type": "group",
+      "ctime": 1770359962051,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770360049077,
+          "path": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md"
+        }
+      ],
+      "title": "golang_oops"
+    },
+    {
+      "type": "group",
+      "ctime": 1770368125849,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770368145462,
+          "path": "long_questions/golang/cheatsheet/golang_string_cheatsheet.md"
+        },
+        {
+          "type": "file",
+          "ctime": 1770369670900,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md"
+        }
+      ],
+      "title": "Golang_Programs"
     }
   ]
 }

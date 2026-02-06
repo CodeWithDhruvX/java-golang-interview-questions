@@ -136,6 +136,18 @@ config := struct {
     Port: 8080,
     Env:  "dev",
 }
+
+// Struct Embedding (Composition)
+type Base struct {
+    ID int
+}
+
+type UserWithID struct {
+    Base  // Embedded field
+    Name  string
+}
+// u := UserWithID{Base: Base{ID: 1}, Name: "Alice"}
+// fmt.Println(u.ID) // Access directly (promoted)
 ```
 
 ---
@@ -222,7 +234,7 @@ func do(i interface{}) {
 
 ---
 
-## 🟣 Functions & Methods
+## 🟣 Functions, Variadic Functions & Methods
 
 ### Functions
 ```go
@@ -251,6 +263,31 @@ func sum(nums ...int) int {
     }
     return total
 }
+// slice := []int{1, 2, 3}
+// sum(slice...)
+```
+
+### Anonymous Functions & Closures
+```go
+func main() {
+    // 1. Anonymous function
+    func(msg string) {
+        fmt.Println(msg)
+    }("Hello")
+
+    // 2. Closure (captures variable 'i')
+    nextInt := sequence()
+    fmt.Println(nextInt()) // 1
+    fmt.Println(nextInt()) // 2
+}
+
+func sequence() func() int {
+    i := 0
+    return func() int {
+        i++
+        return i
+    }
+}
 ```
 
 ### Methods
@@ -272,7 +309,52 @@ func (r *Rect) Scale(f int) {
 }
 ```
 
----
+## Full Program Methods
+
+``` go
+package main
+
+import "fmt"
+
+// Rect defines a rectangle with Width and Height
+type Rect struct {
+	Width, Height int
+}
+
+// Area is a Value Receiver method.
+// It operates on a copy of the Rect, so the original remains unchanged.
+func (r Rect) Area() int {
+	return r.Width * r.Height
+}
+
+// Scale is a Pointer Receiver method.
+// It operates on the memory address of the Rect, modifying the original fields.
+func (r *Rect) Scale(f int) {
+	r.Width = r.Width * f
+	r.Height = r.Height * f
+}
+
+func main() {
+	// 1. Initialize the struct
+	myRect := Rect{Width: 10, Height: 5}
+	fmt.Printf("Initial Rect: %+v\n", myRect)
+
+	// 2. Use Value Receiver
+	// This calculates area without changing myRect
+	area := myRect.Area()
+	fmt.Printf("Area: %d (Rect is still: %+v)\n", area, myRect)
+
+	// 3. Use Pointer Receiver
+	// This will modify the actual values inside myRect
+	fmt.Println("Scaling by 2...")
+	myRect.Scale(2)
+
+	// 4. Observe the change
+	fmt.Printf("New Rect: %+v\n", myRect)
+	fmt.Printf("New Area: %d\n", myRect.Area())
+}
+
+```
 
 ## 🟠 Interfaces
 
@@ -309,6 +391,30 @@ i = 42
 
 // Type Assertion
 s, ok := i.(string) // Check if string
+```
+
+---
+
+## ⚪ Generics (Go 1.18+)
+
+### Generic Functions
+```go
+// T is a type parameter restricted by 'any' interface
+func Print[T any](s []T) {
+    for _, v := range s {
+        fmt.Println(v)
+    }
+}
+// Print[int]([]int{1, 2})
+// Print([]string{"a", "b"}) // Type inference
+```
+
+### Generic Types
+```go
+type List[T any] struct {
+    Head T
+    Tail *List[T]
+}
 ```
 
 ---
@@ -371,6 +477,16 @@ for i := 0; i < 3; i++ {
 }
 
 wg.Wait()
+
+// Mutex (Safe counter)
+var mu sync.Mutex
+var count = 0
+
+func inc() {
+    mu.Lock()
+    defer mu.Unlock()
+    count++
+}
 ```
 
 ---
@@ -425,3 +541,89 @@ p := &x         // Address of x
 fmt.Println(*p) // Dereference (read value: 10)
 *p = 20         // Change value at address
 ```
+
+---
+
+## 🔥 Advanced & Interview Topics
+
+### Context Package
+Essential for managing timeouts and cancellation in concurrency.
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+defer cancel()
+
+select {
+case <-time.After(3 * time.Second):
+    fmt.Println("Finished")
+case <-ctx.Done():
+    fmt.Println("Timeout:", ctx.Err()) // Prints "context deadline exceeded"
+}
+```
+
+### Testing
+Built-in `testing` package is standard.
+
+**Unit Test** (`foo_test.go`)
+```go
+func TestAdd(t *testing.T) {
+    got := Add(1, 2)
+    want := 3
+    if got != want {
+        t.Errorf("got %d, want %d", got, want)
+    }
+}
+```
+
+**Benchmark**
+```go
+func BenchmarkAdd(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        Add(1, 2)
+    }
+}
+// Run: go test -bench=.
+```
+
+### JSON Handling
+```go
+import "encoding/json"
+
+type Person struct {
+    Name string `json:"name"`           // Custom key
+    Age  int    `json:"age,omitempty"`  // Omit if zero-value
+    pw   string `json:"-"`              // Ignore (private field)
+}
+
+// Marshal (Struct -> JSON)
+p := Person{Name: "Alice", Age: 25}
+bytes, _ := json.Marshal(p)
+
+// Unmarshal (JSON -> Struct)
+var p2 Person
+json.Unmarshal(bytes, &p2)
+```
+
+### Tricky Concepts (Interview Hotspots)
+
+**1. Defer Order (LIFO)**
+Defers run in Last-In-First-Out order.
+```go
+defer fmt.Println("1")
+defer fmt.Println("2")
+// Output: 2, 1
+```
+
+**2. `make` vs `new`**
+- `make()`: Initializes **slices, maps, channels**. Returns **T** (not pointer).
+- `new()`: Allocates memory for **any type**, zeros it. Returns **\*T** (pointer).
+
+**3. Arrays vs Slices**
+- Arrays are **values**. Passing an array to a function copies it.
+- Slices are **reference-like**. Passing a slice copies the header (ptr, len, cap) but points to same underlying array.
+
+### Tooling
+- `go mod init <module-name>`: Initialize module.
+- `go mod tidy`: Add missing/remove unused dependencies.
+- `go run .`: Run main package in current dir.
+- `go build`: Compile to binary.
+- `go fmt ./...`: Format code.
