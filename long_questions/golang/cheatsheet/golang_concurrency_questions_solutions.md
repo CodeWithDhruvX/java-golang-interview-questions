@@ -191,6 +191,21 @@ func main() {
 
 ## 5. Limiting Concurrency (Semaphore)
 **Question:** Limit the number of concurrent goroutines accessing a shared resource.
+## The Core Logic
+
+The magic happens in these three specific lines:
+
+1. **The Capacity:** `sem := make(chan struct{}, 3)`
+    
+    - This creates a "room" that can only hold **3 items** at a time.
+        
+2. **The Acquire:** `sem <- struct{}{}`
+    
+    - Before starting work, the goroutine tries to put a piece of data into the channel. If the channel already has 3 items, this line **blocks** and the goroutine waits.
+        
+3. **The Release:** `<-sem`
+    
+    - Once the work is done, the goroutine pulls an item out of the channel, making a "slot" available for the next waiting worker.
 
 ```go
 package main
@@ -210,7 +225,6 @@ func main() {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			
 			sem <- struct{}{} // Acquire
 			fmt.Printf("Worker %d accessed resource\n", id)
 			time.Sleep(500 * time.Millisecond)

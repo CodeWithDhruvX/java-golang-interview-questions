@@ -29,12 +29,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+                "file": "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "golang_concurrency_cheatsheet"
+              "title": "golang_concurrency_questions_solutions"
             }
           },
           {
@@ -100,7 +100,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "rune",
+                "query": "\"sem <- struct{}{}\"",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -249,27 +249,32 @@
   },
   "active": "c09185647cd7dec9",
   "lastOpenFiles": [
-    "long_questions/golang/cheatsheet/golang_performance_profiling_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_design_patterns_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
+    "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
+    "long_questions/golang/core-golang/go_batch_201_220.md",
+    "long_questions/golang/datastructure/go_datastructure_answers.md",
+    "long_questions/Design Pattern/Golang/All patterns/Concurrency/fan_in_fan_out.md",
+    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
+    "long_questions/golang/cheatsheet/go_cheatsheet.md",
+    "long_questions/golang/core-golang/go_answers_301_400.md",
+    "long_questions/golang/core-golang/go_batch_181_280.md",
+    "long_questions/golang/core-golang/go_batch_301_320.md",
+    "long_questions/golang/core-golang/go_batch_601_620.md",
+    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_performance_profiling_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_runtime_internals_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_interfaces_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_error_testing_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_slice_mechanics_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_maps_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "long_questions/golang/cheatsheet/go_cheatsheet.md",
     "long_questions/golang/go_questions_and_answers.md",
-    "long_questions/golang/datastructure/go_datastructure_answers.md",
     "long_questions/golang/datastructure/go_datastructure.md",
     "long_questions/golang/core-golang/go_batch_901_920.md",
     "short_questions/golang/go_all_answers.md",
     "long_questions/golang/cheatsheet/golang_basic_programs_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_array_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_oops_cheatsheet (conflict 2026-02-06-12-22-17).md",
-    "long_questions/golang/project_ideas/golang_project_ideas_storytelling.md",
-    "Companies/Golang/terrastarnetwork/TerrasatrtNetworkChatGPT-Senior Engineer Role Description.md",
     "practice/golang/encapsulation/go.mod",
     "practice/golang/encapsulation/main.go",
     "practice/golang/encapsulation/users/account.go",
@@ -280,11 +285,6 @@
     "practice/golang/encapsulation/user",
     "practice/golang/encapsulation",
     "practice/golang",
-    "long_questions/golang/core-golang/go_batch_981_1000.md",
-    "long_questions/golang/experience_based/Core-Experience-Questions-Answers.md",
-    "long_questions/golang/core-golang/go_batch_1001_1045.md",
-    "long_questions/java/cheatsheet/java_core_cheatsheet.md",
-    "System_Design_Practical_Solutions.md",
     "Untitled.canvas"
   ]
 }

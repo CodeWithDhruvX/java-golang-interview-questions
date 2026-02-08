@@ -74,6 +74,12 @@
           "ctime": 1770346031323,
           "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
           "subpath": "#JSON Handling"
+        },
+        {
+          "type": "file",
+          "ctime": 1770391649347,
+          "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
+          "subpath": "#Question 155 How do you use `sync.WaitGroup` to wait for multiple goroutines?"
         }
       ],
       "title": "Golang_Basics"

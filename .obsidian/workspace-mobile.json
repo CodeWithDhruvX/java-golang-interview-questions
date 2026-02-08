@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
+                "file": "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "golang_oops_cheatsheet"
+              "title": "golang_string_cheatsheet"
             }
           }
         ]
@@ -171,6 +171,7 @@
   "active": "03423a9541fc71f6",
   "lastOpenFiles": [
     "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
     "Companies/Golang/oops",
     "long_questions/golang/cheatsheet/go_cheatsheet.md",
@@ -184,7 +185,6 @@
     "practice",
     "long_questions/golang/cheatsheet/golang_basic_programs_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_array_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_oops_cheatsheet (conflict 2026-02-06-12-22-17).md",
     "go_questions_answers_theory_complete.md",
     "go_questions_answers_theory.md",
