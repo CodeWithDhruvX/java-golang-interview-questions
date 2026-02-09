@@ -4,71 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "4ce41a7218428cdd",
+        "id": "32525f75f07fff2a",
         "type": "tabs",
         "children": [
           {
-            "id": "3b1d798f2799ffce",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "long_questions/golang/cheatsheet/go_cheatsheet.md",
-                "mode": "source",
-                "source": false
-              },
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "go_cheatsheet"
-            }
-          },
-          {
-            "id": "c09185647cd7dec9",
+            "id": "6ceee8fd70e2fcc8",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
+                "file": "long_questions/DSA/cheatsheet/Array/Notes/1_Basic_Array_Questions.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "golang_concurrency_questions_solutions"
-            }
-          },
-          {
-            "id": "6783936f396cfa8c",
-            "type": "leaf",
-            "pinned": true,
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
-                "mode": "source",
-                "source": false
-              },
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "golang_oops_cheatsheet"
-            }
-          },
-          {
-            "id": "ed6bcd34bb053923",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
-                "mode": "preview",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "golang_oops_cheatsheet"
+              "title": "1_Basic_Array_Questions"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -100,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "\"sem <- struct{}{}\"",
+                "query": "path:\"long_questions/DSA/cheatsheet/Array/golang/\" ",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -247,44 +200,44 @@
       "obsidian-raindrop-highlights:Sync Raindrop bookmarks from last sync time": false
     }
   },
-  "active": "c09185647cd7dec9",
+  "active": "6ceee8fd70e2fcc8",
   "lastOpenFiles": [
-    "long_questions/golang/cheatsheet/golang_design_patterns_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
-    "long_questions/golang/core-golang/go_batch_201_220.md",
-    "long_questions/golang/datastructure/go_datastructure_answers.md",
-    "long_questions/Design Pattern/Golang/All patterns/Concurrency/fan_in_fan_out.md",
-    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/3_Math_Logical_Questions.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/2_Searching_Sorting.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/1_Basic_Array_Questions.md",
     "long_questions/golang/cheatsheet/go_cheatsheet.md",
     "long_questions/golang/core-golang/go_answers_301_400.md",
-    "long_questions/golang/core-golang/go_batch_181_280.md",
-    "long_questions/golang/core-golang/go_batch_301_320.md",
-    "long_questions/golang/core-golang/go_batch_601_620.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_performance_profiling_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_runtime_internals_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_interfaces_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_error_testing_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_slice_mechanics_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_maps_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
-    "long_questions/golang/go_questions_and_answers.md",
-    "long_questions/golang/datastructure/go_datastructure.md",
-    "long_questions/golang/core-golang/go_batch_901_920.md",
+    "long_questions/DSA/cheatsheet/Array/golang/8_Tricky_Edge_Cases.go",
+    "long_questions/DSA/cheatsheet/Array/golang/7_Product_Company_Level.go",
+    "long_questions/DSA/cheatsheet/Array/golang/6_Sorting_Based.go",
+    "long_questions/DSA/cheatsheet/Array/golang/5_PrefixSum_Hashing.go",
+    "long_questions/DSA/cheatsheet/Array/golang/4_TwoPointers_SlidingWindow.go",
+    "long_questions/DSA/cheatsheet/Array/golang/3_Math_Logical_Questions.go",
+    "long_questions/DSA/cheatsheet/Array/golang/2_Searching_Sorting.go",
+    "long_questions/DSA/cheatsheet/Array/golang/1_Basic_Array_Questions.go",
+    "long_questions/DSA/cheatsheet/Array/golang",
+    "long_questions/DSA/cheatsheet/Array/7_Product_Company_Level.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/array_problems.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/8_Tricky_Edge_Cases.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/7_Product_Company_Level.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/6_Sorting_Based.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/5_PrefixSum_Hashing.md",
+    "long_questions/DSA/cheatsheet/Array/Notes/4_TwoPointers_SlidingWindow.md",
+    "long_questions/DSA/cheatsheet/Array/Notes",
+    "long_questions/DSA/cheatsheet/Array/array_problems.md",
+    "long_questions/DSA/cheatsheet/Array/2_Searching_Sorting.md",
+    "long_questions/DSA/cheatsheet/Array/1_Basic_Array_Questions.md",
+    "long_questions/DSA/cheatsheet/Array/8_Tricky_Edge_Cases.md",
+    "long_questions/DSA/cheatsheet/Array/6_Sorting_Based.md",
+    "long_questions/DSA/cheatsheet/Array/5_PrefixSum_Hashing.md",
+    "long_questions/DSA/cheatsheet/Array/4_TwoPointers_SlidingWindow.md",
+    "long_questions/DSA/cheatsheet/Array/3_Math_Logical_Questions.md",
+    "short_questions/golang/go_all_qquestions.md",
     "short_questions/golang/go_all_answers.md",
-    "long_questions/golang/cheatsheet/golang_basic_programs_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_array_cheatsheet.md",
-    "practice/golang/encapsulation/go.mod",
-    "practice/golang/encapsulation/main.go",
-    "practice/golang/encapsulation/users/account.go",
-    "practice/golang/encapsulation/users/Account.go",
-    "practice/golang/encapsulation/users/users.go",
-    "practice/golang/encapsulation/users/main.go",
-    "practice/golang/encapsulation/users",
-    "practice/golang/encapsulation/user",
-    "practice/golang/encapsulation",
-    "practice/golang",
+    "short_questions/golang/go_680_1000_formatted.md",
+    "short_questions/golang/go_361_680_formatted.md",
+    "Companies/Golang/Compunnel/Compunnel_Golang_Lead.md",
+    "long_questions/golang/cheatsheet/ChatGPT-Golang Interview Questions India.md",
     "Untitled.canvas"
   ]
 }

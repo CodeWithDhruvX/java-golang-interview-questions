@@ -80,6 +80,11 @@
           "ctime": 1770391649347,
           "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
           "subpath": "#Question 155 How do you use `sync.WaitGroup` to wait for multiple goroutines?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770637912092,
+          "path": "long_questions/golang/cheatsheet/Golang_Interview_Answers_India.md"
         }
       ],
       "title": "Golang_Basics"
@@ -109,6 +114,17 @@
           "type": "file",
           "ctime": 1770369670900,
           "path": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md"
+        },
+        {
+          "type": "file",
+          "ctime": 1770635265113,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
+          "subpath": "#🟢 7. Rate Limiter"
+        },
+        {
+          "type": "file",
+          "ctime": 1770638286269,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md"
         }
       ],
       "title": "Golang_Programs"
