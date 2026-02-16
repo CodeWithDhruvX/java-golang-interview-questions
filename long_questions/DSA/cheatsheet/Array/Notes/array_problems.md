@@ -8,14 +8,14 @@ Below is a **well-structured, interview-focused roadmap** with **problem stateme
 
 These are expected to be solved **without hesitation**.
 
-1. Find the **largest and smallest element** in an array
-2. Reverse an array **in-place**
-3. Find the **second largest element**
-4. Check if an array is **sorted**
+1. Find the **largest and smallest element** in an array ([GFG](https://www.geeksforgeeks.org/program-to-find-minimum-and-maximum-element-in-an-array/))
+2. Reverse an array **in-place** ([LC 189 - Similar](https://leetcode.com/problems/rotate-array/))
+3. Find the **second largest element** ([GFG](https://www.geeksforgeeks.org/find-second-largest-element-array/))
+4. Check if an array is **sorted** ([LC 1752](https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/))
 5. Count **even and odd elements**
-6. Remove **duplicate elements** from a sorted array
+6. Remove **duplicate elements** from a sorted array ([LC 26](https://leetcode.com/problems/remove-duplicates-from-sorted-array/))
 7. Left rotate an array by **1 position**
-8. Left rotate an array by **K positions**
+8. Left rotate an array by **K positions** ([LC 189](https://leetcode.com/problems/rotate-array/))
 9. Find the **sum of all elements**
 10. Find the **frequency of each element**
 
@@ -28,12 +28,12 @@ These are expected to be solved **without hesitation**.
 Focus here on **edge cases and time complexity**.
 
 1. Linear search in an array
-2. Binary search (iterative & recursive)
-3. Find **first and last occurrence** of an element
-4. Count occurrences of a number in a sorted array
-5. Find a **missing number** in range `1…N`
-6. Find the element that appears **only once** (others appear twice)
-7. Find the **peak element**
+2. Binary search (iterative & recursive) ([LC 704](https://leetcode.com/problems/binary-search/))
+3. Find **first and last occurrence** of an element ([LC 34](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/))
+4. Count occurrences of a number in a sorted array ([LC 34 - Related](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/))
+5. Find a **missing number** in range `1…N` ([LC 268](https://leetcode.com/problems/missing-number/))
+6. Find the element that appears **only once** (others appear twice) ([LC 136](https://leetcode.com/problems/single-number/))
+7. Find the **peak element** ([LC 162](https://leetcode.com/problems/find-peak-element/))
 
 ---
 
@@ -41,14 +41,14 @@ Focus here on **edge cases and time complexity**.
 
 These test **logic + optimization**.
 
-1. Find all **pairs with a given sum**
-2. Find all **triplets with a given sum**
-3. Find the **majority element** (appears > n/2 times)
-4. Find **leaders** in an array
-5. Find the **equilibrium index**
-6. Find the **maximum difference** such that `j > i`
-7. Check if array elements are **consecutive**
-8. Find the **duplicate number** (without modifying array)
+1. Find all **pairs with a given sum** ([LC 1](https://leetcode.com/problems/two-sum/))
+2. Find all **triplets with a given sum** ([LC 15](https://leetcode.com/problems/3sum/))
+3. Find the **majority element** (appears > n/2 times) ([LC 169](https://leetcode.com/problems/majority-element/))
+4. Find **leaders** in an array ([LC 1299 - Similar](https://leetcode.com/problems/replace-elements-with-greatest-element-on-right-side/))
+5. Find the **equilibrium index** ([LC 724](https://leetcode.com/problems/find-pivot-index/))
+6. Find the **maximum difference** such that `j > i` ([LC 2016](https://leetcode.com/problems/maximum-difference-between-increasing-elements/))
+7. Check if array elements are **consecutive** ([LC 128 - Harder Version](https://leetcode.com/problems/longest-consecutive-sequence/))
+8. Find the **duplicate number** (without modifying array) ([LC 287](https://leetcode.com/problems/find-the-duplicate-number/))
 
 ---
 
@@ -56,13 +56,13 @@ These test **logic + optimization**.
 
 Almost guaranteed for **product companies**.
 
-1. Move all zeros to the **end**
-2. Sort array of **0s, 1s, and 2s**
-3. Find subarray with **given sum**
-4. Find **maximum sum subarray** (Kadane’s Algorithm)
-5. Find longest subarray with **sum = K**
-6. Find smallest subarray with **sum > X**
-7. Find longest subarray with **equal 0s and 1s**
+1. Move all zeros to the **end** ([LC 283](https://leetcode.com/problems/move-zeroes/))
+2. Sort array of **0s, 1s, and 2s** ([LC 75](https://leetcode.com/problems/sort-colors/))
+3. Find subarray with **given sum** ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/))
+4. Find **maximum sum subarray** (Kadane’s Algorithm) ([LC 53](https://leetcode.com/problems/maximum-subarray/))
+5. Find longest subarray with **sum = K** ([GFG](https://www.geeksforgeeks.org/longest-sub-array-sum-k/))
+6. Find smallest subarray with **sum > X** ([LC 209](https://leetcode.com/problems/minimum-size-subarray-sum/))
+7. Find longest subarray with **equal 0s and 1s** ([LC 525](https://leetcode.com/problems/contiguous-array/))
 
 ---
 
@@ -70,12 +70,12 @@ Almost guaranteed for **product companies**.
 
 Used heavily to test **optimization skills**.
 
-1. Range sum queries using prefix sum
-2. Find subarray with **sum = 0**
-3. Count subarrays with **sum = K**
-4. Find longest subarray with **distinct elements**
-5. Check if there exists a subarray with **given XOR**
-6. Find number of subarrays with **equal number of odd and even elements**
+1. Range sum queries using prefix sum ([LC 303](https://leetcode.com/problems/range-sum-query-immutable/))
+2. Find subarray with **sum = 0** ([GFG](https://www.geeksforgeeks.org/find-the-largest-subarray-with-0-sum/))
+3. Count subarrays with **sum = K** ([LC 560](https://leetcode.com/problems/subarray-sum-equals-k/))
+4. Find longest subarray with **distinct elements** ([LC 1695 - Similar](https://leetcode.com/problems/maximum-erasure-value/))
+5. Check if there exists a subarray with **given XOR** ([LC 1310 - Related](https://leetcode.com/problems/xor-queries-of-a-subarray/))
+6. Find number of subarrays with **equal number of odd and even elements** ([LC 525 - Variation](https://leetcode.com/problems/contiguous-array/))
 
 ---
 
@@ -83,13 +83,13 @@ Used heavily to test **optimization skills**.
 
 Sorting + logic = classic Indian interview combo.
 
-1. Merge two sorted arrays
-2. Find the **median of two sorted arrays**
-3. Sort array by **frequency**
-4. Minimum number of swaps to sort the array
-5. Find **inversion count**
-6. Chocolate distribution problem
-7. Arrange array to form **largest number**
+1. Merge two sorted arrays ([LC 88](https://leetcode.com/problems/merge-sorted-array/))
+2. Find the **median of two sorted arrays** ([LC 4](https://leetcode.com/problems/median-of-two-sorted-arrays/))
+3. Sort array by **frequency** ([LC 1636](https://leetcode.com/problems/sort-array-by-increasing-frequency/))
+4. Minimum number of swaps to sort the array ([GFG](https://www.geeksforgeeks.org/minimum-number-swaps-required-sort-array/))
+5. Find **inversion count** ([GFG](https://www.geeksforgeeks.org/counting-inversions/) / [LC 315 - Harder](https://leetcode.com/problems/count-of-smaller-numbers-after-self/))
+6. Chocolate distribution problem ([GFG](https://www.geeksforgeeks.org/chocolate-distribution-problem/))
+7. Arrange array to form **largest number** ([LC 179](https://leetcode.com/problems/largest-number/))
 
 ---
 
@@ -97,14 +97,14 @@ Sorting + logic = classic Indian interview combo.
 
 These separate **average vs strong** candidates.
 
-1. Maximum product subarray
-2. Trapping rain water
-3. Container with most water
-4. Subarray sum divisible by K
-5. Maximum circular subarray sum
-6. Longest consecutive sequence
-7. Count smaller elements on right side
-8. Stock buy and sell (all variations)
+1. Maximum product subarray ([LC 152](https://leetcode.com/problems/maximum-product-subarray/))
+2. Trapping rain water ([LC 42](https://leetcode.com/problems/trapping-rain-water/))
+3. Container with most water ([LC 11](https://leetcode.com/problems/container-with-most-water/))
+4. Subarray sum divisible by K ([LC 974](https://leetcode.com/problems/subarray-sums-divisible-by-k/))
+5. Maximum circular subarray sum ([LC 918](https://leetcode.com/problems/maximum-sum-circular-subarray/))
+6. Longest consecutive sequence ([LC 128](https://leetcode.com/problems/longest-consecutive-sequence/))
+7. Count smaller elements on right side ([LC 315](https://leetcode.com/problems/count-of-smaller-numbers-after-self/))
+8. Stock buy and sell (all variations) ([LC 121](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/))
 
 ---
 
@@ -161,14 +161,14 @@ Think of this as the **finishing polish list** ✨
 
 These test **attention to detail**, not just logic.
 
-1. Find the **minimum length unsorted subarray** that makes the whole array sorted
-2. Check if array can be sorted by **only one swap**
-3. Check if array can be sorted by **only reversing one subarray**
-4. Find the **first missing positive integer**
-5. Find the smallest positive number **missing from array**
-6. Find the element which appears **more than n/k times**
-7. Find the maximum sum such that **no two elements are adjacent**
-8. Find if there exists a **subarray with sum = 0** (without extra space if possible)
+1. Find the **minimum length unsorted subarray** that makes the whole array sorted ([LC 581](https://leetcode.com/problems/shortest-unsorted-continuous-subarray/))
+2. Check if array can be sorted by **only one swap** ([LC 1752 - Related](https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/))
+3. Check if array can be sorted by **only reversing one subarray** ([GFG](https://www.geeksforgeeks.org/check-reversing-sub-array-make-array-sorted/))
+4. Find the **first missing positive integer** ([LC 41](https://leetcode.com/problems/first-missing-positive/))
+5. Find the smallest positive number **missing from array** ([LC 41](https://leetcode.com/problems/first-missing-positive/))
+6. Find the element which appears **more than n/k times** ([LC 229](https://leetcode.com/problems/majority-element-ii/))
+7. Find the maximum sum such that **no two elements are adjacent** ([LC 198](https://leetcode.com/problems/house-robber/))
+8. Find if there exists a **subarray with sum = 0** (without extra space if possible) ([GFG](https://www.geeksforgeeks.org/find-the-largest-subarray-with-0-sum/))
 
 ---
 
@@ -176,12 +176,12 @@ These test **attention to detail**, not just logic.
 
 Interviewers ask these to see **thinking clarity**.
 
-1. Find the element with **maximum repeating count** in O(n) time
-2. Rearrange array such that `arr[i] = i` if possible
-3. Find if array is **good** (can be made equal by operations)
-4. Maximum length bitonic subarray
-5. Minimum operations to make array **palindrome**
-6. Find the longest alternating even-odd subarray
+1. Find the element with **maximum repeating count** in O(n) time ([GFG](https://www.geeksforgeeks.org/find-the-maximum-repeating-number-in-ok-time/))
+2. Rearrange array such that `arr[i] = i` if possible ([GFG](https://www.geeksforgeeks.org/rearrange-array-arri/))
+3. Find if array is **good** (can be made equal by operations) ([LC 1551 - Related](https://leetcode.com/problems/minimum-operations-to-make-array-equal/))
+4. Maximum length bitonic subarray ([LC 845](https://leetcode.com/problems/longest-mountain-in-array/))
+5. Minimum operations to make array **palindrome** ([GFG](https://www.geeksforgeeks.org/find-minimum-number-of-merge-operations-to-make-an-array-palindrome/))
+6. Find the longest alternating even-odd subarray ([LC 2765 - Similar Pattern](https://leetcode.com/problems/longest-alternating-subarray/))
 
 ---
 
@@ -190,11 +190,11 @@ Interviewers ask these to see **thinking clarity**.
 They’ll change constraints mid-interview 😈
 
 1. Find duplicate in array of size `n+1` with elements `1..n`
-   (no extra space, no modification)
-2. Find missing and repeating number
-3. Find maximum sum subarray **with at least K elements**
-4. Subarray with equal number of 0s, 1s, and 2s
-5. Find count of subarrays whose **product < K**
+   (no extra space, no modification) ([LC 287](https://leetcode.com/problems/find-the-duplicate-number/))
+2. Find missing and repeating number ([GFG](https://www.geeksforgeeks.org/find-missing-and-repeating/))
+3. Find maximum sum subarray **with at least K elements** ([GFG](https://www.geeksforgeeks.org/largest-sum-subarray-least-k-numbers/))
+4. Subarray with equal number of 0s, 1s, and 2s ([GFG](https://www.geeksforgeeks.org/substring-equal-number-0s-1s-2s/))
+5. Find count of subarrays whose **product < K** ([LC 713](https://leetcode.com/problems/subarray-product-less-than-k/))
 
 ---
 
@@ -202,12 +202,12 @@ They’ll change constraints mid-interview 😈
 
 They look simple, but they’re not.
 
-1. Rotate array **without using extra space**
-2. Find K-th smallest element **without sorting**
-3. Find median of a stream of numbers (array based)
-4. Partition array into 3 parts with equal sum
-5. Minimum jumps to reach end of array
-6. Find if array can be divided into **pairs divisible by K**
+1. Rotate array **without using extra space** ([LC 189](https://leetcode.com/problems/rotate-array/))
+2. Find K-th smallest element **without sorting** ([LC 215 - Kth Largest](https://leetcode.com/problems/kth-largest-element-in-an-array/))
+3. Find median of a stream of numbers (array based) ([LC 295](https://leetcode.com/problems/find-median-from-data-stream/))
+4. Partition array into 3 parts with equal sum ([LC 1013](https://leetcode.com/problems/partition-array-into-three-parts-with-equal-sum/))
+5. Minimum jumps to reach end of array ([LC 45](https://leetcode.com/problems/jump-game-ii/))
+6. Find if array can be divided into **pairs divisible by K** ([LC 1497](https://leetcode.com/problems/check-if-array-pairs-are-divisible-by-k/))
 
 ---
 
