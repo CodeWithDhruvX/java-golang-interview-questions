@@ -85,6 +85,18 @@
           "type": "file",
           "ctime": 1770637912092,
           "path": "long_questions/golang/cheatsheet/Golang_Interview_Answers_India.md"
+        },
+        {
+          "type": "file",
+          "ctime": 1771311481615,
+          "path": "long_questions/golang/core-golang/go_questions_and_answers.md",
+          "subpath": "#Question 51 What is the difference between interface{} and any?"
+        },
+        {
+          "type": "file",
+          "ctime": 1771311594707,
+          "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
+          "subpath": "#Question 157 How does `sync.Once` ensure a function is called exactly once?"
         }
       ],
       "title": "Golang_Basics"
@@ -128,6 +140,11 @@
         }
       ],
       "title": "Golang_Programs"
+    },
+    {
+      "type": "folder",
+      "ctime": 1771228281438,
+      "path": "long_questions/java/core-java/coding-practice/100-java-programs"
     }
   ]
 }

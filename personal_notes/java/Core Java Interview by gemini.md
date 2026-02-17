@@ -14,6 +14,44 @@ The **JRE** is a software package that provides what is necessary to **run** a J
 The **JDK** is the full-featured software development kit required to **develop** Java applications. It includes the JRE and development tools like the compiler (`javac`), debugger, and documentation tools (`javadoc`)
 
 
+### Why M is capital here in the class, and m small in maion method
+
+```java import java.util.concurrent.ExecutorService;
+
+import java.util.concurrent.Executors;
+
+import java.util.*;
+
+
+interface Calc {
+
+    int op(int a, int b);
+
+}
+
+  
+
+public class Main {
+
+public static void main(String []args){
+
+    Calc add=(a,b)->a+b;
+
+    System.out.println("Addition of two sum= "+add.op(5,4));
+
+}
+
+}
+```
+
+| **Category**   | **Convention**   | **Example**                   |
+| -------------- | ---------------- | ----------------------------- |
+| **Classes**    | PascalCase       | `MyCalculator`, `UserAccount` |
+| **Interfaces** | PascalCase       | `Calc`, `Runnable`            |
+| **Methods**    | camelCase        | `op()`, `printResults()`      |
+| **Variables**  | camelCase        | `sumTotal`, `userAge`         |
+| **Constants**  | UPPER_SNAKE_CASE | `MAX_VALUE`, `PI`             |
+|                |                  |                               |
 ### **Method Overloading: Compile-time Polymorphism**
 
 This is also known as **Static Binding**. When you have multiple methods in the same class with the same name but different parameters (different type, number, or order), the compiler determines which method to call during the compilation phase.

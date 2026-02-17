@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/sql/mysql/sql_joins_100_questions.md",
+                "file": "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "sql_joins_100_questions"
+              "title": "golang_concurrency_questions_solutions"
             }
           }
         ]
@@ -41,7 +41,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "golang",
+                "query": "Mutex",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -88,7 +88,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
@@ -202,42 +203,42 @@
   },
   "active": "6ceee8fd70e2fcc8",
   "lastOpenFiles": [
-    "long_questions/java/core-java/coding-practice/100-java-programs/07_Advanced_Java.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/06_Collections.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/05_OOPs_Concepts.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/04_Patterns.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/03_Strings.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/02_Arrays.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs/01_Basic_Numbers.md",
-    "long_questions/java/core-java/coding-practice/100-java-programs",
-    "long_questions/java/cheatsheet/Java Full Stack Cheatsheet.md",
-    "long_questions/golang/cheatsheet/go_cheatsheet.md",
-    "long_questions/java/cheatsheet/java_core_cheatsheet.md",
-    "long_questions/java/cheatsheet/spring-boot/spring_boot_cheatsheet.md",
-    "long_questions/java/cheatsheet/spring-boot/ChatGPT-Java Cheat Sheet Guide.md",
-    "long_questions/java/cheatsheet/spring-boot",
-    "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "personal_notes/java/Core Java Interview by gemini.md",
-    "long_questions/golang/experience_based/ChatGPT-Golang Experience-Based Answers.md",
-    "short_questions/golang/go_361_680_formatted.md",
-    "short_questions/golang/go_680_1000.md",
-    "short_questions/golang/go_680_1000_formatted.md",
-    "short_questions/golang/go_all_answers.md",
-    "long_questions/golang/core-golang/go_answers_301_400.md",
-    "dsa_cheatsheet_helper.md",
-    "personal_notes/java",
-    "Untitled",
-    "long_questions/DSA/cheatsheet/Array/Notes/array_problems.md",
-    "Untitled 1",
-    "personal_notes",
-    "long_questions/DSA/cheatsheet/Array/algorithms/02_searching_index_problems.md",
-    "long_questions/DSA/cheatsheet/Array/algorithms/01_basic_array_problems.md",
-    "long_questions/DSA/cheatsheet/Array/Notes/3_Math_Logical_Questions.md",
-    "long_questions/Angular/angular-javascript-combo/detailed_answers",
-    "long_questions/Angular/angular-javascript-combo",
-    "long_questions/DSA/cheatsheet/Array/algorithms",
-    "long_questions/DSA/cheatsheet/Array/golang/11_Twist_Questions.go",
+    "long_questions/golang/theory/52_niche_patterns_iii.md",
+    "long_questions/golang/theory/51_modern_go_features.md",
+    "long_questions/golang/theory/50_tooling_maintenance.md",
+    "long_questions/golang/theory/49_concurrency_architecture_ii.md",
+    "long_questions/golang/theory/48_rest_grpc_design_ii.md",
+    "long_questions/golang/theory/47_databases_sql_nosql_ii.md",
+    "long_questions/golang/theory/46_ai_ml_genai.md",
+    "long_questions/golang/theory/45_refactoring_wasm.md",
+    "long_questions/golang/theory/44_compiler_theory.md",
+    "long_questions/golang/theory/43_performance_optimization_iii.md",
+    "long_questions/golang/theory/42_testing_quality_ii.md",
+    "long_questions/golang/theory/41_security_auth_ii.md",
+    "long_questions/golang/theory/40_tooling_cicd.md",
+    "long_questions/golang/theory/39_streaming_data_pipelines.md",
+    "long_questions/golang/theory/38_error_handling_observability_ii.md",
+    "long_questions/golang/theory/37_network_protocols.md",
+    "long_questions/golang/theory/36_internals_runtime_iii.md",
+    "long_questions/golang/theory/35_real_time_iot.md",
+    "long_questions/golang/theory/34_caching_storage.md",
+    "long_questions/golang/theory/33_devops_infrastructure.md",
+    "long_questions/golang/theory/32_event_driven_pubsub.md",
+    "long_questions/golang/theory/31_advanced_concurrency.md",
+    "long_questions/golang/theory/30_design_patterns_real_world.md",
+    "long_questions/golang/theory/29_api_design_grpc.md",
+    "long_questions/golang/theory/28_testing_deep_dive.md",
+    "long_questions/golang/theory/27_advanced_performance.md",
+    "long_questions/golang/theory",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/StreamDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/SetDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/QueueDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/MapDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/ListIteratorDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/ListDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/IteratorDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/IterableDemo.java",
+    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/DequeDemo.java",
     "Untitled.canvas"
   ]
 }

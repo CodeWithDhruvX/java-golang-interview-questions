@@ -686,6 +686,12 @@ for _, k := range keys {
 ```
 
 ---
+|Use case|Old way (`sort`)|New way (`slices`)|
+|---|---|---|
+|Sort ints|`sort.Ints()`|`slices.Sort()`|
+|Sort strings|`sort.Strings()`|`slices.Sort()`|
+|Custom sort|`sort.Slice()`|`slices.SortFunc()`|
+|Stable sort|`sort.SliceStable()`|`slices.SortStableFunc()`|
 
 ### Question 34: What are struct types in Go?
 

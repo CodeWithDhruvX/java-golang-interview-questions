@@ -401,6 +401,9 @@ func main() {
 		fmt.Println("Processed request", req, time.Now())
 	}
 }
+```
+
+```
 
 ## 11. Pipeline Pattern
 **Question:** Build a pipeline where each stage runs in its own goroutine.
