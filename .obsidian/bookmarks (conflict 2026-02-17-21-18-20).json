@@ -1,0 +1,139 @@
+{
+  "items": [
+    {
+      "type": "group",
+      "ctime": 1770263167365,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770263197301,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_301_320.md",
+          "subpath": "#Question 302 What is M N scheduling in Golang?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770263224366,
+          "path": "java-golang-interview-questions/long_questions/golang/core-golang/go_batch_381_400.md",
+          "subpath": "#Question 381 How do you prevent SQL injection in Go?",
+          "title": ""
+        },
+        {
+          "type": "file",
+          "ctime": 1770345756836,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Arrays",
+          "title": ""
+        },
+        {
+          "type": "file",
+          "ctime": 1770345776989,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Slices"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345790042,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Maps"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345874358,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#🟣 Functions, Variadic Functions & Methods"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345480661,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Anonymous Functions & Closures",
+          "title": "Clsoures & Annonymous Function"
+        },
+        {
+          "type": "file",
+          "ctime": 1770304004255,
+          "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
+          "subpath": "#Question 21 How to format strings using fmt.Sprintf?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770345162531,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Methods",
+          "title": "Go Methods"
+        },
+        {
+          "type": "file",
+          "ctime": 1770346007245,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#Context Package",
+          "title": "Context Cancellation"
+        },
+        {
+          "type": "file",
+          "ctime": 1770346031323,
+          "path": "long_questions/golang/cheatsheet/go_cheatsheet.md",
+          "subpath": "#JSON Handling"
+        },
+        {
+          "type": "file",
+          "ctime": 1770391649347,
+          "path": "long_questions/golang/datastructure/go_datastructure_answers.md",
+          "subpath": "#Question 155 How do you use `sync.WaitGroup` to wait for multiple goroutines?"
+        },
+        {
+          "type": "file",
+          "ctime": 1770637912092,
+          "path": "long_questions/golang/cheatsheet/Golang_Interview_Answers_India.md"
+        }
+      ],
+      "title": "Golang_Basics"
+    },
+    {
+      "type": "group",
+      "ctime": 1770359962051,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770360049077,
+          "path": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md"
+        }
+      ],
+      "title": "golang_oops"
+    },
+    {
+      "type": "group",
+      "ctime": 1770368125849,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1770368145462,
+          "path": "long_questions/golang/cheatsheet/golang_string_cheatsheet.md"
+        },
+        {
+          "type": "file",
+          "ctime": 1770369670900,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md"
+        },
+        {
+          "type": "file",
+          "ctime": 1770635265113,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
+          "subpath": "#🟢 7. Rate Limiter"
+        },
+        {
+          "type": "file",
+          "ctime": 1770638286269,
+          "path": "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md"
+        }
+      ],
+      "title": "Golang_Programs"
+    },
+    {
+      "type": "group",
+      "ctime": 1771343202128,
+      "items": [],
+      "title": "Untitled group"
+    }
+  ]
+}

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+                "file": "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "golang_concurrency_cheatsheet"
+              "title": "golang_oops_cheatsheet"
             }
           }
         ]
@@ -100,7 +100,7 @@
         }
       }
     ],
-    "currentTab": 4
+    "currentTab": 0
   },
   "right": {
     "id": "d3510502c5b3146a",
@@ -170,11 +170,16 @@
   },
   "active": "03423a9541fc71f6",
   "lastOpenFiles": [
-    "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
+    "short_questions/golang/go_361_680_formatted.md",
+    "short_questions/golang/go_all_qquestions.md",
+    "short_questions/golang/go_680_1000.md",
+    "short_questions/golang/go_361_680.md",
+    "long_questions/DSA/cheatsheet/Array/algorithms/01_basic_array_problems.md",
+    "long_questions/golang/cheatsheet/go_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
     "Companies/Golang/oops",
-    "long_questions/golang/cheatsheet/go_cheatsheet.md",
     "Untitled.base",
     "practice/golang/encapsulation/users/account.go",
     "practice/golang/encapsulation/main.go",
@@ -200,11 +205,6 @@
     "long_questions/Business_To_Tech/DevOps/ci_cd_pipelines.md",
     "long_questions/Business_To_Tech/business_to_tech_answers_set_6.md",
     "long_questions/Business_To_Tech/business_to_tech_answers_set_7.md",
-    "long_questions/Business_To_Tech/business_to_tech_answers_set_5.md",
-    "long_questions/Business_To_Tech/business_to_tech_answers_set_4.md",
-    "long_questions/Business_To_Tech/business_to_tech_answers_set_3.md",
-    "Companies/Golang/Persistent-golang/asking-interview/persitent-asked.md",
-    "long_questions/Business_To_Tech/business_to_tech_answers_set_2.md",
-    "long_questions/Business_To_Tech/business_to_tech_answers_set_13.md"
+    "long_questions/Business_To_Tech/business_to_tech_answers_set_5.md"
   ]
 }
