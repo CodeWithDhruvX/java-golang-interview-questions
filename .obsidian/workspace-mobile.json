@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/java/java questions/formatted_answers/23_Java_Programs_Advanced_SQL.md",
+                "file": "long_questions/java/java questions/formatted_answers/02_Spring_And_Advanced_Java.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "23_Java_Programs_Advanced_SQL"
+              "title": "02_Spring_And_Advanced_Java"
             }
           }
         ]
@@ -112,7 +112,7 @@
         "state": {
           "type": "backlink",
           "state": {
-            "file": "go_questions_answers_theory_complete.md",
+            "file": "long_questions/java/java questions/formatted_answers/02_Spring_And_Advanced_Java.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",
@@ -171,6 +171,12 @@
   },
   "active": "03423a9541fc71f6",
   "lastOpenFiles": [
+    "long_questions/microservices/theory/01_Core_Fundamentals.md",
+    "long_questions/Kafka/theory/01_Junior_Level_0_to_2_Years.md",
+    "long_questions/java/cheatsheet/java_core_cheatsheet.md",
+    "long_questions/java/cheatsheet/java_all_versions.md",
+    "long_questions/java/cheatsheet/Java Full Stack Cheatsheet.md",
+    "long_questions/java/java questions/formatted_answers/23_Java_Programs_Advanced_SQL.md",
     "long_questions/java/java questions/formatted_answers/22_Java_Programs_Collections_Advanced.md",
     "long_questions/java/core-java/coding-practice/100-java-programs/02_Arrays.md",
     "long_questions/java/core-java/coding-practice/100-java-programs/01_Basic_Numbers.md",
@@ -178,7 +184,6 @@
     "long_questions/java/cheatsheet/spring-boot/ChatGPT-Java Cheat Sheet Guide.md",
     "long_questions/java/cheatsheet/Java_Interview_Answers_SATO.md",
     "long_questions/java/cheatsheet/Java_Interview_Answers.md",
-    "long_questions/java/cheatsheet/java_core_cheatsheet.md",
     "long_questions/java/java questions/formatted_answers/14_SOLID_Arrays_Basics.md",
     "long_questions/java/java questions/formatted_answers/02_Spring_And_Advanced_Java.md",
     "long_questions/java/java questions/formatted_answers/01_Java_Core_Basics.md",
@@ -192,9 +197,6 @@
     "short_questions/golang/go_680_1000.md",
     "short_questions/golang/go_361_680.md",
     "long_questions/DSA/cheatsheet/Array/algorithms/01_basic_array_problems.md",
-    "long_questions/golang/cheatsheet/go_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_string_cheatsheet.md",
     "Companies/Golang/oops",
     "Untitled.base",
     "practice/golang/encapsulation/users/account.go",
@@ -204,8 +206,6 @@
     "practice/golang/encapsulation",
     "practice/golang",
     "practice",
-    "long_questions/golang/cheatsheet/golang_basic_programs_cheatsheet.md",
-    "long_questions/golang/cheatsheet/golang_array_cheatsheet.md",
     "long_questions/CS_Fundamentals/Cloud_Native"
   ]
 }
