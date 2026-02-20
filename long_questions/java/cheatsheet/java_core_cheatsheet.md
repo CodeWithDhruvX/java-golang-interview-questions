@@ -588,7 +588,7 @@ public class Main {
 
 #### `TreeSet`
 - **Internal**: Red-Black Tree (TreeMap).
-- **Features**: Sorted, unique elements. O(log n).
+- **Features**: Sorted, unique and ordered elements. O(log n).
 - **Example**:
 ```java
 import java.util.*;

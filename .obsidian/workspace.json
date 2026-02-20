@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/theory/01_basics.md",
-                "mode": "source",
+                "file": "long_questions/java/java questions/formatted_answers/01_Java_Core_Basics.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01_basics"
+              "title": "01_Java_Core_Basics"
             }
           }
         ]
@@ -53,9 +53,9 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "Mutex",
+                "query": "osi model",
                 "matchingCase": true,
-                "explainSearch": false,
+                "explainSearch": true,
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
@@ -92,7 +92,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "b06a38f3dd7494fa",
@@ -197,47 +198,48 @@
       "command-palette:Open command palette": false,
       "bases:Create new base": false,
       "obsidian-read-it-later:ReadItLater: Create from clipboard": false,
-      "obsidian-raindrop-highlights:Sync Raindrop bookmarks from last sync time": false
+      "obsidian-raindrop-highlights:Sync Raindrop bookmarks from last sync time": false,
+      "obsidian-focus-mode:Toggle Focus Mode (Shift + Click to show active pane only)": false
     }
   },
   "active": "6ceee8fd70e2fcc8",
   "lastOpenFiles": [
-    "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
-    "long_questions/golang/theory/52_niche_patterns_iii.md",
-    "long_questions/golang/theory/51_modern_go_features.md",
-    "long_questions/golang/theory/50_tooling_maintenance.md",
-    "long_questions/golang/theory/49_concurrency_architecture_ii.md",
-    "long_questions/golang/theory/48_rest_grpc_design_ii.md",
-    "long_questions/golang/theory/47_databases_sql_nosql_ii.md",
-    "long_questions/golang/theory/46_ai_ml_genai.md",
-    "long_questions/golang/theory/45_refactoring_wasm.md",
-    "long_questions/golang/theory/44_compiler_theory.md",
-    "long_questions/golang/theory/43_performance_optimization_iii.md",
-    "long_questions/golang/theory/42_testing_quality_ii.md",
-    "long_questions/golang/theory/41_security_auth_ii.md",
-    "long_questions/golang/theory/40_tooling_cicd.md",
-    "long_questions/golang/theory/39_streaming_data_pipelines.md",
-    "long_questions/golang/theory/38_error_handling_observability_ii.md",
-    "long_questions/golang/theory/37_network_protocols.md",
-    "long_questions/golang/theory/36_internals_runtime_iii.md",
-    "long_questions/golang/theory/35_real_time_iot.md",
-    "long_questions/golang/theory/34_caching_storage.md",
-    "long_questions/golang/theory/33_devops_infrastructure.md",
-    "long_questions/golang/theory/32_event_driven_pubsub.md",
-    "long_questions/golang/theory/31_advanced_concurrency.md",
-    "long_questions/golang/theory/30_design_patterns_real_world.md",
-    "long_questions/golang/theory/29_api_design_grpc.md",
-    "long_questions/golang/theory/28_testing_deep_dive.md",
-    "long_questions/golang/theory",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/StreamDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/SetDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/QueueDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/MapDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/ListIteratorDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/ListDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/IteratorDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/IterableDemo.java",
-    "long_questions/java/core-java/coding-practice/100-java-programs/Java_Collection/DequeDemo.java",
+    "long_questions/system_design/theory/04_Load_Balancing.md",
+    "long_questions/system_design/theory/03_Caching_Performance.md",
+    "long_questions/system_design/theory/02_Database_Design.md",
+    "long_questions/system_design/theory/01_Basic_Concepts.md",
+    "long_questions/docker/theory/19_Core_Internals_Advanced_Dockerfile.md",
+    "long_questions/Javascript/theory/README.md",
+    "long_questions/Javascript/theory/08_RealWorld_Patterns_Implementations.md",
+    "long_questions/Javascript/theory/07_Proxy_Reflect_Workers_Generators.md",
+    "long_questions/system_design/theory",
+    "long_questions/Javascript/theory/06_Performance_Security_Testing.md",
+    "long_questions/Javascript/theory/05_Advanced_Internals.md",
+    "long_questions/kubernetes/theory/10_Troubleshooting_And_Debugging.md",
+    "long_questions/docker/theory/18_Miscellaneous_Scenarios.md",
+    "long_questions/kubernetes/theory/09_Advanced_And_Production.md",
+    "long_questions/docker/theory/17_Storage_Volumes_Advanced.md",
+    "long_questions/kubernetes/theory/08_Helm_And_GitOps.md",
+    "long_questions/Javascript/theory/04_Async_EventLoop_ES6Plus.md",
+    "long_questions/Javascript/theory/03_OOP_Prototypes_Patterns.md",
+    "long_questions/docker/theory/16_Cloud_Infrastructure.md",
+    "long_questions/kubernetes/theory/07_Monitoring_Logging_Observability.md",
+    "long_questions/kubernetes/theory/06_Autoscaling_And_Scheduling.md",
+    "long_questions/docker/theory/15_BuildKit_Build_Process.md",
+    "long_questions/docker/theory/14_Compose_Advanced.md",
+    "long_questions/kubernetes/theory/05_ConfigMaps_Secrets_Security.md",
+    "long_questions/docker/theory/13_CICD_GitOps.md",
+    "long_questions/Javascript/theory/02_Functions_Closures_Scope.md",
+    "long_questions/Javascript/theory/01_Basics.md",
+    "long_questions/Javascript/theory",
+    "long_questions/kubernetes/theory",
+    "long_questions/docker/theory",
+    "long_questions/Angular/theory",
+    "long_questions/sql/mysql/theory",
+    "resume_experience/java-golang/Angular_Java_Golang_resume_2026.pdf",
+    "resume_experience/java-golang",
+    "resume_experience/java/dhruv_java_resume_2025.pdf",
+    "resume_experience/java",
     "Untitled.canvas"
   ]
 }

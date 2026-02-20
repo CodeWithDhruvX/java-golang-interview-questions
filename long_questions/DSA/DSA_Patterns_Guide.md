@@ -87,7 +87,7 @@ Imagine you have a row of mailboxes. To check your mail, you walk from the first
 *   **Snippet**: `for i in range(len(arr)): print(arr[i])`
 
 ### 🏢 FAANG Context
-*   **When to use**: When you need to process or search for an element in an unsorted dataset.
+*   **When to use**: When you need to process or search for an element in ansorted dataset.
 *   **Common Problems**: *Find Max Element*, *Move Zeros*, *Remove Duplicates*.
 
 ---
