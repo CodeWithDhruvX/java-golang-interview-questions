@@ -15,12 +15,14 @@ class Secret {
 }
 public class Main {
     public static void main(String[] args) {
-        new Secret().show();
+        new Secret().show(); // Output: 1234
+        // System.out.println(new Secret().code); // Mistake: Compilation error (has private access)
     }
 }
 ```
 - **Interview Note**: Most restrictive access modifier; essential for encapsulation.
-- **Mistake**: Trying to access private members from subclass or main.
+- **Mistake**: Trying to access private members directly from subclass or main.
+- **Solution**: As shown in the code, use public methods (like `show()`) to safely interact with private fields from outside the class.
 
 #### `protected`
 - **Definition**: Access level within package and subclasses (even outside package).
@@ -208,6 +210,7 @@ public class Main {
 #### `transient`
 - **Definition**: Skips variable during serialization.
 - **Syntax**: `transient int cache;`
+- **Observation**: `Object and string=>null, int=>0, boolean=>false`
 - **Example**:
 ```java
 import java.io.*;
@@ -217,6 +220,50 @@ class User implements Serializable {
 }
 public class Main { public static void main(String[] args) { System.out.println(new User().name); } }
 ```
+
+```java
+import java.io.*;
+
+class User implements Serializable {
+    // This ID helps Java ensure the class hasn't changed during reloading
+    private static final long serialVersionUID = 1L; 
+    
+    String name;
+    transient int pass; // This will NOT be saved
+
+    User(String name, int pass) {
+        this.name = name;
+        this.pass = pass;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        User myUser = new User("Alice", 23);
+        String filename = "session.ser";
+
+        // 1. SERIALIZATION: Saving the object to a file
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(myUser);
+            System.out.println("Session Saved: " + myUser.name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 2. DESERIALIZATION: Recovering the object from the file
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            User loadedUser = (User) in.readObject();
+            
+            System.out.println("\n--- Session Restored ---");
+            System.out.println("Username: " + loadedUser.name); // Returns "Alice"
+            System.out.println("Password: " + loadedUser.pass); // Returns null (thanks to transient!)
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
 - **Interview Note**: Essential security feature for serialization.
 
 #### `volatile`
@@ -228,6 +275,53 @@ class Flag { volatile boolean active = true; }
 public class Main { public static void main(String[] args) { System.out.println(new Flag().active); } }
 ```
 - **Interview Note**: Guarantees visibility ("happens-before"), but NOT atomicity.
+```java
+public class VolatileExample {
+
+    // The TaskRunner class as defined previously
+    static class TaskRunner implements Runnable {
+        // 'volatile' ensures that when the main thread sets running = false,
+        // the worker thread sees that change immediately.
+        private volatile boolean running = true;
+
+        public void stop() {
+            System.out.println("[Main Thread] Stopping the worker...");
+            running = false;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("[Worker Thread] Started.");
+            long count = 0;
+            
+            while (running) {
+                // Simulating heavy work with a simple increment
+                count++;
+            }
+            
+            System.out.println("[Worker Thread] Stopped. Final count: " + count);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        TaskRunner task = new TaskRunner();
+        Thread workerThread = new Thread(task);
+
+        // 1. Start the background thread
+        workerThread.start();
+
+        // 2. Let the main thread sleep for 2 seconds while the worker loops
+        Thread.sleep(2000);
+
+        // 3. Change the state from the Main thread
+        task.stop();
+
+        // 4. Wait for the worker thread to finish up
+        workerThread.join();
+        System.out.println("[Main Thread] Program finished.");
+    }
+}
+```
 
 ### Flow Control
 
@@ -389,6 +483,9 @@ public class Main {
     }
 }
 ```
+**Note** - When you add -ea, the program will see that x > 0 is false and throw the AssertionError you're expecting
+
+
 - **Interview Note**: Disabled by default. Enable with `-ea`. Do not use for production logic.
 
 #### `catch`
@@ -547,6 +644,9 @@ public class Main {
     public static void main(String[] args) {
         List<String> list = new ArrayList<>();
         list.add("A"); list.add("B");
+        for (int i = 0; i < list.size(); i++) {
+    System.out.println(list.get(i));
+}
         System.out.println(list.get(0)); // A
     }
 }
@@ -564,6 +664,9 @@ public class Main {
         LinkedList<String> list = new LinkedList<>();
         list.addFirst("Start");
         list.addLast("End");
+        for (String fruit : list) {
+    System.out.println(fruit);
+}
         System.out.println(list);
     }
 }
@@ -579,6 +682,9 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         Set<Integer> set = new HashSet<>();
+        for (String item : set) {
+    System.out.println(item);
+}
         set.add(1); set.add(1); // Ignored
         System.out.println(set.size()); // 1
     }
@@ -596,6 +702,9 @@ public class Main {
     public static void main(String[] args) {
         TreeSet<Integer> set = new TreeSet<>();
         set.add(5); set.add(1);
+        for (Integer num : set) {
+        System.out.println(num);
+}
         System.out.println(set); // [1, 5]
     }
 }
@@ -612,6 +721,10 @@ public class Main {
     public static void main(String[] args) {
         Map<String, Integer> map = new HashMap<>();
         map.put("A", 1);
+        map.put("B", 2);
+        for (HashMap.Entry<String, Integer> entry : map.entrySet()) {
+    System.out.println(entry.getKey() + " " + entry.getValue());
+}
         System.out.println(map.get("A"));
     }
 }
@@ -626,16 +739,30 @@ public class Main {
 import java.util.*;
 public class Main {
     public static void main(String[] args) {
-        Map<String, Integer> map = new TreeMap<>();
-        map.put("B", 2); map.put("A", 1);
-        System.out.println(map.keySet()); // [A, B]
+       Map<Integer,String> map=new TreeMap<>();
+
+
+       for(int i=0;i<=5;i++){
+        map.put(i,"Value-> "+i);
+       }
+
+       for(Map.Entry<Integer,String> entry:map.entrySet()){
+        System.out.println(entry.getKey()+" -> "+entry.getValue());
+       }
     }
 }
 ```
 
 #### `PriorityQueue`
 - **Internal**: Priority Heap.
-- **Features**: Ordered by priority (natural or comparator). Head is least element. O(log n).
+- **Features**: Ordered by priority (natural or comparator). Head is least element. O(log n),Orders elements automatically
+By natural ordering (e.g., numbers ascending, strings alphabetical),
+Or by a custom Comparator,
+Not thread-safe,
+Does not allow null elements,
+Internally implemented using a binary heap,
+Default behavior = Min-Heap,
+The smallest element has the highest priority.
 - **Example**:
 ```java
 import java.util.*;
@@ -647,6 +774,38 @@ public class Main {
     }
 }
 ```
+```java
+import java.util.*;
+
+class Student implements Comparable<Student> {
+    String name;
+    int marks;
+
+    Student(String name,int marks){
+        this.name=name;
+        this.marks=marks;
+    }
+
+    // @Override
+    // public int compareTo(Student other) {
+    //     return this.marks - other.marks;   // ascending order
+    // }
+}
+
+class Main {
+    public static void main(String[] args) {
+        PriorityQueue<Student> pq = new PriorityQueue<>(
+            (s1, s2) -> s1.marks - s2.marks
+        );
+        pq.add(new Student("A",70));
+        pq.add(new Student("B",90));
+        pq.add(new Student("C",50));
+
+        System.out.println(pq.poll().name);  // C
+    }
+}
+```
+
 - **Common Methods**: `add()`, `poll()`, `peek()`.
 
 #### `ArrayDeque`
