@@ -5,6 +5,22 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** flag Package (Q1–Q12)
+- [ ] **Section 2:** regexp Basics (Q13–Q24)
+- [ ] **Section 3:** runtime Package (Q25–Q34)
+- [ ] **Section 4:** path/filepath Package (Q35–Q44)
+- [ ] **Section 5:** unicode/utf8 Package (Q45–Q54)
+- [ ] **Section 6:** embed Package (Q55–Q60)
+- [ ] **Section 7:** net/url & os/exec (Q61–Q72)
+
+> 🔖 **Last read:** <!-- e.g. Q24 · Section 2 done -->
+
+---
+
 ## Section 1: flag Package (Q1–Q12)
 
 ### 1. Basic Flag Definition and Parse

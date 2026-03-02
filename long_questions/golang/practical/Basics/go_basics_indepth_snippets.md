@@ -5,6 +5,23 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** Variables, Scope & Type System Deep Dives (Q1–Q18)
+- [ ] **Section 2:** Control Flow Deep Dives (Q19–Q30)
+- [ ] **Section 3:** Functions & Closures Deep Dives (Q31–Q45)
+- [ ] **Section 4:** Pointers Deep Dives (Q46–Q56)
+- [ ] **Section 5:** Strings & Runes Deep Dives (Q57–Q67)
+- [ ] **Section 6:** Slices & Maps Deep Dives (Q68–Q83)
+- [ ] **Section 7:** Structs & Interfaces Deep Dives (Q84–Q95)
+- [ ] **Section 8:** Error Handling Deep Dives (Q96–Q100)
+
+> 🔖 **Last read:** <!-- e.g. Q30 · Section 2 done -->
+
+---
+
 ## Section 1: Variables, Scope & Type System Deep Dives (Q1–Q18)
 
 ### 1. Short Declaration Reuse in Same Scope

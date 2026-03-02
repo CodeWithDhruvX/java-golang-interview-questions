@@ -5,6 +5,21 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** `new` vs `make`, Slice & Map Gotchas (Q1–Q16)
+- [ ] **Section 2:** Struct Embedding & Promoted Methods (Q17–Q25)
+- [ ] **Section 3:** The Interface nil Trap & errors.Is / errors.As (Q26–Q38)
+- [ ] **Section 4:** Generics (Q39–Q52)
+- [ ] **Section 5:** `select`, Channel Directions & Patterns (Q53–Q66)
+- [ ] **Section 6:** sync.Mutex, sync.RWMutex, sync.Once, sync.Map (Q67–Q80)
+
+> 🔖 **Last read:** <!-- e.g. Q25 · Section 2 done -->
+
+---
+
 ## Section 1: `new` vs `make`, Slice & Map Gotchas (Q1–Q16)
 
 ### 1. `new` vs `make` — What's the Difference?

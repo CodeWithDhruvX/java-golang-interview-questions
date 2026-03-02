@@ -5,6 +5,20 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** context.Context (Q1–Q22)
+- [ ] **Section 2:** Goroutine Leaks (Q23–Q32)
+- [ ] **Section 3:** strings.Builder & bytes.Buffer (Q33–Q44)
+- [ ] **Section 4:** Table-Driven Tests & testing.T (Q45–Q60)
+- [ ] **Section 5:** reflect Basics (Q61–Q72)
+
+> 🔖 **Last read:** <!-- e.g. Q22 · Section 1 done -->
+
+---
+
 ## Section 1: context.Context (Q1–Q22)
 
 ### 1. context.Background vs context.TODO

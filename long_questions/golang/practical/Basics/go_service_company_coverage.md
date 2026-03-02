@@ -4,6 +4,25 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** fmt Package Deep Dives (Q1–Q12)
+- [ ] **Section 2:** strings & strconv Package (Q13–Q24)
+- [ ] **Section 3:** math Package (Q25–Q29)
+- [ ] **Section 4:** os Package & File I/O (Q30–Q38)
+- [ ] **Section 5:** JSON Encoding / Decoding (Q39–Q46)
+- [ ] **Section 6:** time Package (Q47–Q54)
+- [ ] **Section 7:** sort Package (Q55–Q59)
+- [ ] **Section 8:** log Package (Q60–Q63)
+- [ ] **Section 9:** Basic net/http (Q64–Q70)
+- [ ] **Section 10:** Basic Testing Patterns (Q71–Q75)
+
+> 🔖 **Last read:** <!-- e.g. Q29 · Section 3 done -->
+
+---
+
 ## Section 1: fmt Package Deep Dives (Q1–Q12)
 
 ### 1. Printf Verb %T

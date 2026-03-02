@@ -5,6 +5,19 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** Value Receivers vs Pointer Receivers (Q1–Q15)
+- [ ] **Section 2:** io.Reader / io.Writer Patterns (Q16–Q38)
+- [ ] **Section 3:** Functional Options Pattern (Q39–Q50)
+- [ ] **Section 4:** Channel Composition Patterns (Q51–Q65)
+
+> 🔖 **Last read:** <!-- e.g. Q15 · Section 1 done -->
+
+---
+
 ## Section 1: Value Receivers vs Pointer Receivers (Q1–Q15)
 
 ### 1. Value Receiver — Called on Value

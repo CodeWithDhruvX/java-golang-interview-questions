@@ -5,6 +5,24 @@
 
 ---
 
+## 📋 Reading Progress
+
+> Mark each section `[x]` when done. Use `🔖` to note where you left off.
+
+- [ ] **Section 1:** Variables, Constants & Types (Q1–Q15)
+- [ ] **Section 2:** Control Flow (Q16–Q28)
+- [ ] **Section 3:** Functions, Closures & Defer (Q29–Q44)
+- [ ] **Section 4:** Pointers (Q45–Q52)
+- [ ] **Section 5:** Strings & Runes (Q53–Q62)
+- [ ] **Section 6:** Arrays, Slices & Maps (Q63–Q78)
+- [ ] **Section 7:** Structs & Interfaces (Q79–Q91)
+- [ ] **Section 8:** Error Handling (Q92–Q96)
+- [ ] **Section 9:** Goroutines Basics & Misc (Q97–Q100)
+
+> 🔖 **Last read:** <!-- e.g. Q15 · Section 1 done -->
+
+---
+
 ## Section 1: Variables, Constants & Types (Q1–Q15)
 
 ### 1. Short Variable Declaration Outside Function
