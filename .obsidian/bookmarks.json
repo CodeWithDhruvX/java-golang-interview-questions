@@ -145,6 +145,61 @@
       "type": "folder",
       "ctime": 1771228281438,
       "path": "long_questions/java/core-java/coding-practice/100-java-programs"
+    },
+    {
+      "type": "group",
+      "ctime": 1772512054595,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1772512073728,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#35. Closure in Goroutine (Classic Bug)"
+        },
+        {
+          "type": "file",
+          "ctime": 1772523826657,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#48. Nil Pointer Dereference"
+        },
+        {
+          "type": "file",
+          "ctime": 1772524678692,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#65. Append Grows Capacity"
+        },
+        {
+          "type": "file",
+          "ctime": 1772524965319,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#67. Slice of Slice (Shared Backing Array)"
+        },
+        {
+          "type": "file",
+          "ctime": 1772525938104,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#72. copy() Function"
+        },
+        {
+          "type": "file",
+          "ctime": 1772526312595,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#73. Range Over Map Returns Copies"
+        },
+        {
+          "type": "file",
+          "ctime": 1772536657285,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#81. Interface Nil Check"
+        }
+      ],
+      "title": "golang_bug_writing"
+    },
+    {
+      "type": "group",
+      "ctime": 1772526114374,
+      "items": [],
+      "title": "Left_to_Start"
     }
   ]
 }

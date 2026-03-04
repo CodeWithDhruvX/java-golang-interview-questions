@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/java/theory/theory-focused/02_data_structures.md",
-                "mode": "preview",
+                "file": "long_questions/golang/practical/Basics/go_methods_and_io_snippets.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "02_data_structures"
+              "title": "go_methods_and_io_snippets"
             }
           }
         ]
@@ -203,6 +203,14 @@
   },
   "active": "6ceee8fd70e2fcc8",
   "lastOpenFiles": [
+    "long_questions/golang/practical/Basics/go_context_testing_reflect_snippets.md",
+    "long_questions/golang/practical/Basics/go_methods_and_io_snippets.md",
+    "long_questions/golang/practical/Basics/go_basics_indepth_snippets.md",
+    "long_questions/golang/practical/Basics/go_modern_go_snippets.md",
+    "long_questions/golang/practical/Basics/go_service_company_coverage.md",
+    "long_questions/golang/practical/Basics/go_stdlib_patterns_snippets.md",
+    "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+    "long_questions/java/theory/theory-focused/02_data_structures.md",
     "long_questions/java/theory/theory-focused/01_core_basics.md",
     "long_questions/golang/cheatsheet/golang_concurrency_questions_solutions.md",
     "long_questions/java/cheatsheet/demo.class",
@@ -224,14 +232,6 @@
     "long_questions/system_design/theory",
     "long_questions/Javascript/theory/06_Performance_Security_Testing.md",
     "long_questions/Javascript/theory/05_Advanced_Internals.md",
-    "long_questions/kubernetes/theory/10_Troubleshooting_And_Debugging.md",
-    "long_questions/docker/theory/18_Miscellaneous_Scenarios.md",
-    "long_questions/kubernetes/theory/09_Advanced_And_Production.md",
-    "long_questions/docker/theory/17_Storage_Volumes_Advanced.md",
-    "long_questions/kubernetes/theory/08_Helm_And_GitOps.md",
-    "long_questions/Javascript/theory/04_Async_EventLoop_ES6Plus.md",
-    "long_questions/Javascript/theory/03_OOP_Prototypes_Patterns.md",
-    "long_questions/docker/theory/16_Cloud_Infrastructure.md",
     "long_questions/Javascript/theory",
     "long_questions/kubernetes/theory",
     "long_questions/docker/theory",

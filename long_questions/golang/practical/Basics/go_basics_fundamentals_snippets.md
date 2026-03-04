@@ -166,6 +166,22 @@ func main() {
 }
 ```
 **A:** `1024 1048576 1073741824`
+In Go, `iota` is a special identifier used in `const` blocks. It starts at **0** and increments by **1** for every line in the block.
+
+- Line 1 (`_`): `iota` is **0**. (The underscore `_` discards this value).
+    
+- Line 2 (`KB`): `iota` is **1**.
+    
+- Line 3 (`MB`): `iota` is **2**.
+    
+- Line 4 (`GB`): `iota` is **3**.
+#### **Bit Shifting (`<<`)**
+
+The expression `1 << n` means "take the binary number 1 and move it to the left $n$ times." In mathematics, this is equivalent to $2^{n}$.
+
+- $1 \ll 10$ is $2^{10} = 1,024$.
+    
+- $1 \ll 20$ is $2^{20} = 1,048,576$.
 
 ---
 
@@ -454,7 +470,7 @@ two
 three
 ```
 `fallthrough` bypasses the case condition check entirely.
-
+**No Condition Check**: When you "fall through," Go **does not check the condition** of the next case. It simply executes the next block of code.
 ---
 
 ### 23. goto Statement
@@ -736,6 +752,70 @@ func main() {
 ```
 **A:** Usually `333`. The goroutines capture the same variable `i`; by the time they run, the loop has finished and `i` is `3`.
 **Fix:** `go func(n int) { ... }(i)`
+
+## The Channel-Based Solution (The "Fan-In" Pattern)
+
+```go
+package main
+
+import (
+    "fmt"
+)
+
+func main() {
+    count := 3
+    results := make(chan int)
+
+    for i := 0; i < count; i++ {
+        go func(val int) {
+            // Perform work...
+            results <- val // Send result to channel
+        }(i)
+    }
+
+    // Instead of wg.Wait(), we just loop the exact number of times
+    // This blocks the main thread until 'count' items are received
+    for i := 0; i < count; i++ {
+        fmt.Println(<-results) 
+    }
+}
+```
+## using waitgroup to solve above problem
+
+```go 
+package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+func main() {
+    const count = 3
+    // Pre-allocate the exact size needed
+    results := make([]int, count)
+    var wg sync.WaitGroup
+
+    for i := 0; i < count; i++ {
+        wg.Add(1)
+        go func(id int) {
+            defer wg.Done()
+            // Optimization: Each goroutine writes to its own index
+            // No sorting needed later because the index 'id' is already ordered
+            results[id] = id 
+        }(i)
+    }
+
+    wg.Wait()
+
+    // The data is already "sorted" by the time we get here
+    for _, val := range results {
+        fmt.Println(val)
+    }
+}
+```
+
+
 
 ---
 
@@ -1295,7 +1375,42 @@ func main() {
 3 5
 5 5
 ```
+### 1. Initialization
 
+`s := make([]int, 3, 5)` You are creating a slice of integers with:
+
+- **Length (`len`): 3** — The number of elements currently in the slice. These are initialized to their zero value (`0, 0, 0`).
+    
+- **Capacity (`cap`): 5** — The total number of elements the underlying array can hold before Go needs to allocate a new, larger array.
+    
+
+### 2. First Print Statement
+
+`fmt.Println(len(s), cap(s))`
+
+- **Output:** `3 5`
+    
+- At this point, the slice looks like this: `[0, 0, 0]` (with 2 empty slots waiting in the background).
+    
+
+---
+
+### 3. Appending Elements
+
+`s = append(s, 1, 2)` The `append` function adds elements to the end of the slice. Since the current length is 3 and the capacity is 5, there is enough room to add two more numbers without "overflowing" the underlying array.
+
+- The slice now becomes: `[0, 0, 0, 1, 2]`.
+    
+- The **length** increases to 5.
+    
+- The **capacity** remains 5.
+    
+
+### 4. Second Print Statement
+
+`fmt.Println(len(s), cap(s))`
+
+- **Output:** `5 5`
 ---
 
 ### 65. Append Grows Capacity
@@ -1313,6 +1428,14 @@ func main() {
 }
 ```
 **A:** Len grows by 1 each time; capacity doubles when exceeded (e.g., `1 1 → 2 2 → 3 4 → 4 4 → 5 8`). Exact values may vary by runtime.
+
+| **Iteration** | **Element Added** | **len** | **cap** | **Why?**                                                        |
+| ------------- | ----------------- | ------- | ------- | --------------------------------------------------------------- |
+| **1**         | `0`               | 1       | 1       | The nil slice was empty; Go allocated an array of size 1.       |
+| **2**         | `1`               | 2       | 2       | Capacity was full, so Go doubled it ($1 \times 2 = 2$).         |
+| **3**         | `2`               | 3       | 4       | Capacity was full, so Go doubled it again ($2 \times 2 = 4$).   |
+| **4**         | `3`               | 4       | 4       | There was a spare slot in the array of 4, so no new allocation. |
+| **5**         | `4`               | 5       | 8       | Capacity was full, so Go doubled it again ($4 \times 2 = 8$).   |
 
 ---
 
