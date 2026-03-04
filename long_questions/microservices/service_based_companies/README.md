@@ -10,6 +10,7 @@
 | File | Topics Covered | Level |
 |------|---------------|-------|
 | [01_microservices_fundamentals_qa.md](./01_microservices_fundamentals_qa.md) | Monolith vs Microservices, sync/async, API Gateway, Service Discovery, Circuit Breaker, Config Server | 🟢 Junior – 🟡 Mid |
+| [02_spring_cloud_implementation.md](./02_spring_cloud_implementation.md) | Feign Client, Sleuth + Zipkin tracing, JWT security flow, Spring Boot Actuator, Docker + Kubernetes deployment | 🟡 Mid |
 
 ---
 
@@ -37,4 +38,5 @@
 1. Read `theory/01_Core_Fundamentals.md`
 2. Read `theory/02_Communication.md`
 3. Study `service_based_companies/01_microservices_fundamentals_qa.md`
-4. Review `theory/08_Observability.md` (to understand Elk/Splunk/Zipkin for tracing)
+4. Study `service_based_companies/02_spring_cloud_implementation.md`
+5. Review `theory/08_Observability.md` (to understand Elk/Splunk/Zipkin for tracing)

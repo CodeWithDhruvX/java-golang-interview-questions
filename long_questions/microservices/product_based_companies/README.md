@@ -10,6 +10,8 @@
 | File | Topics Covered | Level |
 |------|---------------|-------|
 | [01_microservices_deep_dive.md](./01_microservices_deep_dive.md) | Sagas, dual-writes, outbox pattern, resilience, sharding, CQRS, contracts, service mesh | 🔴 Senior |
+| [02_deployment_resilience_patterns.md](./02_deployment_resilience_patterns.md) | Rate limiting (Redis/Lua), Blue/Green/Canary deployments, Event Sourcing, Chaos Engineering, OpenTelemetry | 🔴 Senior |
+| [03_data_architecture_patterns.md](./03_data_architecture_patterns.md) | Strangler Fig, gRPC vs REST, API versioning, multi-region design, zero-downtime DB migrations | 🔴 Senior – Principal |
 
 ---
 
@@ -47,4 +49,6 @@ Product companies do not want definitions of "What is a microservice?". They wan
 1. Review `theory/03_Distributed_Data_Transactions.md`
 2. Review `theory/04_Messaging_Systems.md`
 3. Study `product_based_companies/01_microservices_deep_dive.md`
-4. Dive into `theory/10_Real_Production_Scenarios.md` and `theory/12_Architect_Deep_Dive.md`
+4. Study `product_based_companies/02_deployment_resilience_patterns.md`
+5. Study `product_based_companies/03_data_architecture_patterns.md`
+6. Dive into `theory/10_Real_Production_Scenarios.md` and `theory/12_Architect_Deep_Dive.md`
