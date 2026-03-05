@@ -10,6 +10,12 @@
 | File | Topics Covered | Level |
 |------|---------------|-------|
 | [01_architecture_deep_dive.md](./01_architecture_deep_dive.md) | E-commerce orders, ride-matching, payment gateways, feeds, rate limiters, DB migrations | 🔴 Senior |
+| [02_distributed_systems_tradeoffs.md](./02_distributed_systems_tradeoffs.md) | Consistent hashing, Raft/Paxos, vector clocks, sharding | 🔴 Staff |
+| [03_real_world_architecture_cases.md](./03_real_world_architecture_cases.md) | URL shortener, WhatsApp/chat, search autocomplete, cache, notifications | 🔴 Senior |
+| [04_database_internals.md](./04_database_internals.md) | B-Tree, LSM-Tree, WAL, MVCC, query plan scan types | 🔴 Senior |
+| [05_observability_distributed_systems.md](./05_observability_distributed_systems.md) | Logs, metrics, traces, SLI/SLO/SLA, OpenTelemetry, ELK stack | 🔴 Senior |
+| [06_multi_region_geo_distributed.md](./06_multi_region_geo_distributed.md) | Active-active vs passive, Route53, cross-region replication, CDN | 🔴 Staff |
+| [07_live_coding_architecture.md](./07_live_coding_architecture.md) | Rate limiter, Task scheduler, Event Broker (in-memory implementation) | 🔴 Senior |
 
 ---
 
@@ -56,9 +62,10 @@
 
 ## 📖 Recommended Preparation Order
 
-1. Start with `theory/01_Architecture_Fundamentals.md`
-2. Read `theory/02_Microservices_Architecture.md`
-3. Study `theory/03_Event_Driven_Architecture.md`
-4. Understand `theory/06_Data_Architecture.md`
-5. Practice with `product_based_companies/01_architecture_deep_dive.md`
-6. Then go deep: `theory/04_Domain_Driven_Design.md` + `theory/09_Reliability_Resilience.md`
+1. Core Theory: `theory/01_Architecture_Fundamentals.md` and `theory/02_Microservices_Architecture.md`
+2. Database Deep Dive: `theory/06_Data_Architecture.md` + `product_based_companies/04_database_internals.md`
+3. Distributed Systems: `product_based_companies/02_distributed_systems_tradeoffs.md` + `product_based_companies/06_multi_region_geo_distributed.md`
+4. Resilience & EDA: `theory/03_Event_Driven_Architecture.md` + `theory/09_Reliability_Resilience.md`
+5. Observability: `product_based_companies/05_observability_distributed_systems.md`
+6. Practice HLD Scenarios: `product_based_companies/01_architecture_deep_dive.md` and `product_based_companies/03_real_world_architecture_cases.md`
+7. Prepare for Live Coding: `product_based_companies/07_live_coding_architecture.md`
