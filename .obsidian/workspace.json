@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+                "file": "long_questions/golang/theory/service_based_companies/03_concurrency_theory.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "go_basics_fundamentals_snippets"
+              "title": "03_concurrency_theory"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "osi model",
+                "query": "parallelism",
                 "matchingCase": true,
                 "explainSearch": true,
                 "collapseAll": true,
@@ -204,6 +204,21 @@
   },
   "active": "8c0ba7082c7e79a1",
   "lastOpenFiles": [
+    "long_questions/java/java questions/formatted_answers/03_Advanced.md",
+    "long_questions/golang/golang questions/service_based_companies/03_concurrency.md",
+    "long_questions/golang/golang questions/formatted_answers/02_Intermediate.md",
+    "long_questions/golang/core-golang/go_batch_761_780.md",
+    "long_questions/messaging/messaging_answers_21_40.md",
+    "short_questions/messaging/messaging_all_questions_formatted.md",
+    "short_questions/javascript/javascript_all_questions_formatted.md",
+    "long_questions/java/practical/Intermediate/java_intermediate_concurrency.md",
+    "short_questions/python/python_all_questions_formatted.md",
+    "long_questions/AI/python-ai/theory/02_Intermediate.md",
+    "long_questions/Javascript/theory/02_Functions_Closures_Scope.md",
+    "long_questions/java/experience/product_based_companies/02_advanced_concurrency.md",
+    "long_questions/Kafka/product_based_companies/01_kafka_product_deep_dive.md",
+    "System_Design_Practical_Solutions.md",
+    "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
     "long_questions/golang/theory/service_based_companies/08_devops_and_deployment_theory.md",
     "long_questions/golang/theory/service_based_companies/07_testing_theory.md",
     "long_questions/golang/theory/service_based_companies/06_databases_theory.md",
@@ -216,22 +231,7 @@
     "long_questions/golang/theory/product_based_companies/08_advanced_topics_theory.md",
     "long_questions/golang/theory/product_based_companies/07_design_patterns_theory.md",
     "long_questions/golang/theory/product_based_companies/06_microservices_grpc_theory.md",
-    "long_questions/golang/theory/product_based_companies/05_performance_optimization_theory.md",
-    "long_questions/golang/theory/product_based_companies/04_go_internals_runtime_theory.md",
-    "long_questions/golang/theory/product_based_companies/03_system_design_in_go_theory.md",
-    "long_questions/golang/theory/product_based_companies/02_concurrency_goroutines_theory.md",
-    "long_questions/golang/theory/product_based_companies/01_data_structures_algorithms_theory.md",
     "long_questions/golang/theory/product_based_companies",
-    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "long_questions/golang/theory/04_concurrency.md",
-    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
-    "long_questions/golang/theory/01_basics.md",
-    "long_questions/golang/experience_based/ChatGPT-Golang Experience-Based Answers.md",
-    "long_questions/golang/practical/Basics/go_basics_indepth_snippets.md",
-    "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
-    "long_questions/golang/practical/Intermediate/go_intermediate_concurrency.md",
-    "long_questions/golang/practical/Intermediate/go_intermediate_context_interfaces.md",
-    "long_questions/golang/practical/Basics/go_stdlib_patterns_snippets.md",
     "long_questions/java/cheatsheet/demo.class",
     "long_questions/java/cheatsheet/demo.java",
     "long_questions/system_design/theory",
