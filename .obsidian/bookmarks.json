@@ -191,6 +191,12 @@
           "ctime": 1772536657285,
           "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
           "subpath": "#81. Interface Nil Check"
+        },
+        {
+          "type": "file",
+          "ctime": 1772804535313,
+          "path": "long_questions/golang/practical/Basics/go_basics_fundamentals_snippets.md",
+          "subpath": "#using waitgroup to solve above problem"
         }
       ],
       "title": "golang_bug_writing"

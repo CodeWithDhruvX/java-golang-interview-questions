@@ -21,10 +21,13 @@ MM2 runs as a set of Kafka Connect connectors:
 3. **MirrorHeartbeatConnector** — publishes heartbeat events to measure replication lag
 
 **Active cluster → Passive cluster example:**
-```
+```text
 Primary (us-east-1) ──[MM2 MirrorSourceConnector]──▶ DR (us-west-2)
 Primary (us-east-1) ◀─[MirrorCheckpointConnector]─── DR (us-west-2)
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** MirrorMaker 2 operates entirely independently as a Kafka Connect worker cluster. Neither Spring nor Go applications have any awareness of MM2's existence; they simply connect to the endpoints provided by whichever cluster (Active or DR) they are routed to.
 
 #### Indepth
 MM2 uses the Kafka Connect framework, meaning it benefits from Connect's distributed mode, offset management, and REST API for configuration updates without restarts. MM1 required a manual restart for any configuration change — a major operational pain in production.
@@ -34,7 +37,7 @@ MM2 uses the Kafka Connect framework, meaning it benefits from Connect's distrib
 ## Q2. Walk through a complete MirrorMaker 2 configuration for Active-Passive DR.
 
 "**Architecture:**
-```
+```text
 Primary: kafka-primary:9092 (us-east-1)
 DR:      kafka-dr:9092      (us-west-2)
 
@@ -102,6 +105,9 @@ connect-distributed.sh \
   worker.properties mm2.properties
 ```"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** MM2 is configured purely via `.properties` files or REST API JSON payloads submitted to the Connect cluster. There is no language-specific SDK implementation required.
+
 #### Indepth
 **Topic Naming Convention:** By default, MM2 renames topics on the DR cluster from `orders` to `primary.orders`. This prevents topic collisions in active-active setups and clearly identifies the source cluster. The `RemoteTopicNameTranslator` in consumers automatically strips the prefix when needed.
 
@@ -120,7 +126,7 @@ On failover, the consumer resets to `auto.offset.reset=earliest` and reprocesses
 **MM2's Solution — MirrorCheckpointConnector:**
 MM2 continuously reads consumer group offsets from the Primary cluster and **translates** them to equivalent offsets on the DR cluster, publishing them into the DR's internal offset topic.
 
-```
+```text
 Primary: payment-service committed offset 5000 on primary.orders-partition-3
 MM2 translates: offset 5000 on primary = offset 4998 on DR (slight lag)
 MM2 writes: payment-service → DR.orders-partition-3 → offset 4998
@@ -131,8 +137,8 @@ MM2 writes: payment-service → DR.orders-partition-3 → offset 4998
 // On startup, check if DR has a translated offset from MM2
 RemoteClusterUtils.translateOffsets(
     adminClient,         // DR cluster admin
-    'primary',           // source cluster alias
-    'payment-service',   // consumer group
+    "primary",           // source cluster alias
+    "payment-service",   // consumer group
     Duration.ofSeconds(30)
 ).thenAccept(offsets -> {
     consumer.assign(offsets.keySet());
@@ -140,6 +146,10 @@ RemoteClusterUtils.translateOffsets(
     // Now consume from exactly where Primary left off
 });
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring Kafka provides `ConsumerSeekAware` interfaces to intercept assignment events and perform manual offset translation seeks precisely where required before normal processing resumes.
+* **Golang:** With `kafka-go`, manual offset management requires initializing the `Reader` without a group ID to manually fetch via `FetchMessage`, explicitly committing translated offsets against a new group using `CommitMessages`, and then restarting the main reader loop under the active group.
 
 #### Indepth
 **The Offset Gap:** MM2 translates offsets with a slight lag (default 60 seconds). On an unplanned Primary failure, consumers might reprocess 60 seconds of messages (at-least-once). For payment systems requiring exactly-once during DR, set `sync.group.offsets.interval.seconds=5` and accept the higher checkpoint traffic. Alternatively, use idempotency keys at the application level to deduplicate.
@@ -150,7 +160,7 @@ RemoteClusterUtils.translateOffsets(
 
 "**Active-Active** means both clusters are simultaneously handling producer and consumer traffic — no standby. MM2 runs bidirectionally, replicating all events across both regions.
 
-```
+```text
 US Cluster (us-east-1) ◀══════════════▶ EU Cluster (eu-west-1)
                            MM2 (both ways)
 US App writes to US Cluster               EU App writes to EU Cluster
@@ -188,6 +198,9 @@ eu->us.topics = .*
 2. **Replication Lag** — Producers in the US region will see EU events with 50–200ms lag depending on cross-region bandwidth
 3. **Cost** — Cross-region Kafka traffic incurs significant cloud egress fees ($0.08/GB on AWS)"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Active-Active conflict resolution requires applications to inject region or instance identifiers into Kafka Record Headers upon production. Consumers use these headers to deduplicate or determine canonical state mutations.
+
 #### Indepth
 **Cluster Linking (Confluent):** Confluent Platform offers **Cluster Linking** as a higher-performance MM2 alternative. Instead of consumer-producer bridge, Cluster Linking replicates at the broker-internal level using the same replica fetcher protocol as inter-broker replication. This delivers lower latency and exactly-once cross-cluster replication without the consumer group offset translation complexity.
 
@@ -222,13 +235,16 @@ kafka.connect:type=MirrorCheckpointConnector
 - alert: KafkaMM2ReplicationLag
   expr: kafka_mirror_record_age_ms_max > 30000  # 30 seconds
   severity: critical
-  message: 'MirrorMaker2 replication lag exceeds 30s — DR cluster is stale'
+  message: "MirrorMaker2 replication lag exceeds 30s — DR cluster is stale"
 
 - alert: KafkaMM2OffsetSyncDown
   expr: rate(kafka_mirror_checkpoint_count[5m]) == 0
   severity: warning
-  message: 'MirrorMaker2 offset checkpointing has stopped'
+  message: "MirrorMaker2 offset checkpointing has stopped"
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Monitoring MM2 relies entirely on Prometheus pulling JMX from the Connect workers or analyzing the `heartbeats` topic natively via a dedicated Spring Boot or Go metrics consumer.
 
 #### Indepth
 **MM2 REST API for runtime management:**
@@ -241,7 +257,7 @@ curl -X PUT kafka-connect:8083/connectors/MirrorSourceConnector/pause
 
 # Update config without restart
 curl -X PUT kafka-connect:8083/connectors/MirrorSourceConnector/config \
-  -H 'Content-Type: application/json' \
+  -H "Content-Type: application/json" \
   -d '{"topics": "orders,payments,users", "tasks.max": "12"}'
 ```
 
@@ -254,8 +270,8 @@ curl -X PUT kafka-connect:8083/connectors/MirrorSourceConnector/config \
 **Step 1 — Wait for Replication Lag to reach 0:**
 ```bash
 # Monitor until record-age-ms-max ≈ 0
-watch -n5 'kafka-consumer-groups.sh --bootstrap-server kafka-dr:9092 \
-  --describe --group mm2-MirrorSourceConnector'
+watch -n5 "kafka-consumer-groups.sh --bootstrap-server kafka-dr:9092 \
+  --describe --group mm2-MirrorSourceConnector"
 ```
 
 **Step 2 — Stop producers on Primary cluster:**
@@ -283,3 +299,6 @@ When Primary is back, start MM2 in reverse (`dr→primary.enabled=true`) to catc
 **RTO/RPO:**
 - Planned failover: RPO = 0 (zero data loss), RTO = 5–15 minutes (config propagation time)
 - Unplanned failover: RPO = replication lag at time of failure (typically 60 seconds with default config)"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Failover is typically handled at the infrastructure layer (DNS swap) rather than application layer. If applications must failover manually, properties (`bootstap.servers`) should be dynamically injected via Spring Cloud Config or Go Viper without requiring code recompilation.

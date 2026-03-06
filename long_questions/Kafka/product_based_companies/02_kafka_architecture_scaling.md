@@ -18,6 +18,9 @@ We deploy independent Kafka clusters in US-East and US-West. Applications in US-
 
 To avoid infinite replication loops, MirrorMaker 2 isolates topics by prefixing them (e.g., messages produced in US-East appear in US-West under the topic `us-east.transactions`)."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Cross-region scaling architectures are fundamentally infrastructure problems solved outside of the application code via tools like Kafka Connect/MirrorMaker. In both Go and Java, applications need to be made context-aware of the datacenter they reside in to connect to the correct `bootstrap.servers` localized for them. The application logic is indifferent to global replication.
+
 #### 🏢 Company Context
 **Level:** 🟣 Architect | **Asked at:** Uber, Netflix — testing ability to handle global data localization and cross-region disaster recovery.
 
@@ -33,6 +36,10 @@ To avoid infinite replication loops, MirrorMaker 2 isolates topics by prefixing 
 When an application receives a 'Command' (e.g., `UpdateUserProfile`), it doesn't update a central monolithic database. Instead, it validates the request and publishes a `ProfileUpdatedEvent` into a highly durable Kafka topic. This acts as the single source of truth (Event Sourcing).
 
 Various independent 'Query' services act as consumers of this topic. One query service might be a search engine (like Elasticsearch) that indexes the profile for fast text searches. Another query service might update a Redis cache for instant user lookups. They read the event from Kafka and update their own local read-optimized databases. If one database blows up, we can just reset its Kafka offset to 0 and perfectly reconstruct it from the immutable log."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Frameworks like Axon Framework perfectly integrate CQRS concepts over Kafka alongside Spring Boot's event dispatchers.
+* **Golang:** Because Go promotes simple patterns over heavy abstractions, CQRS is built natively. Command APIs publish to a Kafka writer, heavily utilizing goroutines. Then, read projection microservices spin up via isolated consumers applying the changes sequentially to Read stores (e.g., MongoDB/Redis).
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Flipkart, Hotstar — evaluating architectural chops extending beyond simple CRUD apps.
@@ -51,6 +58,10 @@ Various independent 'Query' services act as consumers of this topic. One query s
 **2. Strictly Synchronous Request-Reply:** If Service A needs an immediate answer from Service B to return a 200 OK to the frontend, forcing Kafka in the middle creates unnecessary complexity. Use gRPC or REST.
 
 **3. Low Volume / Low Budget:** Operating a resilient Kafka cluster (even managed) is complex. You need ZooKeeper/KRaft quorum, minimum 3 brokers for replication, and dedicated DevOps. For trivial throughput, simple databases (like Postgres Listen/Notify) or Redis Pub/Sub suffice."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring Boot trivially bridges WebFlux and REST Controllers to gRPC (via `grpc-spring-boot-starter`) or RabbitMQ (`spring-amqp`). Developers should easily pivot tech-stacks in Spring when Kafka isn't appropriate.
+* **Golang:** Go natively integrates with gRPC better than almost any other language (its ecosystem practically mandates it). Thus, building point-to-point synchronous RPCs with `grpc-go` is often a vastly superior choice for lightweight internal task coordination over deploying Kafka.
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Amazon, Google — Product companies love asking candidates *not* to use the tool to test for 'resume-driven development'.

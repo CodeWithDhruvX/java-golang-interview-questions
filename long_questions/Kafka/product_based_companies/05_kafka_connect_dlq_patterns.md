@@ -24,6 +24,9 @@ MySQL (Orders DB)  →  [JDBC Source Connector]  →  Kafka  →  [Elasticsearch
 ```
 The beauty is that the source writes to ONE topic, and multiple sink connectors fan-out to different destinations independently."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Kafka Connect operates entirely outside of standard Spring Boot or Golang execution environments. It is run directly on the JVM as a standalone cluster. The only intersection is that output topics fed by Connect act as native event producers representing the DB, which your Spring Boot or Golang services freely consume.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Amazon, Flipkart — data ingestion at scale without bespoke producer code. A very common architecture pattern in data-heavy product companies.
 
@@ -55,7 +58,6 @@ public DefaultErrorHandler errorHandler(KafkaTemplate<String, String> kafkaTempl
     DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
         (record, ex) -> new TopicPartition(record.topic() + ".dlq", record.partition()));
 
-    // Retry 3 times with exponential backoff, then send to DLQ
     ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(3);
     backOff.setInitialInterval(1000L);
     backOff.setMultiplier(2.0);
@@ -64,7 +66,23 @@ public DefaultErrorHandler errorHandler(KafkaTemplate<String, String> kafkaTempl
 }
 ```
 
-**DLQ Message Enrichment:** Before moving to DLQ, the framework automatically adds Kafka headers: `kafka_dlt-exception-message`, `kafka_dlt-original-topic`, `kafka_dlt-original-partition`, `kafka_dlt-original-offset`. This lets the ops team replay or diagnose without losing context."
+**Implementation in Golang:**
+```go
+// Unlike Spring, Go requires manual DLQ routing natively in your consumer worker logic.
+func processMessage(msg kafka.Message, writer *kafka.Writer) {
+    err := process(msg)
+    if err != nil && isFatal(err) {
+        dlqPayload := string(msg.Value) + " | ERR: " + err.Error()
+        writer.WriteMessages(context.Background(), kafka.Message{
+            Topic: "orders.dlq",
+            Key: msg.Key,
+            Value: []byte(dlqPayload),
+        })
+    }
+}
+```
+
+**DLQ Message Enrichment:** Before moving to DLQ, the framework automatically adds Kafka headers: `original-topic`, `original-partition`, `original-offset`. This lets the ops team replay or diagnose without losing context."
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Paytm, Swiggy, Razorpay — critical in payment and order pipelines where a bad event must NEVER block the entire queue; the system should isolate and park bad messages, not halt.
@@ -97,10 +115,13 @@ If `PaymentFailed`, the saga publishes a `ReleaseInventory` compensating event t
 **Orchestration-Based Saga:**
 A central **Saga Orchestrator** service drives the workflow by commanding each step via Kafka topic and awaiting reply events — simpler to trace but introduces a coupling point."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Complex sagas are heavily managed by frameworks like Eventuate Tram or Camunda Zeebe seamlessly inside Spring workloads.
+* **Golang:** Go uses tightly bound temporal worker nodes interacting directly with Kafka, or relies explicitly on `Temporal.io` (a deeply integrated Go paradigm) which functionally abstracts away the Kafka wiring for Saga coordination.
+
 #### 🏢 Company Context
 **Level:** 🟣 Architect | **Asked at:** Amazon, Flipkart — tested heavily at companies building large-scale order management systems where checkout spans inventory, payments, logistics, and notifications.
 
 #### Indepth
 **Outbox Pattern:** The canonical solution for the dual-write problem in Saga: when a service commits its local DB transaction, it ALSO writes the Kafka event into an `outbox` table in the SAME database transaction. A Debezium CDC connector then reads the outbox table and publishes to Kafka. This guarantees the event is NEVER lost even if Kafka is temporarily unavailable at the time of the business transaction.
-
 ---

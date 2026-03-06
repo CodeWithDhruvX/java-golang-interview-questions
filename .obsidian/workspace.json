@@ -88,8 +88,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
@@ -203,7 +202,7 @@
       "edge-tts:Read note aloud": false
     }
   },
-  "active": "6ceee8fd70e2fcc8",
+  "active": "8c0ba7082c7e79a1",
   "lastOpenFiles": [
     "long_questions/golang/theory/service_based_companies/08_devops_and_deployment_theory.md",
     "long_questions/golang/theory/service_based_companies/07_testing_theory.md",

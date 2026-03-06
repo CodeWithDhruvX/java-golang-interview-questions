@@ -9,6 +9,12 @@
 
 ---
 
+## Q: "What's the difference between concurrency and parallelism in Go?"
+
+> *"Concurrency is about dealing with lots of things at once, while parallelism is about doing lots of things at once. Concurrency is how you structure your program—breaking it down into independent tasks using Goroutines and Channels. Parallelism is how it actually executes—simultaneously running those tasks on a multi-core CPU. You can have a concurrent Go program that isn't parallel if it only runs on a single core. But because Go makes concurrency so easy to structure, it naturally enables parallelism when multiple cores are available."*
+
+---
+
 ## Q: "What are channels in Go? What's the difference between buffered and unbuffered?"
 
 > *"Channels are Go's mechanism for goroutines to communicate — they follow the philosophy 'don't communicate by sharing memory, share memory by communicating'. An unbuffered channel — `make(chan int)` — is synchronous. When one goroutine sends, it blocks until another goroutine receives, and vice versa. It acts as a rendezvous point. A buffered channel — `make(chan int, 5)` — has a queue. The sender only blocks when the buffer is full, and the receiver only blocks when the buffer is empty. Buffered channels are useful for decoupling producer and consumer speeds, or for rate limiting work."*

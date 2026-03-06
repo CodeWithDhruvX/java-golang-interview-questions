@@ -36,6 +36,10 @@ kafka-acls.sh --add \
   --topic payments
 ```"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Natively consumes JKS or PEM stores provided via `spring.kafka.ssl.*` properties to automatically handle both Transport TLS and mTLS layers without explicit Java code.
+* **Golang:** `kafka-go` requires populating a `tls.Config` struct with loaded `x509.Certificate` key pairs and providing it to the `Dialer` or `Transport`, rather than relying purely on config strings.
+
 #### 🏢 Company Context
 **Level:** 🟣 Architect | **Asked at:** Goldman Sachs, JPMorgan, PayPal — banking and fintech companies enforce mTLS as a non-negotiable security baseline. Candidates are expected to demonstrate end-to-end setup knowledge.
 
@@ -71,6 +75,10 @@ Kafka clients obtain a short-lived JWT token from a corporate Identity Provider 
 ```
 Use case: Enterprise environments with a centralized identity platform where service credentials are managed through IAM rather than Kafka config files.
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Handled extensively by passing JAAS (Java Authentication and Authorization Service) configurations directly into the underlying Spring application properties.
+* **Golang:** `confluent-kafka-go` utilizes `sasl.mechanism` mapped directly in the client map. For `kafka-go`, the `Dialer` accepts a `SASLMechanism` interface, with native support for PLAIN, SCRAM, and external plugins for OAuth.
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Amazon, Razorpay, Zepto — evaluating security maturity and understanding of the progression from static credentials to dynamic token-based identity.
@@ -109,10 +117,12 @@ kafka-acls.sh --add \
 **Confluent RBAC (Role-Based Access Control):**
 Instead of raw ACLs, Confluent Platform's RBAC assigns pre-defined roles (`DeveloperRead`, `DeveloperWrite`, `ResourceOwner`) to users or groups managed by LDAP. This integrates Kafka security with existing corporate directory services (Active Directory), making access management auditable through standard IAM tooling."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Cross-cluster RBAC and namespace isolation are entirely broker-side. The Go/Java application interacts strictly via its authenticated Principal with whatever prefixes it has access to. If the connection hits `TopicAuthorizationException`, it means the client attempted operation outside its authenticated bounds.
+
 #### 🏢 Company Context
 **Level:** 🟣 Architect | **Asked at:** JPMorgan, Amazon — large organizations with GDPR, SOC2, and PCI-DSS compliance requirements are expected to have governance mechanisms beyond simple ACLs.
 
 #### Indepth
 **Schema-Level Access Control:** Beyond topic ACLs, enterprise environments also control who can register or evolve schemas in the Schema Registry. A fintech might allow `payment-producer` to register new Avro schemas for `payments.*` subjects but restrict breaking schema changes (`FULL` compatibility) to reviewed, CI-gated deployments only.
-
 ---

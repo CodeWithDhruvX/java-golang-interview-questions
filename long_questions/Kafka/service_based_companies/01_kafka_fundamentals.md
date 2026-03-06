@@ -15,6 +15,10 @@ Its core architecture consists of four main components:
 3. **Brokers**: The individual servers in a Kafka cluster that receive, store, and serve the data.
 4. **ZooKeeper / KRaft**: The overarching management systems that maintain cluster configuration, manage broker metadata, and facilitate leader elections."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Utilizes `spring-kafka` which provides `KafkaTemplate` for producers and `@KafkaListener` for consumers. Configuration is often centralized in `application.yml` or `application.properties`.
+* **Golang:** Uses clients like `confluent-kafka-go` (cgo based) or `segmentio/kafka-go` (pure go). Goroutines are commonly used for parallel processing of messages from partitions.
+
 #### 🏢 Company Context
 **Level:** 🟢 Junior | **Asked at:** TCS, Infosys — standard foundational question to test elementary distributed system knowledge.
 
@@ -30,6 +34,10 @@ Its core architecture consists of four main components:
 It is Kafka's foundational mechanism for achieving massive read scalability. Each individual partition within a given topic can only be assigned to exactly *one* consumer within that Consumer Group. This guarantees that every message in the topic will be processed by only one consumer in the group, preventing any duplicate processing of data without complex locking.
 
 If you have 4 partitions and 4 consumers in a group, each gets 1 partition. If you add a 5th consumer, it will sit completely idle because there are no available partitions left."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** The `groupId` is defined in the `@KafkaListener` annotation or the root spring consumer config. Spring manages the consumer instances and threads per partition automatically using `ConcurrentKafkaListenerContainerFactory`.
+* **Golang:** You configure the `GroupId` property when initializing a `kafka.Reader` or `kafka.Consumer`. Golang's lightweight goroutines make it easy to scale consumers, provided you have more partitions available to read from.
 
 #### 🏢 Company Context
 **Level:** 🟢 Junior to 🟡 Intermediate | **Asked at:** Accenture, Wipro — assessing how horizontally scalable read operations function.
@@ -51,6 +59,10 @@ If you have 4 partitions and 4 consumers in a group, each gets 1 partition. If y
 **RabbitMQ:** Exceptional at complex routing logic, utilizing complex exchange types and binding rules to precisely route messages to queues.
 **Kafka:** Used ideally for high-throughput event streaming where data needs to be retained, re-played, or analyzed stream-by-stream."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Uses `spring-boot-starter-amqp` for RabbitMQ and `spring-kafka` for Kafka. The abstraction styles are similar (`RabbitTemplate` vs `KafkaTemplate`), but the underlying commit/acknowledgment behaviors are fundamentally different.
+* **Golang:** RabbitMQ relies on the `streadway/amqp` library, while Kafka uses `kafka-go`. Developers switching from RabbitMQ to Kafka in Go generally have to shift from push-based event loops to long-polling mechanisms.
+
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Cognizant, Tech Mahindra — to evaluate the candidate's intuition heavily focused on picking the right tool for an architecture.
 
@@ -66,6 +78,10 @@ If you have 4 partitions and 4 consumers in a group, each gets 1 partition. If y
 In production environments, monitoring consumer lag is critical. I generally use tools like **Prometheus and Grafana** mapped via JMX metrics from the JVM (e.g., `records-lag-max`). Alternatively, native tools like `kafka-consumer-groups.sh` expose this value in the terminal.
 
 If consumer lag is consistently spiking, it implies the consumer is processing slower than the producer writes. To resolve it, I would fundamentally scale the consumer group. Because one consumer can only read one partition max, I would have to proportionally increase the number of partitions on the topic, and then spin up corresponding consumer instances to balance the elevated load."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Consumer lag and health metrics are easily exported to Prometheus using `micrometer-registry-prometheus` combined with Spring Actuator.
+* **Golang:** The `prometheus/client_golang` library is used to expose custom metrics for lag monitoring, or relying directly on the Prometheus metrics exposed by the confluent/segmentio consumer libraries.
 
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Infosys, Wipro — assessing practical system maintenance and support capability.

@@ -29,6 +29,10 @@
 **Prometheus + Grafana Setup:**
 Use the `jmx_exporter` Java agent to scrape JMX metrics and expose them on an HTTP endpoint. Prometheus scrapes this endpoint every 15s. Grafana dashboards built on community templates (e.g., the Kafka Overview dashboard) visualize these metrics with pre-configured alerts."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Micrometer elegantly exports these underlying JMX metrics into a `/actuator/prometheus` endpoint in Spring apps running the consumers/producers natively alongside the JVM logic.
+* **Golang:** The Go clients like `confluent-kafka-go` export statistics natively (via `Stats()` channel) which must be manually unpacked and exposed to `/metrics` endpoints using `prometheus/client_golang` within your Go microservice.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Netflix, Uber — candidates are expected to know what to look at on a Grafana dashboard when an on-call alert fires at 2 AM, and what the metrics mean operationally.
 
@@ -63,6 +67,10 @@ Examine application logs for slow external calls: database timeouts, downstream 
 
 **Step 5 — Verify `records-lag-max` is trending down:**
 After applying fixes, watch the lag metric in Grafana. The lag should decrease as the consumer catches up. If it plateaus, consumption rate still equals production rate and you need to scale further."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring's auto-configured ThreadPools mean you can easily tweak `concurrency` property inside `@KafkaListener` to spin up more internal worker threads, assuming enough partitions exist locally without scaling VMs.
+* **Golang:** Increasing throughput natively involves just spawning more goroutines behind an internal channel off taking events from a single reader. Scaling horizontally implies running more pod replicas with identical Reader `GroupID` configurations to pull from unassigned partitions.
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Swiggy, Amazon, LinkedIn — this is a classic senior SRE/backend interview question testing systematic debugging rather than memorized facts. Companies want engineers who can follow a structured runbook.
@@ -114,10 +122,13 @@ public void consume(ConsumerRecord<String, String> record) {
 
 This ensures the Jaeger/Zipkin/Tempo trace waterfall graph shows one end-to-end trace from HTTP request → Kafka produce → Kafka consume → downstream DB call, with accurate inter-service latency breakdown."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** `micrometer-tracing` combined with `spring-kafka` auto-propagates `traceparent` contexts into Kafka Record Headers invisibly, requiring practically zero boilerplate Java code.
+* **Golang:** Both `segmentio` and `confluent` clients natively support header propagation. Using `go.opentelemetry.io`, you utilize `otel.GetTextMapPropagator().Inject(ctx, &MessageHeaderCarrier{})` when producing, and `Extract` the slice of `kafka.Header` structures on the reader side.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Netflix, Uber — at scale, debugging 'why did this order take 30 seconds' across 5 Kafka hops is impossible without distributed tracing. This shows the candidate understands modern observability beyond simple logging.
 
 #### Indepth
 **Baggage Propagation:** Beyond trace IDs, OpenTelemetry supports **baggage** — arbitrary key-value pairs propagated across service boundaries. Examples: `user.tier=premium`, `request.region=in-south`. Downstream Kafka consumers can read baggage to make routing or SLA decisions without re-fetching context from a database.
-
 ---

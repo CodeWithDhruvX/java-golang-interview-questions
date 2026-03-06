@@ -18,6 +18,10 @@ The partition leader acknowledges the write, but the followers haven't yet repli
 **`acks=all` (also written as `acks=-1`) (Majority Quorum):**
 The leader waits until all replicas in the **ISR (In-Sync Replicas)** list have confirmed the write before acknowledging the producer. This is the strongest durability guarantee. Must be paired with `min.insync.replicas=2` on the broker to prevent the scenario where the ISR has shrunk to just 1 (the leader), which would make `acks=all` functionally equivalent to `acks=1`."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Controlled in `application.yml` via `spring.kafka.producer.acks=all`. Default has shifted to `all` since Kafka 3.0 ensuring high durability baseline.
+* **Golang:** Passed directly into the writer configuration struct (e.g. `RequiredAcks: kafka.RequireAll`). Setting it appropriately is critical since Go defaults historically leaned towards performance (`RequireOne`).
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Razorpay, PhonePe — financial transactions must use `acks=all` + `min.insync.replicas=2` to ensure zero data loss. This is a critical design interview question.
 
@@ -49,6 +53,10 @@ Use a `region_userId` key. For global apps, include the region prefix so US and 
 **3. Custom Partitioner:**
 Implement the `Partitioner` interface to write domain-specific logic — e.g., VIP users (high-value orders) get routed to dedicated fast partitions while regular users use the remaining pool."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Creating a custom partitioner requires implementing `org.apache.kafka.clients.producer.Partitioner` and supplying the fully qualified class name in the `spring.kafka.producer.properties.partitioner.class` property.
+* **Golang:** Both `kafka-go` and `confluent-kafka-go` lack interfaces analogous to Java's strict `Partitioner` class loading. Instead, developers utilize custom Balancer interfaces (for `kafka-go`) or simply compute the partition integer locally in Go, bypassing the default hash routine, and setting `Message.Partition` themselves.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Uber, Amazon — in ride-booking or order systems, specific driver IDs or merchant IDs can dominate traffic during a surge event, causing a single broker to fail under load.
 
@@ -76,10 +84,13 @@ max.poll.interval.ms = 2000   # Give ample buffer: 2 seconds
 
 The rule of thumb: `max.poll.records × avg_processing_time_per_record << max.poll.interval.ms`."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring automatically pauses/resumes consumers when `max.poll.interval.ms` bounds are threatened using `@KafkaListener` threads. Spring abstracts away manual `poll()` tuning, exposing these directly via `spring.kafka.consumer.max-poll-records`.
+* **Golang:** Because `kafka-go` abstracts fetching heavily, this dynamic is slightly hidden. `ReaderConfig.MaxBytes` bounds the batch size instead of pure record counts. Be highly aware of blocked goroutines; blocking `FetchMessage` or `ReadMessage` loops stalls internal background commit loops, forcing a rebalance from the coordinator side.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Flipkart, Amazon — this is the #1 most common Kafka production bug in Java microservices. The symptom is consumers constantly rebalancing with no apparent code errors.
 
 #### Indepth
 **`session.timeout.ms` vs. `max.poll.interval.ms`:** `session.timeout.ms` covers the heartbeat thread (a background thread) going silent — usually due to a JVM crash. `max.poll.interval.ms` covers the main processing thread being too slow. They are independent timeouts working in parallel.
-
 ---

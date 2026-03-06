@@ -15,6 +15,10 @@ When a topic is configured with `cleanup.policy=delete`, Kafka simply deletes ol
 **2. Compact:**
 When `cleanup.policy=compact` is utilized, Kafka guarantees that it will permanently retain at least the **last known value** for each specified message key. If I publish an event with the key `User123` and value `Address_A`, and later publish `User123` with value `Address_B`, the compactor thread will eventually delete the `Address_A` record. This prevents the topic from growing infinitely while ensuring consumers can always reconstruct the latest state."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Often managed declaratively using `NewTopic` bean configurations with `.config(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_COMPACT)`.
+* **Golang:** Topic creation is generally handled via an Admin Client like `kafka.NewAdminClient()` (confluent) configuring the `cleanup.policy` in the `TopicSpecification`.
+
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Tech Mahindra, Infosys — testing knowledge on operational data integrity.
 
@@ -31,6 +35,9 @@ However, Kafka is actively replacing it with **KRaft (Kafka Raft Metadata mode)*
 1. **Simplified Ops:** Maintaining two separate distributed systems (Kafka and ZooKeeper) meant separate tuning, security policies, and administrative overhead. KRaft builds the raft consensus protocol directly into Kafka.
 2. **Scalability Limits:** ZooKeeper struggles with metadata bloat. If a cluster had hundreds of thousands of partitions, leader election could take vital seconds, causing noticeable downtime. KRaft uses an internal metadata event log, dropping controller failover times into the milliseconds range regardless of partition count.
 3. **Standalone Mode:** KRaft allows smaller teams to run Kafka on a single machine comfortably without configuring a complex quorum setup."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Both ecosystems' drivers abstract away the cluster backend. Whether the cluster runs KRaft or Zookeeper, the client library connection string just utilizes the `bootstrap.servers` list. The change is strictly transparent to application developers.
 
 #### 🏢 Company Context
 **Level:** 🟢 Junior to 🟡 Intermediate | **Asked at:** Cognizant, TCS — checking if the candidate has kept their knowledge up-to-date with modern Kafka architectures.
@@ -55,6 +62,10 @@ There are several ways clients can authenticate to the cluster:
 
 **3. Authorization (ACLs):**
 Once authenticated, the user must have permission to act. Using Access Control Lists (ACLs), we can define rules like: *User 'App-A' is only allowed to Read from the 'orders' topic and is denied Write access completely.*"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Configured via `security.protocol=SASL_SSL` and `sasl.jaas.config` properties natively passed to the application configs. Spring makes it trivial to inject keystores for mTLS.
+* **Golang:** For `confluent-kafka-go`, developers configure the config map with `security.protocol`, `sasl.mechanism`, `sasl.username`, and `sasl.password`. Setting up mTLS requires specifying `ssl.ca.location` and `ssl.certificate.location`.
 
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Wipro, TCS — critical for banking, healthcare, and enterprise projects where strict data compliance is enforced.

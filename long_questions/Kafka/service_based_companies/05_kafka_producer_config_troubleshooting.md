@@ -24,8 +24,12 @@ Compresses the batch before sending. Options: `none`, `gzip`, `snappy`, `lz4`, `
 - **`lz4`/`snappy`:** Fast compression with moderate compression ratio — ideal for most production systems where CPU is not a bottleneck.
 - **`gzip`/`zstd`:** Higher compression ratio at the cost of more CPU — use when network bandwidth is the bottleneck (e.g., cross-region replication)."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring's `spring.kafka.producer` yaml bindings natively map `batch-size`, `linger-ms`, and `compression-type` to the underlying Java producer client efficiently.
+* **Golang:** `kafka-go` handles these via standard structs: `Writer.BatchSize` (which operates on max messages, unlike Java's byte-limit), `Writer.BatchTimeout` (analogous to `linger.ms`), and `Writer.Compression` (setting it to `kafka.Snappy` or `kafka.Lz4`).
+
 #### 🏢 Company Context
-**Level:** 🟡 Intermediate | **Asked at:** Cognizant, HCL — these are among the most common Kafka configuration questions in L2 Java developer rounds at service companies. Interviewers check if the candidate can tune Kafka beyond default settings.
+**Level:** 🟡 Intermediate | **Asked at:** Cognizant, HCL — these are among the most common Kafka configuration questions in L2 developer rounds at service companies. Interviewers check if the candidate can tune Kafka beyond default settings.
 
 #### Indepth
 **Buffer Memory (`buffer.memory`):** All batches accumulate in the producer's internal memory buffer (default: 32MB). If the producer generates messages faster than the broker can accept them and the buffer fills up, `KafkaProducer.send()` starts blocking for `max.block.ms` (default: 60s) before throwing a `BufferExhaustedException`. Monitor `buffer-available-bytes` metric to detect approaching exhaustion.
@@ -38,23 +42,27 @@ Compresses the batch before sending. Options: `none`, `gzip`, `snappy`, `lz4`, `
 
 **1. `TimeoutException: Failed to update metadata after [X]ms`**
 - **Cause:** Producer cannot connect to any broker. Typically a network/firewall issue or wrong `bootstrap.servers` config.
-- **Fix:** Verify broker hostnames are resolvable from the application host. Check security group / firewall rules for port 9092 (or 9093 for SSL).
+- **Fix:** Verify broker hostnames are resolvable from the application host. Check security group / firewall rules for port 9092.
 
 **2. `RecordTooLargeException`**
 - **Cause:** A single message exceeds the broker's `max.message.bytes` limit (default: 1MB) or the topic-level override.
-- **Fix:** Either reduce message size (paginate the payload, use a reference key + object store for large blobs) or increase `max.message.bytes` on both broker and topic.
+- **Fix:** Either reduce message size (paginate the payload) or increase `max.message.bytes` on both broker and topic.
 
 **3. `NotEnoughReplicasException`**
 - **Cause:** Producer is using `acks=all` but the number of in-sync replicas has fallen below `min.insync.replicas`. This happens when brokers are down.
-- **Fix:** This is by design — Kafka is refusing to accept writes to prevent data loss. Bring the brokers back online. Do NOT lower `min.insync.replicas` as a quick fix in production.
+- **Fix:** This is by design — Kafka is refusing to accept writes to prevent data loss. Bring the brokers back online.
 
-**4. `org.apache.kafka.common.errors.ProducerFencedException`**
+**4. `ProducerFencedException`**
 - **Cause:** A transactional producer with the same `transactional.id` was started elsewhere (e.g., a duplicate deployment). Kafka fences the older producer instance.
-- **Fix:** Ensure `transactional.id` is unique per producer instance. In Kubernetes, using `pod-name` as the transactional ID suffix ensures uniqueness.
+- **Fix:** Ensure `transactional.id` is unique per producer instance.
 
 **5. Serialization `ClassCastException`**
-- **Cause:** Mismatch between the Java object type produced and the serializer config. For example, producing an `Integer` key but configured with `StringSerializer`.
-- **Fix:** Ensure the key/value types in `KafkaProducer<K, V>` match the configured serializers exactly."
+- **Cause:** Mismatch between the application object type produced and the serializer config.
+- **Fix:** Ensure the key/value types exactly match the configured serializers."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Exception semantics are strongly typed using Kafka's official `org.apache.kafka.common.errors` hierarchy.
+* **Golang:** In Go, you inspect the returned `error` from the `WriteMessages` call, often using type asserting or `errors.Is`/`errors.As` against Kafka specific errors provided in the client library.
 
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** TCS, Wipro, Infosys — asked in project experience rounds where the interviewer probes whether the candidate has actually worked with Kafka in production and encountered real issues.
@@ -68,63 +76,23 @@ Compresses the batch before sending. Options: `none`, `gzip`, `snappy`, `lz4`, `
 
 "Testing Kafka logic requires different strategies at different levels:
 
-**Unit Testing — `MockProducer` and `MockConsumer`:**
-Spring Kafka and the native Kafka client both provide mock implementations for testing without a real broker.
+**Unit Testing:**
+We generally avoid real brokers in unit tests. We mock the producer to verify that the message is sent successfully without establishing a network connection.
 
-```java
-// Unit test using MockProducer
-@Test
-void testOrderProducer() {
-    MockProducer<String, String> mockProducer = new MockProducer<>(
-        true, new StringSerializer(), new StringSerializer());
-
-    OrderProducer producer = new OrderProducer(new KafkaTemplate<>(
-        new DefaultKafkaProducerFactory<>(Map.of(), mockProducer)));
-
-    producer.sendOrder("ORD-001", "{'item': 'laptop'}");
-
-    List<ProducerRecord<String, String>> history = mockProducer.history();
-    assertEquals(1, history.size());
-    assertEquals("ORD-001", history.get(0).key());
-    assertEquals("orders-topic", history.get(0).topic());
-}
-```
-
-**Integration Testing — `@EmbeddedKafka`:**
-Spring Kafka provides `@EmbeddedKafka` to spin up an in-memory Kafka broker within the test JVM — no Docker required.
-
-```java
-@SpringBootTest
-@EmbeddedKafka(
-    partitions = 1,
-    topics = {"orders-topic"},
-    brokerProperties = {"listeners=PLAINTEXT://localhost:9092"}
-)
-class OrderFlowIntegrationTest {
-
-    @Autowired
-    private OrderProducer producer;
-
-    @Autowired
-    private KafkaConsumer testConsumer;  // your listener bean
-
-    @Test
-    void testEndToEndOrderFlow() throws InterruptedException {
-        producer.sendOrder("ORD-002", "{'item': 'phone'}");
-        // Use CountDownLatch or Awaitility to wait for consumption
-        assertTrue(testConsumer.getLatch().await(5, TimeUnit.SECONDS));
-        assertEquals("ORD-002", testConsumer.getLastReceivedKey());
-    }
-}
-```
+**Integration Testing — Embedded Brokers:**
+Spinning up an in-memory Kafka broker within the test environment — no Docker required. This allows full end-to-end integration testing.
 
 **Testcontainers for Full Fidelity:**
-For highest confidence, use `KafkaContainer` from Testcontainers to run a real Kafka Docker container during tests — same Kafka version as production, no embedded limitations."
+For highest confidence, use Testcontainers to run a real Kafka Docker container during tests — running the exact same Kafka version as production, guaranteeing there are no embedded-specific limitations."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring Kafka provides `MockProducer` and `@EmbeddedKafka` out of the box. Testcontainers' `KafkaContainer` integrates effortlessly with `@DynamicPropertySource` for substituting properties dynamically in tests.
+* **Golang:** Go rarely utilizes "embedded" Kafka instances. Instead, mocking is usually done via dependency injection using Go interfaces. For integration tests, the standard approach is using `testcontainers-go` to spin up a Kafka container orchestrator natively in the testing suite.
 
 #### 🏢 Company Context
-**Level:** 🟡 Intermediate | **Asked at:** Capgemini, TCS — testing Kafka integration reliably is commonly asked in rounds where the project involves Kafka since most junior developers only know how to test REST APIs via Postman and lack async messaging test strategies.
+**Level:** 🟡 Intermediate | **Asked at:** Capgemini, TCS — testing Kafka integration reliably is commonly asked since many junior developers only know how to test REST APIs and lack async messaging test strategies.
 
 #### Indepth
-**`Awaitility` for Async Assertions:** Since message consumption is asynchronous, using `Thread.sleep()` in tests is brittle. Awaitility provides polling-based assertions: `Awaitility.await().atMost(10, SECONDS).until(() -> consumer.hasReceivedMessage())` — it polls repeatedly until the condition is true or timeout is reached.
+**Async Assertions:** Since message consumption is asynchronous, using `time.Sleep()` or `Thread.sleep()` in tests is brittle. In Java, `Awaitility` provides polling-based assertions, while in Golang, native `select` block mechanisms over channels with a context timeout are utilized to wait deterministically for successful test consumptions.
 
 ---

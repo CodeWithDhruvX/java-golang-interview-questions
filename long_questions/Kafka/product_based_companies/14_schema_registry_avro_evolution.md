@@ -20,6 +20,10 @@
 
 **My production recommendation:** Use `FULL_TRANSITIVE` for shared topics. Use `BACKWARD` for single-team topics with coordinated deployments."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring Kafka integrates seamlessly with Confluent Schema Registry using `KafkaAvroSerializer`. The compatibility checks happen automatically during the serialization phase before a message is sent to the broker.
+* **Golang:** The `confluent-kafka-go` library provides an `sr` (Schema Registry) package. You must manually instantiate a `schemaregistry.Client` to register schemas and wrap your producer/consumer with an `AvroSerializer`/`AvroDeserializer`.
+
 #### Indepth
 `BACKWARD_TRANSITIVE` vs `BACKWARD`: `BACKWARD` only checks v3 vs v2. A consumer still on v1 (skipped v2) reading v3 messages may fail. `BACKWARD_TRANSITIVE` guarantees v3 is readable by consumers on ANY older version — critical in environments where consumers and producers don't upgrade together.
 
@@ -77,6 +81,10 @@
   "default": null
 }
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Avro schemas (`.avsc` files) are typically compiled into Java POJOs using the `avro-maven-plugin` during the build phase. This ensures strict type safety at compile time.
+* **Golang:** Go doesn't inherently support Avro POJOs like Java does. Third-party libraries like `hamba/avro` or `actgardner/gogen-avro` are used to generate Go structs from `.avsc` files, providing type-safe serialization.
 
 #### Indepth
 **Common mistake:** Adding `{"name": "discountCode", "type": "string"}` with no default and no null union. This is NOT backward compatible. Old consumers reading a new message have no default for `discountCode` and will throw a deserialization error. The Schema Registry with `BACKWARD` mode will **reject** this registration — which is exactly the safety net it provides.
@@ -143,6 +151,10 @@ while (true) {
 }
 ```"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Configuration properties like `schema.registry.url` and `specific.avro.reader` are effortlessly mapped in `application.yml` and automatically injected into the `KafkaTemplate` and `@KafkaListener` configurations.
+* **Golang:** The `AvroDeserializer` requires explicitly passing the deserialization target struct as a reference (`&MyEvent{}`) during the `DeserializeInto` call, managing the type mapping manually.
+
 #### Indepth
 `auto.register.schemas=false` in production is mandatory. If true, a developer pushing broken code could silently register an incompatible schema, corrupting the topic for all consumers. In production, schema registration happens through CI/CD (`maven-schema-registry-mojo`) after explicit compatibility checks, not at runtime.
 
@@ -154,7 +166,7 @@ while (true) {
 
 **Strategy: Topic Migration with Dual-Write Period**
 
-```
+```text
 Day 1: Deploy producer with dual-write to both old + new topic
 Day 3: All consumer teams migrated to new topic
 Day 7: No lag on any consumer group for new topic  
@@ -183,6 +195,9 @@ producer.send(new ProducerRecord<>("order-events-v2", orderId, newOrder));   // 
   "aliases": ["amount"]   // old field name → new field name, backward compatible
 }
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Both ecosystems handle dual-write periods cleanly by instantiating two distinct producers or creating a router function that publishes the old struct to topic V1 and the new mapped struct to topic V2 simultaneously.
 
 #### Indepth
 The `aliases` feature avoids a full topic migration for simple renames. Avro automatically maps the old wire-format field `amount` to the new in-memory field `totalAmount` during deserialization. No dual-write, no migration window needed.
@@ -219,6 +234,10 @@ The `aliases` feature avoids a full topic migration for simple renames. Avro aut
   if: github.ref == 'refs/heads/main'
   run: mvn kafka-schema-registry:register
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Schema validation is often baked into the CI/CD pipeline using the Confluent Maven/Gradle plugins.
+* **Golang:** Schema validation is usually performed by invoking the Schema Registry REST API directly from CI scripts or using the Confluent CLI, as Go lacks an equivalent native build-tool plugin for this.
 
 #### Indepth
 Run `test-compatibility` against the **production** Schema Registry URL in CI — not just dev. Catching production compatibility breakage before deployment is the entire point. Use separate subject naming per environment: `order-events-dev-value`, `order-events-prod-value`.
@@ -261,6 +280,10 @@ dlqProducer.send(new ProducerRecord<>(
     rawBytes
 ));
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring Kafka provides robust `ErrorHandlingDeserializer` wrappers that catch `SerializationException`s, allowing you to gracefully route poison pills to a DLQ without crashing the consumer loop.
+* **Golang:** Poison pills manifest as errors returned by `Deserialize` or `ReadMessage`. Go's explicit error handling makes it straightforward: `if err != nil { publishToDLQ(rawBytes, err) }`.
 
 #### Indepth
 **Schema Registry 404 as poison pill:** If a producer registers a schema on a registry the consumer can't reach (wrong environment URL), the consumer gets a `404` fetching the schema ID → treated as deserialization failure. Include a `GET /subjects` health check against the Schema Registry in your service readiness probe to catch misconfiguration at startup.

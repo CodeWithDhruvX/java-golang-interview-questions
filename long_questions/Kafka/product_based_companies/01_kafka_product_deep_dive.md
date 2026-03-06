@@ -13,6 +13,10 @@ Instead of heavily relying on the JVM heap for in-memory caching, Kafka directly
 
 Simultaneously, when a consumer requests data, Kafka bypassed the traditional path of copying data from the disk to the OS kernel, then to the application user space, back to the Kernel space, and off to network. Instead, using the **Zero-Copy** feature (the `sendfile()` system call), the OS copies data directly from the page cache directly deep into the network socket. This drastically reduces CPU overhead and memory bandwidth, enabling Kafka to serve millions of messages per second seamlessly."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Natively runs on the JVM which Kafka optimizes for bypassing. However, client-side applications (Spring Boot) don't directly influence Zero-Copy—it happens entirely broker-side.
+* **Golang:** High-performance Go microservices reading from Kafka benefit significantly from this broker architecture. Go's native net poller elegantly handles the massive TCP throughput downstream that Kafka's zero-copy delivers.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Uber, LinkedIn — companies designed around event-driven architectures with huge IO demands.
 
@@ -28,6 +32,10 @@ Simultaneously, when a consumer requests data, Kafka bypassed the traditional pa
 First, I configure the producer to be idempotent (`enable.idempotence=true`). When this happens, Kafka assigns a unique Producer ID (`PID`) and a sequence number to every message. If the producer retries sending a message due to a network glitch, the broker sees the same `PID` and sequence number and ignores the duplicate, guaranteeing the message is written exactly once to that specific partition.
 
 Second, the true challenge is when a consumer reads a message, processes it, and writes a result to a new Kafka topic. To ensure this entire loop is atomic, we use the **Kafka Transactions API**. The producer wraps the offset commit (of the consumed message) and the production of the new message within a single `commitTransaction()` call. A specialized Transaction Coordinator manages this state using transaction markers, guaranteeing that either the offset commit and the output message are both visible, or neither is."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** `@Transactional` natively wraps the `KafkaTemplate.send()` alongside database commits to ensure atomicity via Spring's `ChainedKafkaTransactionManager`.
+* **Golang:** The `segmentio/kafka-go` library historically doesn't support the full Transactional API. High-tier exactly-once deployments in Go rely heavily on `confluent-kafka-go` (based on librdkafka) which exposes `InitTransactions()`, `BeginTransaction()`, and `CommitTransaction()`.
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Fintechs (Razorpay, PhonePe) and E-commerce where duplicate payments/orders are catastrophic.
@@ -47,6 +55,10 @@ In high traffic deployments, this causes what we call a 'Rebalance Storm'—a se
 
 Thus, we prefer **Cooperative Rebalancing** (incremental). During this type of rebalance, consumers do *not* drop partitions that they are destined to keep. Only the specific partitions migrating away are temporarily suspended. This enables the unaffected consumers to remain actively processing, eliminating the stop-the-world downtime during cluster scaling or minor faults."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Driven by the underlying `kafka-clients` library. Since version 2.4.0+, the default partition assignment strategy (`partition.assignment.strategy`) is `CooperativeStickyAssignor`, making Spring automatically inherit cooperative rebalancing.
+* **Golang:** `confluent-kafka-go` inherits the default `cooperative-sticky` assignor if running on modern `librdkafka` builds. In `segmentio/kafka-go`, Balancers dictate this logic. The framework natively supports cooperative mechanisms but ensuring the `GroupBalancers` are set correctly, such as `Range` or `RoundRobin`, requires explicit validation.
+
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate to 🔴 Senior | **Asked at:** Flipkart, Swiggy — handling spontaneous traffic spikes safely.
 
@@ -63,10 +75,13 @@ Kafka tracks healthy followers using the **In-Sync Replicas (ISR)** list. A foll
 
 If a Leader broker crashes, the Kafka Controller instantly orchestrates a **Leader Election**, choosing a new Leader directly from the existing ISR list. Since ISR members had the exact same data up to the *High Watermark*, no committed data is lost, and client operations route to the new leader transparently."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring automatically handles broker disconnects. `KafkaTemplate` blockingly waits according to `max.block.ms` until the cluster elects a new leader and metadata is refreshed before proceeding with the send.
+* **Golang:** Kafka Go clients passively receive the `Leader Not Available` metadata error on a write or fetch attempt. The client internals automatically backoff and fetch the updated metadata payload to route their active connection to the newly elected leader broker, largely invisible to the developer if retries are enabled.
+
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Amazon, Netflix — building highly resilient data pipelines.
 
 #### Indepth
 **What is High Watermark (HW)?** It is the offset of the last message that has been fully replicated to *all* members in the ISR. Consumers are strictly prohibited from reading messages above the HW to prevent data inconsistencies incase a consumer reads an un-replicated message and the leader dies immediately after.
-
 ---

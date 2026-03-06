@@ -21,6 +21,10 @@
 
 The key trade-off: if the team is already running a Java microservice and needs moderate stream processing with low operational overhead, Kafka Streams is the clear winner. For complex multi-stream windowed joins at petabyte scale, Flink wins."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Natively supports Kafka Streams via `spring-kafka` using `@EnableKafkaStreams`. Spring manages the lifecycle of the `KafkaStreams` instance, easily wiring processors through the IOC container.
+* **Golang:** **Kafka Streams is a JVM-only library.** There is no official Confluent Golang port. Go shops typically execute stream processing by either spinning up bespoke Go microservices that use basic consumer/producer loops, or they offload complex topologies to separate Flink/ksqlDB clusters while the Go microservice acts purely as standard ingest/egress.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Netflix, LinkedIn — evaluating architectural decision-making for data pipeline design.
 
@@ -43,6 +47,10 @@ The key trade-off: if the team is already running a Java microservice and needs 
 - `BACKWARD`: New consumer can read old messages (safe to add optional fields)
 - `FORWARD`: Old consumers can still read new messages (safe to remove optional fields)
 - `FULL`: Both backward and forward — the safest, most restrictive mode."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Fully integrated using Confluent's Maven/Gradle plugins, generating strongly-typed POJOs from `.avsc` files at compile-time. Configuration handles the registry URL seamlessly via `spring.kafka.properties.schema.registry.url`.
+* **Golang:** Confluent provides `confluent-kafka-go/schemaregistry` which exposes Avro/Protobuf serdes. Go doesn't inherently use POJOs, but tooling like `xgo` or `protoc` handles struct code generation which the schema-registry client safely unmarshals bytes into at runtime.
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Razorpay, Swiggy — critical in microservices where 10+ services produce/consume shared topics and independent deployment cycles can cause version mismatches.
@@ -74,10 +82,13 @@ orders
 
 **4. Sliding Windows:** Windows defined by a specified time difference between records — used for comparing events that are close in time."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Implemented exactly as shown utilizing the Java DSL `StreamsBuilder`.
+* **Golang:** Lacking Kafka Streams, Golang applications commonly implement manual tumbling windows utilizing ticker channels (`time.NewTicker`) and in-memory thread-safe maps, pushing aggregated values downstream every tick epoch tick.
+
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Hotstar, LinkedIn — testing real-world stream analytics capability for metrics dashboards and user engagement features.
 
 #### Indepth
 **Grace Period:** By default, Kafka Streams closes a window and emits results immediately. But late-arriving events (due to network delays) are dropped. Setting `.withGracePeriod(Duration.ofSeconds(30))` tells Kafka Streams to hold the window open for 30 extra seconds to accommodate late data before final emission.
-
 ---

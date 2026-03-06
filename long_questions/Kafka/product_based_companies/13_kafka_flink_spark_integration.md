@@ -28,6 +28,10 @@
 - You need **unified batch + streaming code** (Spark Structured Streaming handles both with the same DataFrame API)
 - The team is Python/Scala-heavy and the ML team uses PySpark"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Kafka Streams is natively embedded. Flink and Spark require external clusters entirely separated from your Spring Boot microservices.
+* **Golang:** Neither Kafka Streams, Spark, nor Flink are native to Go. Go teams often use Benthos for stream manipulation, or offload complex CEP to Flink SQL while Go purely acts as ingest/egress.
+
 #### Indepth
 **The operational cost difference is real.** Kafka Streams is the cheapest to operate — it runs inside your existing pods. Flink requires a dedicated cluster (JobManager + TaskManagers) or a managed service (AWS Kinesis Data Analytics for Flink, Confluent Flink, Google Dataflow). Spark requires a Spark cluster or managed EMR/Databricks. Factor this into your architecture decision.
 
@@ -115,6 +119,10 @@ env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5000);
 env.execute("Fraud Detection Pipeline");
 ```"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Flink applications are typically standalone Java Jobs packaged as fat JARs, operating outside the Spring ecosystem, though Spring Data repositories can be instantiated inside Flink RichFunctions if tightly coupled dependencies are required.
+* **Golang:** Flink does not support Golang natively (Java/Python only). Go services produce standard JSON/Protobuf to Kafka, which Flink consumes.
+
 #### Indepth
 **Flink's Exactly-Once with Kafka** uses a two-phase commit protocol. During checkpointing, the Flink Kafka source commits offsets as part of the checkpoint. The Flink Kafka sink uses Kafka transactional producers — the transaction is committed only when the checkpoint succeeds. If the Flink job crashes and restores from checkpoint, the source replays from the last committed offset and the pending sink transaction is aborted + retried. This achieves true end-to-end exactly-once across Kafka source → Flink processing → Kafka sink.
 
@@ -197,6 +205,10 @@ errorRates
   .awaitTermination()
 ```"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spark applications are primarily written in Scala or Java, running on dedicated YARN/K8s clusters.
+* **Golang:** Spark has no Go SDK. Go services act strictly as producers feeding the Kafka topics that Spark Streams analyze.
+
 #### Indepth
 **Spark Checkpointing with Kafka:** Spark stores Kafka offsets as part of the checkpoint state in S3/HDFS. On restart, Spark reads the checkpoint to find the last committed offset and resumes from there. This provides **at-least-once** guarantees by default. For **exactly-once**, use `idempotent` sink writes (e.g., `MERGE` into Delta Lake/Iceberg with upsert semantics, so replayed records don't cause duplicates).
 
@@ -229,6 +241,9 @@ Spark continuously processes records with ~1ms latency (comparable to Flink). No
 .trigger(Trigger.Once())
 ```
 Process all available data as a single batch and stop. Used for scheduled reprocessing jobs."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** Both ecosystems simply see the output of these batch jobs as discrete, rapid bursts of Kafka messages pushed into sink topics. 
 
 #### Indepth
 **Cost optimization for Spark on AWS EMR/Databricks:** Use `Trigger.ProcessingTime("5 minutes")` instead of continuous processing for non-SLA-critical pipelines. This allows Spark to accumulate larger batches, improving compression ratios (Snappy/Zstd), reducing the number of small-file writes to S3, and lowering per-query Databricks DBU costs by 40–60%.
@@ -296,6 +311,9 @@ public class PostgresSink extends TwoPhaseCommitSinkFunction<FraudAlert, Connect
 3. Checkpoint succeeds and is confirmed → Flink calls `commit()` on DB sink → DB commits
 4. If crash between `preCommit` and `commit` → on restart Flink replays from checkpoint offset and the uncommitted DB transaction is rolled back, preventing duplicates"
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** When Go or Spring Boot services read from the output topics of Flink jobs, they should set `isolation.level=read_committed` to ensure they do not read aborted transaction data from Flink's 2PC checkpoints.
+
 #### Indepth
 **The practical reality:** True exactly-once across heterogeneous systems (Kafka + external DB) requires the external DB to support 2PC or idempotent writes. SQL databases support 2PC natively. NoSQL stores like Cassandra/DynamoDB do not support 2PC — for those, design for **at-least-once + idempotent writes** using `INSERT ... IF NOT EXISTS` or upsert patterns, which achieves the same effective result with simpler code.
 
@@ -338,6 +356,9 @@ spark.readStream
   .option("kafka.client.rack", "us-east-1a")
   .load()
 ```"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot & Golang:** These configuration properties map cleanly to native `spring-kafka` or `confluent-kafka-go` properties if building custom batch accumulators in-app instead of using Spark.
 
 #### Indepth
 **`maxOffsetsPerTrigger` is critical for Spark cost control.** Without it, a large backlog (e.g., consumer was down for 2 hours) causes Spark to try to process millions of records in a single micro-batch, OOMing executors. Setting `maxOffsetsPerTrigger=100000` guarantees each batch stays bounded, the cluster stays stable, and you work through the backlog gracefully over multiple batches.

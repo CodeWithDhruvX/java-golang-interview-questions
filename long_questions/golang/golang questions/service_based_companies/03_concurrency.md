@@ -327,3 +327,18 @@ for i := 0; i < 1000; i++ {
 wg.Wait()
 // Use sync.Mutex or sync/atomic to fix
 ```
+
+---
+
+### Q12. What is the difference between concurrency and parallelism in Go?
+
+> *"Concurrency is about dealing with lots of things at once. Parallelism is about doing lots of things at once." — Rob Pike*
+
+**Concurrency** is a property of the code's structure. It's about breaking a program into independent tasks that *can* execute out of order or in overlapping time periods.
+**Parallelism** is a property of the execution. It's the simultaneous execution of multiple tasks on hardware with multiple computing units (like a multi-core CPU).
+
+- **In Go:** Concurrency is built-in using **Goroutines** and **Channels**. Parallelism happens automatically when a concurrent Go program runs on a machine with multiple OS threads (controlled by `GOMAXPROCS`).
+
+*Analogy:*
+- **Concurrency:** One cook chopping onions, checking the stove, and then chopping tomatoes. They switch between tasks but only do one thing at the exact same time.
+- **Parallelism:** Two cooks—one chopping onions while the other simultaneously chops tomatoes.

@@ -29,6 +29,10 @@ Required Partitions = max(Required Throughput / Producer Throughput per Partitio
 
 5. **Always make it a multiple of your replication factor** to ensure even distribution across brokers."
 
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** Spring developers often use the `TopicBuilder` or `@Bean NewTopic` in configuration classes to initialize topic partitions upfront programmatically.
+* **Golang:** Topic planning is typically managed outside the core Go application (using Terraform or CLI tools), but if managed internally, `kafka-go` lacks robust topic administration. Developers often fallback to `confluent-kafka-go`'s `AdminClient` to programmatically provision `NumPartitions`.
+
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Cognizant, Tech Mahindra — a very common design question asked when the interviewer moves from 'what is Kafka' to 'how would you use it in a real project'.
 
@@ -67,6 +71,10 @@ Examples:
 | Separate topics for commands and events | `orders.place-order` (command) vs. `orders.order-placed` (event) |
 | Prefix internal/system topics with `_` | e.g., `_dlq.payments.orders.created` makes DLQs immediately identifiable |
 | Version topics for breaking changes | `user-events.v2` instead of migrating the existing topic |"
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** In Spring, complex `@KafkaListener(topics = "${app.topics.orders-created}")` binding is used to centralize topic name management inside `application.yml` instead of hardcoding topic strings.
+* **Golang:** Similar to Java, Go developers inject topic names via struct initialization and `Viper` configuration loaders to easily swap topic namespaces across environments (dev vs. prod).
 
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate | **Asked at:** Wipro, Infosys, Hexaware — practical topic design questions appear when interviewers probe for project experience. Candidates who can only explain Kafka theory but not how to structure topics demonstrate a lack of real-world experience.
@@ -119,6 +127,10 @@ OrderService (consumes `payments.failed` or `inventory.failed`)
 - **Partition key:** `orderId` — ensures all events for one order land in the same partition for ordering.
 - **Consumer group per service:** Each microservice has its own consumer group so it independently processes its copy of events.
 - **DLQ per topic:** `orders.created.dlq` to park bad events and prevent partition blocking."
+
+#### 💻 Language Specifics (Java Spring Boot & Golang)
+* **Java Spring Boot:** A Choreography Saga relies heavily on `KafkaTemplate` for reliable publication inside a distributed transaction context. Leveraging Spring Cloud Stream provides high-level functional abstractions for connecting these events to business logic.
+* **Golang:** Go microservices excel in these Event-Driven architectures due to natively spinning up goroutines per event. The low memory footprint makes orchestrating a dozen small choreography services highly economical in Kubernetes.
 
 #### 🏢 Company Context
 **Level:** 🟡 Intermediate to 🔴 Senior | **Asked at:** TCS, Wipro, Cognizant, Tech Mahindra — this end-to-end scenario is the most common 'system design with Kafka' question at service companies. Being able to narrate this flow clearly with proper topic names, consumer groups, and error handling is what separates a strong candidate from an average one.
