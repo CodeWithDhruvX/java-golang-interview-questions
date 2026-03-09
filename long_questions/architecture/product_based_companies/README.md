@@ -16,6 +16,8 @@
 | [05_observability_distributed_systems.md](./05_observability_distributed_systems.md) | Logs, metrics, traces, SLI/SLO/SLA, OpenTelemetry, ELK stack | 🔴 Senior |
 | [06_multi_region_geo_distributed.md](./06_multi_region_geo_distributed.md) | Active-active vs passive, Route53, cross-region replication, CDN | 🔴 Staff |
 | [07_live_coding_architecture.md](./07_live_coding_architecture.md) | Rate limiter, Task scheduler, Event Broker (in-memory implementation) | 🔴 Senior |
+| [17_ml_infrastructure_model_serving.md](./17_ml_infrastructure_model_serving.md) | Feature stores, model training, real-time inference, MLOps, A/B testing, monitoring | 🔴 Senior |
+| [18_advanced_streaming_realtime_processing.md](./18_advanced_streaming_realtime_processing.md) | Stream processing engines, windowing, state management, exactly-once, backpressure | 🔴 Senior |
 
 ---
 
@@ -44,6 +46,9 @@
 - **Consistent hashing:** Distributed caching and sharding
 - **Token bucket:** Rate limiting
 - **Fan-out on write/read:** Feed architectures
+- **Feature store:** Centralized feature management
+- **Model serving:** Real-time and batch inference
+- **Stream processing:** Windowing, state management, exactly-once
 
 ---
 
@@ -57,6 +62,10 @@
 - Design a URL shortener (standard interview question)
 - Design a distributed rate limiter (API companies)
 - Design a cache system (Redis internals)
+- Design a real-time analytics dashboard (product companies)
+- Design a fraud detection system (fintech companies)
+- Design a recommendation system (content platforms)
+- Design a ML model serving pipeline (AI companies)
 
 ---
 
@@ -69,3 +78,5 @@
 5. Observability: `product_based_companies/05_observability_distributed_systems.md`
 6. Practice HLD Scenarios: `product_based_companies/01_architecture_deep_dive.md` and `product_based_companies/03_real_world_architecture_cases.md`
 7. Prepare for Live Coding: `product_based_companies/07_live_coding_architecture.md`
+8. ML Infrastructure: `product_based_companies/17_ml_infrastructure_model_serving.md`
+9. Streaming & Real-time: `product_based_companies/18_advanced_streaming_realtime_processing.md`

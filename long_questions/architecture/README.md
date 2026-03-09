@@ -23,10 +23,22 @@ architecture/
 │   ├── 01_architecture_deep_dive.md
 │   ├── 02_distributed_systems_tradeoffs.md
 │   ├── 03_real_world_architecture_cases.md
+│   ├── 04_database_internals.md
+│   ├── 05_observability_distributed_systems.md
+│   ├── 06_multi_region_geo_distributed.md
+│   ├── 07_live_coding_architecture.md
+│   ├── 14_serverless_and_event_driven.md
+│   ├── 15_capacity_planning_and_estimation.md
+│   ├── 16_migration_and_legacy_modernization.md
+│   ├── 17_ml_infrastructure_model_serving.md
+│   ├── 18_advanced_streaming_realtime_processing.md
 │   └── README.md
 ├── service_based_companies/
 │   ├── 01_architecture_fundamentals_qa.md
-│   ├── 02_enterprise_patterns.md
+│   ├── 08_design_patterns_in_architecture.md
+│   ├── 09_performance_and_caching_basics.md
+│   ├── 10_deployment_and_infrastructure_basics.md
+│   ├── 11_enterprise_integration_patterns.md
 │   └── README.md
 └── README.md
 ```

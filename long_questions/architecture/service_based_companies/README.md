@@ -10,6 +10,7 @@
 | File | Topics Covered | Level |
 |------|---------------|-------|
 | [01_architecture_fundamentals_qa.md](./01_architecture_fundamentals_qa.md) | 3-tier, REST vs SOAP, Spring Boot, Microservices, Docker, CI/CD, API versioning, Saga | 🟢 Junior – 🟡 Mid |
+| [11_enterprise_integration_patterns.md](./11_enterprise_integration_patterns.md) | ESB, messaging patterns, API gateway, data integration, legacy modernization, security | 🟡 Mid – 🔴 Senior |
 
 ---
 
@@ -24,6 +25,7 @@
 7. **Load balancing** — round robin, sticky sessions, why it's needed
 8. **API versioning** — strategies used in enterprise projects
 9. **JWT and Spring Security** — authentication flows
+10. **Enterprise Integration** — ESB patterns, message transformation, legacy modernization
 
 ---
 

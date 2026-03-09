@@ -1133,7 +1133,7 @@ func main() {
 
 ---
 
-## Section 4: Advanced Patterns (Q41–Q50)
+## Section 4: Advanced Patterns (Q41–Q52)
 
 ### 41. errgroup for Parallel Tasks with Error Collection
 **Q: What is the output?**
@@ -1414,5 +1414,60 @@ func main() {
 
 ---
 
-*End of Part 1 — Concurrency Patterns (50 questions)*
+### 51. Memory Model: Happens-Before Guarantee
+**Q: Can `a` and `done` values print out of order or hang in this code without channels/mutexes?**
+```go
+package main
+
+import "fmt"
+
+var a string
+var done bool
+
+func setup() {
+    a = "hello, world"
+    done = true
+}
+
+func main() {
+    go setup()
+    for !done {
+    }
+    fmt.Println(a)
+}
+```
+**A:** **Yes, or it might hang forever.** Go's memory model does not guarantee that a write to `done` observed by `main` implies that the write to `a` is also observed. The compiler or CPU may reorder instructions. To establish a **"happens-before"** relationship and ensure memory visibility across goroutines, you must use explicit synchronization (like closing a channel, or `sync.Mutex`).
+
+---
+
+### 52. Leaky Buffer Pattern
+**Q: How does this pattern prevent memory leaks and garbage collection pressure when handling many requests?**
+```go
+var freeList = make(chan *[]byte, 100)
+// For GC efficiency in heavy networking/file IO
+
+func getBuffer() *[]byte {
+    select {
+    case b := <-freeList:
+        return b // reuse existing buffer
+    default:
+        b := make([]byte, 1024)
+        return &b // allocate new if none free
+    }
+}
+
+func releaseBuffer(b *[]byte) {
+    select {
+    case freeList <- b:
+        // returned to free list
+    default:
+        // free list full, let GC handle it
+    }
+}
+```
+**A:** This is the **Leaky Buffer** pattern. A buffered channel acts as a free list to reuse memory allocations (reducing GC pressure). If the server gets a sudden spike, it allocates new buffers (the `default` case in `getBuffer`). When the spike ends, excess buffers are dropped (the `default` case in `releaseBuffer`) and garbage collected natively, so memory doesn't grow unbounded forever. It's a simpler, channel-based alternative to `sync.Pool`.
+
+---
+
+*End of Part 1 — Concurrency Patterns (52 questions)*
 *See `go_intermediate_context_interfaces.md` for Part 2: Context, Interfaces, Generics, Error Handling*

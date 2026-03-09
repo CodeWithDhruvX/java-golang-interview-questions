@@ -13,6 +13,9 @@ These questions generally test your ability to model a system using object-orien
 6.  [Chess Game](06_lld_chess_game.md)
 7.  [Snake and Ladder (Board Game Engine)](07_lld_snake_and_ladder.md)
 8.  [Splitwise (Expense Sharing)](08_lld_splitwise.md)
+9.  [Food Delivery System (Swiggy/Zomato)](09_lld_food_delivery_system.md)
+10. [Payment Gateway (UPI/Indian Market)](10_lld_payment_gateway.md)
+11. [Ride Sharing System (Ola/Uber India)](11_lld_ride_sharing_system.md)
 
 ## Success Criteria for LLD Interviews
 *   **Clarify Ambiguity:** Gather use cases and constraints.

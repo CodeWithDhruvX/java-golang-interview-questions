@@ -26,7 +26,7 @@ When an enterprise runs 50 microservices, logging into 50 different Linux server
     *   **Storage & Search Engine (Elasticsearch):** A distributed, RESTful search and analytics engine based on Lucene. Extremely fast at querying massive amounts of unstructured text.
     *   **Visualization (Kibana):** The UI dashboard where developers run queries and create charts to monitor the cluster.
 
-## 3. How would you design an Employee Management System (Monolithic to REST API)?
+## 3. How would you design an Employee Management System (Monolithic to REST API)
 **Core Requirements:** CRUD operations on Employee, Department, Salary. Standard Enterprise integration.
 *   **Framework Options:** Java Spring Boot, Node/Express, or .NET Core.
 *   **Database Schema:**
@@ -39,7 +39,41 @@ When an enterprise runs 50 microservices, logging into 50 different Linux server
 *   **Security:** Standard JWT authentication filter intercepting requests before reaching the Controller.
 *   **Error Handling:** Use global exception handlers (`@ControllerAdvice`) to gracefully intercept application exceptions and translate them into standardized HTTP structured error JSON responses (e.g., 404 for EmployeeNotFound).
 
-## 4. Design a Job Scheduling System (e.g., Quartz/Cron replacement across multiple nodes)
+## 4. Design a Banking Transaction System
+**Core Requirements:** Process account transactions, maintain balances, ensure ACID compliance, generate statements.
+*   **Transaction Flow:** Account validation → Balance check → Transaction recording → Balance update → Notification.
+*   **Database Design:**
+    *   `Account`: account_no (PK), customer_id, balance, account_type, status.
+    *   `Transaction`: transaction_id (PK), from_account, to_account, amount, type, timestamp, status.
+*   **ACID Compliance:** Use database transactions to ensure atomicity. `SELECT ... FOR UPDATE` for concurrent access.
+*   **Performance:** Index on account numbers, transaction dates. Read replicas for reporting queries.
+*   **Audit Trail:** Complete transaction history for regulatory compliance and dispute resolution.
+
+## 5. Design an E-commerce Inventory Management System
+**Core Requirements:** Track product inventory across warehouses, handle stock updates, prevent overselling.
+*   **Challenges:** Multiple warehouses, concurrent updates, real-time synchronization.
+*   **Architecture:**
+    *   **Inventory Service:** Centralized inventory management.
+    *   **Warehouse Service:** Individual warehouse inventory tracking.
+    *   **Event Bus:** Kafka for real-time inventory updates.
+*   **Race Condition Prevention:**
+    *   **Pessimistic Locking:** `SELECT ... FOR UPDATE` on inventory rows.
+    *   **Optimistic Locking:** Version column with conditional updates.
+    *   **Queue-based Processing:** Sequential processing of inventory updates.
+*   **Reporting:** Real-time inventory levels, low-stock alerts, warehouse analytics.
+
+## 6. Design a Student Management System
+**Core Requirements:** Student registration, course enrollment, grade management, attendance tracking.
+*   **Database Schema:**
+    *   `Student`: student_id (PK), name, email, department, admission_date.
+    *   `Course`: course_id (PK), name, credits, department.
+    *   `Enrollment`: student_id (FK), course_id (FK), semester, grade.
+    *   `Attendance`: attendance_id (PK), student_id (FK), course_id (FK), date, status.
+*   **Business Logic:** Course prerequisites, credit limits, attendance requirements.
+*   **Reporting:** Grade cards, attendance reports, academic performance analytics.
+*   **Integration:** Library system, fee payment system, examination system.
+
+## 7. Design a Job Scheduling System (e.g., Quartz/Cron replacement across multiple nodes)
 **Scenario:** A bank needs to run a nightly batch job across multiple application instances but needs to guarantee a specific job runs only ONCE.
 *   **The Problem:** If you configure a cron expression on the application server, and run 3 clustered instances of the application, the nightly job will trigger 3 times concurrently, causing massive data duplication.
 *   **Solutions:**

@@ -38,6 +38,36 @@ During product-based company interviews, candidates are asked to design large-sc
     *   *Solution:* Pull for celebrities, Push for normal users. Viewers' feeds are composed of pushed tweets from normal friends, combined at read-time with pulled tweets from followed celebrities.
 
 ## 5. Design a Ride-Sharing App (e.g., Uber / Lyft)
+**Core Requirements:** Match riders with drivers, real-time location tracking, dynamic pricing, handle millions of concurrent rides.
+*   **Geospatial Indexing:** Use S2 Geometry Library or Geohash for efficient location-based queries. Store driver locations in Redis Geo for O(1) proximity searches.
+*   **Matching Algorithm:** Multi-factor scoring considering distance, driver rating, availability, and ETA. Use Hungarian algorithm for optimal assignment in small areas.
+*   **Real-time Tracking:** MQTT/WebSocket for bidirectional communication. Driver location updates every 2-5 seconds.
+*   **Dynamic Pricing:** Surge pricing based on demand/supply ratio, weather, events, time of day.
+*   **Payment Integration:** Multiple payment methods including UPI, cash, cards, wallets.
+
+## 6. Design a Food Delivery System (e.g., Swiggy/Zomato)
+**Core Requirements:** Restaurant discovery, order management, real-time delivery tracking, multiple payment options.
+*   **Microservices Architecture:** User, Restaurant, Order, Delivery, Payment, Search services.
+*   **Search & Discovery:** Elasticsearch with geo-based indexing, cuisine filtering, price range, ratings.
+*   **Delivery Matching:** Geospatial algorithm for driver assignment, considering proximity, capacity, rating.
+*   **Real-time Updates:** WebSocket for order status, location tracking, ETA calculations.
+*   **Payment Processing:** UPI integration, COD handling, wallet payments, daily settlement.
+
+## 7. Design a Payment Gateway (UPI-focused)
+**Core Requirements:** Process millions of transactions, integrate with banks/NPCI, ensure security and compliance.
+*   **Integration Layer:** Adapter pattern for multiple bank APIs, NPCI UPI protocol implementation.
+*   **Security:** PCI DSS compliance, end-to-end encryption, tokenization, fraud detection.
+*   **Transaction Processing:** Idempotency handling, retry logic, circuit breakers for bank failures.
+*   **Settlement Engine:** Daily T+1 settlement, reconciliation, fee calculation.
+*   **Risk Management:** Real-time fraud detection, ML models for anomaly detection.
+
+## 8. Design a Banking Core System
+**Core Requirements:** Account management, transaction processing, loan management, regulatory compliance.
+*   **Core Banking Modules:** Customer, Account, Transaction, Loan, Card, Risk, Compliance services.
+*   **Payment Processing:** NEFT/RTGS/IMPS integration, UPI support, card network connectivity.
+*   **Database Design:** ACID compliance for financial transactions, multi-database strategy.
+*   **Regulatory Compliance:** RBI guidelines, KYC/AML, audit trails, reporting requirements.
+*   **High Availability:** Disaster recovery, data replication, 99.99% uptime guarantee.
 **Core Requirements:** Match rider with nearest driver, track location in real-time, estimate ETA.
 *   **Location Tracking:** Drivers hit the server every 4 seconds with GPS coordinates. Do NOT write this straight to RDBMS.
 *   **Spatial Database:** Use heavily optimized systems like Redis GeoHash mapping or QuadTrees to quickly calculate objects within a specific radius.

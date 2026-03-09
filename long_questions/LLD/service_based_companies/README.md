@@ -11,6 +11,7 @@ While Product-Based companies might focus heavily on vast scalability and comple
 4.  [Traffic Light Control System](04_lld_traffic_light.md)
 5.  [Vehicle Rental System](05_lld_vehicle_rental.md)
 6.  [Hotel Management System](06_lld_hotel_management.md)
+7.  [Banking System (Core Banking)](07_lld_banking_system.md)
 
 ## Success Criteria for LLD Interviews
 *   **Requirements Gathering:** Can you define the scope of a broad idea like an "ATM"?
