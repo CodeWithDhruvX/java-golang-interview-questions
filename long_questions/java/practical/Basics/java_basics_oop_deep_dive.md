@@ -60,7 +60,7 @@ class Child extends Parent {
     private void show() {} // reducing public → private
 }
 ```
-**A:** **Compile Error.** Overriding methods cannot have a more restrictive access modifier. You can only widen (protected → public).
+**A:** **Compile Error.** Overriding methods cannot have a more restrictive access modifier. You can only widen (protected → public). 
 
 ---
 
