@@ -75,7 +75,7 @@ public class Main {
     public static void main(String[] args) {
         List<String> list = new ArrayList<>(List.of("a", "b", "c"));
         for (String s : list) {
-            if (s.equals("b")) list.remove(s); // modifying while iterating!
+            if (s.equals("a")) list.remove(s); // modifying while iterating!
         }
     }
 }
