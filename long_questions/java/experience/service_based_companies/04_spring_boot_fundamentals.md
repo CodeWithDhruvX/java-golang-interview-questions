@@ -40,6 +40,12 @@ public class Application {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Spring Boot is essentially Spring on steroids - it takes all the power of the Spring framework and wraps it in a layer of convenience. The main difference is in the philosophy: Spring requires you to configure everything manually with XML or Java config, while Spring Boot follows convention over configuration with auto-configuration. For example, in traditional Spring, I'd need to configure a datasource bean, transaction manager, and web server manually. With Spring Boot, I just add the right starter dependency and it automatically configures everything for me. Spring Boot also comes with an embedded Tomcat server, so I can run my application with just a main method. It doesn't replace Spring - it makes Spring much easier to use for rapid development."
+
+---
+
 ### Q2. What is Dependency Injection (DI)?
 
 ```java
@@ -58,13 +64,6 @@ public class OrderService {
     public OrderService(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
-}
-
-// Field injection (NOT recommended — harder to test, hides dependencies)
-@Service
-public class OrderService {
-    @Autowired
-    private PaymentService paymentService;  // ❌ avoid in production code
 }
 
 // Setter injection (use when dependency is optional)
@@ -110,6 +109,12 @@ public class UserSession { }     // new instance per HTTP session
 | `prototype` | 1 per injection/request | Spring creates, you manage destruction |
 | `request` | 1 per HTTP request | Request lifecycle |
 | `session` | 1 per HTTP session | Session lifecycle |
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Spring Bean scopes define how long a bean lives and how many instances exist. The default is singleton - Spring creates one instance for the entire application context. This is perfect for stateless services like controllers or business logic. Prototype creates a new instance every time it's requested - great for stateful objects like user-specific data. Then there are web-aware scopes: request creates a new bean for each HTTP request, and session creates one per user session. The key thing to remember is that singleton beans are shared, so they must be thread-safe, while prototype beans give each requester their own instance. Choosing the right scope is crucial for both performance and correctness."
 
 ---
 
@@ -166,6 +171,12 @@ public class AppProperties {
     // getters and setters required
 }
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Spring Boot gives me two main ways to handle configuration: properties and YAML. Properties files use simple key-value pairs, while YAML files are hierarchical and more readable for complex configurations. YAML is great because it reduces repetition - instead of writing spring.datasource.url, spring.datasource.username, I can nest them under spring.datasource. For reading configuration values, I can use @Value for individual properties, but the better approach is @ConfigurationProperties which gives me type-safe configuration binding. This way I get all the benefits of strong typing, validation, and IDE autocompletion. Plus, Spring Boot automatically loads different config files based on active profiles, so I can have dev, test, and prod configurations."
 
 ---
 
@@ -246,11 +257,17 @@ public class DataSourceConfig {
     @Profile("prod")
     public DataSource mysqlDataSource() {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:mysql://...");
+        ds.setJdbcUrl("jdbc:mysql://prod-server:3306/mydb");  // ✅ fixed
         return ds;
     }
 }
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Spring Profiles are my way of dealing with different environments - dev, test, prod. They let me define different configurations for different environments and activate the right one at runtime. For example, in dev I might use an in-memory H2 database, while in prod I use a PostgreSQL cluster. I can create profile-specific configuration files like application-dev.yml and application-prod.yml, and Spring Boot automatically picks the right one based on the active profile. I can also create profile-specific beans using @Profile annotation. This makes environment-specific configuration clean and maintainable - no more commenting out database configurations or changing URLs manually."
 
 ---
 
@@ -347,6 +364,12 @@ public class OrderMetrics {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Spring Boot Actuator is like having a doctor's office for my application - it gives me health checks and diagnostics out of the box. It provides endpoints like /actuator/health to check if my app is running, /actuator/metrics for performance data, and /actuator/info for application information. The best part is that I can create custom health indicators to check things like database connectivity or external service availability. I can also add custom metrics to track business-specific KPIs. Actuator turns my application into a production-ready service with monitoring capabilities, which is essential for DevOps and microservices. It's the difference between having an application that just runs and one that I can actually monitor and manage in production."
+
+---
+
 ### Q9. What is `@Transactional`?
 
 ```java
@@ -379,3 +402,9 @@ public class TransferService {
 ```
 
 > **Key:** `@Transactional` works via Spring AOP proxy — it **won't work** if called from within the same class (self-invocation problem).
+
+---
+
+### 🎯 How to Explain in Interview
+
+"@Transactional is Spring's way of handling database transactions automatically. Instead of manually managing transaction boundaries with begin, commit, and rollback, I just annotate my method and Spring handles everything. If the method completes successfully, Spring commits the transaction. If any exception occurs, it rolls back automatically. This is crucial for data consistency - in a money transfer, either both the debit and credit succeed, or neither does. I can also fine-tune the behavior with attributes like rollbackFor to specify which exceptions should trigger rollback, or propagation to control how transactions interact with existing ones. The key thing to remember is that @Transactional works through AOP proxies, so it won't work if I call a transactional method from within the same class."

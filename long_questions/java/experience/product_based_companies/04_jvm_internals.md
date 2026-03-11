@@ -57,6 +57,12 @@ System.out.printf("Heap: %dMB used / %dMB total / %dMB max%n",
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"The JVM memory structure is organized into several key areas. The Heap stores objects and is divided into Young Generation for new objects and Old Generation for long-lived objects. The Young Generation has Eden space where objects are born, and two Survivor spaces where objects age before moving to Old Generation. Metaspace replaced PermGen in Java 8 and stores class metadata. Each thread has its own Stack for method calls and local variables. The Code Cache holds compiled native code from the JIT compiler, and Direct Memory is used by NIO operations. I configure these areas with flags like -Xms for initial heap size and -Xmx for maximum. Understanding this layout helps me diagnose memory issues and tune the JVM for specific workloads."
+
+---
+
 ### Q2. How does Garbage Collection work?
 
 ```text
@@ -96,6 +102,12 @@ GC ALGORITHMS (Java 11+):
 -XX:+HeapDumpOnOutOfMemoryError # auto-dump on OOM
 -XX:HeapDumpPath=/tmp/heapdump.hprof
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Garbage Collection in Java is based on the generational hypothesis - most objects die young. New objects start in Eden space, and during Minor GC, surviving objects move between Survivor spaces, aging each time. When they reach a certain age threshold, they're promoted to Old Generation. Different GC algorithms serve different needs - Serial GC for single-threaded apps, Parallel GC for throughput, G1GC for balanced performance, and ZGC/Shenandoah for ultra-low latency. I tune GC with flags like -XX:MaxGCPauseMillis to target specific pause times. The key is choosing the right GC algorithm based on whether I need throughput, low latency, or predictable pause times for my application."
 
 ---
 
@@ -140,6 +152,12 @@ public class HotReloadClassLoader extends ClassLoader {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Class loading in Java follows a three-phase process: Loading, Linking, and Initialization. The ClassLoader hierarchy uses parent delegation - each class loader first asks its parent to load a class. This ensures core Java classes are always loaded by the Bootstrap ClassLoader, preventing security issues and duplicate classes. The hierarchy goes from Bootstrap for core classes, to Platform for JDK extensions, to Application for my application classes, and finally to custom ClassLoaders. I can create custom ClassLoaders for hot reloading, plugin systems, or loading classes from non-standard sources like databases. This delegation model is crucial for Java's security and modularity."
+
+---
+
 ### Q4. What is JIT Compilation and escape analysis?
 
 ```java
@@ -173,6 +191,12 @@ Point createPoint(int x, int y) {
 // -XX:+PrintCompilation — see which methods were compiled
 // -XX:CompileThreshold=1000 — trigger JIT after 1000 invocations (default 10000)
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"JIT compilation is how Java achieves performance close to native code. The JVM starts by interpreting bytecode, then compiles frequently used methods to native machine code. This happens in tiers - from simple C1 compilation for quick wins to aggressive C2 compilation for hot methods. Escape analysis is a powerful optimization where the JVM determines if an object escapes its creation scope. If not, it can allocate the object on the stack or even eliminate it entirely through scalar replacement. This dramatically reduces GC pressure. I can monitor JIT compilation with flags like -XX:+PrintCompilation. The beauty is that Java gets the benefits of both interpreted code (fast startup) and compiled code (high performance) automatically."
 
 ---
 
@@ -213,3 +237,11 @@ try { /* use connLocal */ } finally {
 // 4. String.intern() overuse
 String s = new String(largeBytesArray).intern();  // ❌ can fill Metaspace
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Memory leaks in Java typically happen when objects are held longer than needed. I diagnose them by enabling GC logging to watch heap growth, taking heap dumps at OOM or manually with jmap, then analyzing with tools like Eclipse MAT. Common patterns include static collections that grow forever, event listeners that aren't deregistered, and ThreadLocal variables not cleared in thread pools. The key is to look for objects that shouldn't be in the Old Generation but are accumulating there. I fix leaks by using WeakHashMap for caches, ensuring proper cleanup in finally blocks, and clearing ThreadLocals after use. Understanding these patterns helps me write more memory-efficient code and quickly diagnose production issues."
+
+---

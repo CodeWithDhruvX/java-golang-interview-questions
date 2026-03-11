@@ -61,6 +61,12 @@ public class StringBenchmark {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"JMH is the standard way to benchmark Java code correctly. Unlike naive timing, JMH handles JVM warmup, prevents dead code elimination, and accounts for JIT compilation. I use annotations like @BenchmarkMode to specify what to measure - average time, throughput, or latency. @State defines how data is shared between threads, and @Warmup lets the JIT optimize the code before measurement. I fork the benchmark into separate JVM processes to avoid interference. The key insight is that microbenchmarks in Java are tricky - the JVM optimizes away dead code, and compilation happens over time. JMH ensures I'm measuring real performance, not JVM optimization artifacts."
+
+---
+
 ### Q2. How do you profile a Java application?
 
 ```bash
@@ -102,6 +108,12 @@ try {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"For profiling Java applications, I use different tools depending on what I need to find. Java Flight Recorder is built-in and has low overhead - perfect for production profiling. I can start recordings with jcmd or configure them at startup. For detailed CPU and allocation profiling, I use async-profiler which generates flame graphs showing where time is spent. VisualVM provides a GUI for heap dumps and CPU snapshots. I also create custom JFR events to track specific business metrics like database query times. The key is choosing the right tool - JFR for production monitoring, async-profiler for deep performance analysis, and VisualVM for interactive debugging."
+
+---
+
 ### Q3. How do you tune HikariCP connection pool?
 
 ```yaml
@@ -132,6 +144,12 @@ spring:
 // GET /actuator/metrics/hikaricp.connections.pending
 // GET /actuator/metrics/hikaricp.connections.max
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"HikariCP connection pool tuning is crucial for database performance. I configure minimum-idle to keep connections ready, maximum-pool-size based on CPU cores and database capacity, and timeouts to prevent connection leaks. The formula I use is typically (CPU cores * 2) + spindle count for web applications. Common mistakes are making the pool too large which overwhelms the database, or too small which causes timeouts. I monitor pool metrics through Spring Actuator endpoints to ensure healthy utilization. The key is balancing connection availability with database load - too few connections hurt throughput, too many hurt database performance."
 
 ---
 
@@ -172,6 +190,12 @@ for (int i = 0; i < 1_000_000; i++) map.put("key" + i, i);  // 1M Integer alloca
 // 6. String deduplication (Java 8u20+, G1 only)
 // -XX:+UseStringDeduplication — JVM eliminates duplicate String char arrays
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Reducing object allocations is key to Java performance because fewer allocations mean less GC pressure and better cache locality. I use several strategies: object pooling for expensive objects like database connections, ThreadLocal for per-thread reuse to avoid creating objects per request, and pre-sizing StringBuilder to avoid repeated resizing. I also prefer primitives over boxed types in hot paths - an int array is much smaller than an Integer array. For collections, I avoid autoboxing by using specialized libraries or choosing the right data structure. The goal is to minimize the allocation rate while maintaining clean code. Even small optimizations like pre-sizing collections can make a big difference in high-throughput applications."
 
 ---
 
@@ -224,6 +248,12 @@ private Supplier<Config> memoized = Suppliers.memoize(() -> loadConfig());  // G
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Lazy initialization delays expensive operations until they're actually needed, improving startup time and memory usage. I use double-checked locking for thread-safe lazy initialization with minimal synchronization overhead. The cleaner holder idiom leverages JVM class loading guarantees for thread safety without synchronization. In Spring, I use @Lazy annotation to defer bean creation. For programmatic lazy loading, I use Supplier or Guava's memoize for compute-once semantics. The key is balancing performance benefits with complexity - lazy initialization is worth it for expensive resources that might not be used, but I avoid it for simple objects where the overhead outweighs the benefit."
+
+---
+
 ### Q6. How do you optimize DB-intensive workloads?
 
 ```java
@@ -263,3 +293,11 @@ Page<Product> page = productRepository.findAll(PageRequest.of(0, 50));
 // Or: Cursor-based for large datasets (stable, no "skip N" problem)
 List<Product> products = productRepository.findByIdGreaterThan(lastId, PageRequest.of(0, 50));
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Optimizing database-intensive workloads involves several strategies. I use projections to fetch only the fields I need instead of full entities - this reduces data transfer and memory usage. For bulk operations, I enable batch inserts to reduce database roundtrips. I route read queries to replica databases to distribute load. For slow queries, I make them asynchronous with @Async to avoid blocking request threads. I always use pagination - never load entire tables into memory. For large datasets, cursor-based pagination is more stable than offset-based. The key principle is minimizing database interaction while maintaining data integrity - fewer queries, less data per query, and better utilization of database resources."
+
+---

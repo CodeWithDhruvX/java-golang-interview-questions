@@ -97,6 +97,12 @@ public class JwtService {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Spring Security with JWT creates a stateless authentication system. I implement a JWT filter that extracts tokens from the Authorization header, validates them, and sets the authentication in the SecurityContext. The filter runs before the main authentication filter. I generate JWTs with user details and roles, sign them with a secret key, and set an expiration time. The security configuration disables CSRF, sets session management to stateless, and protects endpoints based on roles. The beauty is that once authenticated, the user context is available throughout the application via SecurityContextHolder. This approach scales well for microservices since there's no server-side session state to manage."
+
+---
+
 ### Q2. What is a custom Spring AOP annotation?
 
 ```java
@@ -149,6 +155,12 @@ public class PaymentService {
     }
 }
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Custom Spring AOP annotations let me add cross-cutting concerns without cluttering business logic. I create an annotation like @Audited, then implement an @Aspect that intercepts methods annotated with it. Using @Around advice, I can execute code before and after the method, measure execution time, and handle exceptions. The aspect has access to method parameters and can even modify return values. This is perfect for audit logging, performance monitoring, or security checks. The key benefit is that business code stays clean - I just add @Audited and the cross-cutting concern is automatically applied. This demonstrates AOP's power for separating concerns in enterprise applications."
 
 ---
 
@@ -207,6 +219,12 @@ public class OrderPricingService {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"The Strategy pattern defines a family of algorithms and makes them interchangeable. I define a strategy interface like DiscountStrategy, then create multiple implementations like SeasonalDiscountStrategy and LoyaltyDiscountStrategy. Spring automatically injects all strategies into a Map where the key is the bean name. The context class selects the appropriate strategy based on conditions. This pattern is perfect for business rules that vary - like different discount calculations or payment processing methods. The beauty is that I can add new strategies without modifying existing code, following the Open/Closed principle. It's much cleaner than complex if-else chains and makes the system more maintainable."
+
+---
+
 ### Q4. What is the Factory Pattern in Spring?
 
 ```java
@@ -259,6 +277,12 @@ notificationFactory.getSender("sms").send("+919876543210", "OTP: 123456");
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"The Factory pattern in Spring is beautifully implemented through dependency injection. I define an interface like NotificationSender and create multiple implementations with different @Component names. Spring automatically injects all implementations into a Map where the key is the bean name. The factory class simply looks up the appropriate implementation from this map. This is much cleaner than manual factory classes with if-else statements. The beauty is that adding new notification types is as simple as creating a new @Component class - no factory code changes needed. This leverages Spring's IoC container to implement the Factory pattern naturally."
+
+---
+
 ### Q5. What are SOLID principles?
 
 ```java
@@ -287,6 +311,14 @@ interface ReadWrite extends Readable, Writable {}  // client uses only what they
 // BAD:  private MySQLRepository db = new MySQLRepository();
 // GOOD: private final UserRepository userRepo;  // injected via interface
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"SOLID principles are fundamental guidelines for writing maintainable object-oriented code. Single Responsibility means each class has one reason to change - I separate user registration from email sending. Open/Closed means I design for extension without modification - I use Strategy pattern instead of adding if-else. Liskov Substitution ensures subclasses can replace their parents without breaking functionality. Interface Segregation means I create focused interfaces rather than fat ones - clients only depend on methods they actually use. Dependency Inversion means I depend on abstractions, not concretions - I inject interfaces through constructors. These principles help me create flexible, maintainable code that's easy to test and extend."
+
+---
 
 ---
 
@@ -332,3 +364,11 @@ public void publishToKafka(OrderShippedEvent event) {
     kafkaTemplate.send("order-shipped", event.orderId().toString(), event);
 }
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Spring's event system implements the Observer pattern beautifully. I create simple POJO events and publish them using ApplicationEventPublisher. Listeners use @EventListener to handle events. I can control when listeners run - synchronous listeners run in the same thread, @Async listeners run in different threads, and @TransactionalEventListener runs after transaction commits. This is perfect for decoupling components - the shipping service doesn't need to know about notification or Kafka services. It just publishes an event and interested parties react. This pattern is great for audit logging, notifications, or updating read models in CQRS architectures. Spring handles all the complexity of event routing and listener management."
+
+---

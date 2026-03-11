@@ -41,6 +41,15 @@ public class Main {
 ```
 Same result but different performance. `ArrayList.remove(0)` is O(n) (shifts). `LinkedList.remove(0)` is O(1) (pointer update). However, LinkedList has higher memory overhead (node objects).
 
+**Code Snippet Internal Behavior:**
+- ArrayList uses dynamic array `Object[] elementData` internally
+- `remove(0)` triggers `System.arraycopy()` to shift all elements left by 1 position
+- LinkedList uses doubly-linked nodes with `Node<E> first`, `Node<E> last`
+- Each node contains `E item`, `Node<E> next`, `Node<E> prev`
+- `remove(0)` just updates `first = first.next` and adjusts pointers
+- ArrayList memory: contiguous array, cache-friendly
+- LinkedList memory: separate node objects, more GC pressure
+
 ---
 
 ### 2. List.remove(int) vs List.remove(Object)
@@ -65,6 +74,15 @@ public class Main {
 ```
 `remove(int)` removes by index. `remove(Object)`/`remove(Integer.valueOf(...))` removes by value. Autoboxing pitfall!
 
+**Code Snippet Internal Behavior:**
+- ArrayList has two overloaded `remove()` methods: `remove(int index)` and `remove(Object o)`
+- `remove(1)` calls `remove(int index)` - removes element at index 1 (value 20)
+- `remove(Integer.valueOf(10))` calls `remove(Object o)` due to wrapper type
+- Compiler chooses method based on compile-time type, not runtime value
+- Primitive `int` binds to `remove(int index)`
+- `Integer` object binds to `remove(Object o)`
+- Common bug: `list.remove(1)` vs `list.remove(Integer.valueOf(1))` behave differently
+
 ---
 
 ### 3. ConcurrentModificationException
@@ -82,6 +100,15 @@ public class Main {
 ```
 **A:** **ConcurrentModificationException at runtime.** You cannot modify a collection while iterating with a for-each loop. Use `Iterator.remove()` or `list.removeIf()` instead.
 
+**Code Snippet Internal Behavior:**
+- For-each loop uses `Iterator<String> it = list.iterator()` internally
+- ArrayList iterator maintains `int expectedModCount = modCount`
+- `modCount` increments on every structural modification (add/remove)
+- Iterator checks `expectedModCount == actualModCount` before each `next()` call
+- `list.remove("a")` increments `modCount` but `expectedModCount` stays unchanged
+- Next `hasNext()`/`next()` call detects mismatch → throws ConcurrentModificationException
+- This is "fail-fast" behavior - detects concurrent modification early
+
 ---
 
 ### 4. Correct Way — removeIf
@@ -97,6 +124,15 @@ public class Main {
 }
 ```
 **A:** `[apple, cherry]`. `removeIf` is safe and concise.
+
+**Code Snippet Internal Behavior:**
+- `removeIf()` uses internal iterator with proper modification tracking
+- Iterator's `remove()` method updates both `modCount` and `expectedModCount`
+- Implementation creates temporary array of elements to remove
+- Applies batch removal to avoid ConcurrentModificationException
+- More efficient than manual iterator removal for multiple elements
+- Uses Predicate<T> functional interface for condition evaluation
+- Internally: `for (int i=0; i<size; i++) if (filter.test(element)) remove(i)`
 
 ---
 
@@ -117,6 +153,15 @@ public class Main {
 ```
 **A:** `[1, 3, 5]`
 
+**Code Snippet Internal Behavior:**
+- Iterator maintains cursor position and expectedModCount
+- `it.next()` advances cursor and returns current element
+- `it.remove()` removes last returned element and updates expectedModCount
+- Must call `next()` before `remove()` - throws IllegalStateException otherwise
+- Single iterator cannot be used concurrently by multiple threads
+- Iterator removal is O(1) - just shifts elements from removeIndex+1 to end
+- After removal, cursor points to element after removed one
+
 ---
 
 ### 6. List.of() — Immutable
@@ -131,6 +176,15 @@ public class Main {
 }
 ```
 **A:** **UnsupportedOperationException at runtime.** `List.of()` (Java 9+) returns an immutable list. Use `new ArrayList<>(List.of(...))` to get a mutable copy.
+
+**Code Snippet Internal Behavior:**
+- `List.of()` returns `ImmutableCollections.ListN` or `ImmutableCollections.SubList`
+- These are internal classes in `java.util.ImmutableCollections` package
+- All modification methods throw `UnsupportedOperationException`
+- Immutable lists store elements in final array `final E[] elements`
+- No defensive copying needed - elements array is internal and never exposed
+- Null elements not allowed - throws `NullPointerException` during creation
+- Optimized for small lists: `List.of()` (empty), `List.of(e1)`, `List.of(e1, e2)` etc.
 
 ---
 
@@ -148,6 +202,15 @@ public class Main {
 }
 ```
 **A:** `[1, 5]`. `subList()` returns a **view** backed by the original list. Modifying the subList modifies the original.
+
+**Code Snippet Internal Behavior:**
+- `subList()` returns `ArrayList.SubList` inner class instance
+- SubList holds reference to parent ArrayList and offset/size
+- SubList operations delegate to parent with index translation: `parent.get(offset + index)`
+- `subList.clear()` calls `parent.removeRange(fromIndex, toIndex)`
+- No data copying - just index mapping for performance
+- Structural changes to parent invalidate subList (ConcurrentModificationException)
+- Memory efficient: shares underlying element array
 
 ---
 
@@ -172,6 +235,15 @@ public class Main {
 [cherry, banana, apple]
 ```
 
+**Code Snippet Internal Behavior:**
+- `Collections.sort(list)` uses `list.sort(null)` internally (since Java 8)
+- Calls `Arrays.sort(elementArray)` - uses optimized TimSort algorithm
+- `list.sort(comparator)` directly calls `Arrays.sort(elementArray, comparator)`
+- TimSort is hybrid of merge sort and insertion sort - O(n log n) worst case
+- For ArrayList: sorts backing array directly, then updates `modCount`
+- Comparator.reverseOrder() returns `Collections.ReverseComparator`
+- Reverse comparator flips comparison: `-(c1.compareTo(c2))`
+
 ---
 
 ### 9. Collections.unmodifiableList()
@@ -190,6 +262,15 @@ public class Main {
 ```
 **A:** `[a, b, c]` then **UnsupportedOperationException**. `unmodifiableList` wraps the list — mutations via the original reference still show through. It only prevents direct mutation of the wrapper.
 
+**Code Snippet Internal Behavior:**
+- `Collections.unmodifiableList()` returns `UnmodifiableList` wrapper
+- Wrapper holds reference to original list: `final List<? extends E> list`
+- All modification methods throw `UnsupportedOperationException`
+- Read operations delegate to wrapped list: `return list.get(index)`
+- Changes to original list are visible through wrapper (no defensive copy)
+- Wrapper pattern - provides read-only view of mutable collection
+- Useful for API design - prevent external modification but allow internal changes
+
 ---
 
 ### 10. ArrayList Initial Capacity vs size
@@ -205,6 +286,15 @@ public class Main {
 }
 ```
 **A:** `0`. Initial capacity is an internal optimization hint — it pre-allocates the backing array but doesn't affect `size()`. `size()` returns the number of actual elements.
+
+**Code Snippet Internal Behavior:**
+- `new ArrayList(100)` allocates `Object[] elementData = new Object[100]`
+- `size` field remains 0 - tracks actual element count, not capacity
+- Capacity is internal optimization to avoid frequent array resizing
+- Default capacity is 10, grows by `oldCapacity + (oldCapacity >> 1)` (1.5x)
+- When `size >= elementData.length`, `grow()` method allocates new array
+- `Arrays.copyOf(elementData, newCapacity)` copies elements to larger array
+- Initial capacity reduces array copies but increases initial memory usage
 
 ---
 
@@ -222,6 +312,15 @@ public class Main {
 }
 ```
 **A:** `2`. `List.copyOf()` creates an independent immutable snapshot.
+
+**Code Snippet Internal Behavior:**
+- `List.copyOf()` returns `ImmutableCollections.ListN` or `ImmutableCollections.SubList`
+- Creates defensive copy of source collection: `Arrays.copyOf(collection.toArray(), n)`
+- If source is already immutable, may return same instance (optimization)
+- Null elements not allowed - throws `NullPointerException` if any element is null
+- Copy is completely independent - changes to original don't affect copy
+- Uses `collection.toArray()` then `Arrays.copyOf()` for type safety
+- More efficient than `new ArrayList<>(collection).asList()` for immutable result
 
 ---
 
@@ -244,6 +343,15 @@ public class Main {
 4
 -1
 ```
+
+**Code Snippet Internal Behavior:**
+- `indexOf()` performs linear search: `for (int i=0; i<size; i++) if (Objects.equals(o, elementData[i])) return i;`
+- `lastIndexOf()` searches backwards: `for (int i=size-1; i>=0; i--) if (Objects.equals(o, elementData[i])) return i;`
+- Both use `Objects.equals()` for null-safe comparison
+- Time complexity: O(n) - must scan potentially entire list
+- Returns -1 if element not found (convention for "not found" in Java)
+- For large lists with frequent lookups, consider `HashSet` for O(1) lookup
+- Uses `==` comparison first, then `equals()` for performance
 
 ---
 
@@ -272,6 +380,15 @@ Dave 85
 ```
 Sort by grade descending, then by name ascending.
 
+**Code Snippet Internal Behavior:**
+- `Comparator.comparingInt(Student::grade)` creates key extractor comparator
+- `.reversed()` inverts comparison order: `c2 - c1` instead of `c1 - c2`
+- `.thenComparing(Student::name)` chains secondary comparator
+- Chained comparators use short-circuit evaluation
+- `Student::grade` and `Student::name` are method references to record accessors
+- Comparator returns negative if first < second, zero if equal, positive if first > second
+- `Collections.sort()` uses TimSort algorithm internally
+
 ---
 
 ### 14. LinkedList as Deque
@@ -299,6 +416,16 @@ public class Main {
 [0, 1]
 ```
 
+**Code Snippet Internal Behavior:**
+- `LinkedList` implements `Deque` interface with doubly-linked nodes
+- `addFirst(1)` creates new node and updates head: `Node<E> newNode = new Node<>(null, item, first)`
+- `addLast(2)` updates tail: `Node<E> newNode = new Node<>(last, item, null)`
+- Each node has `E item`, `Node<E> prev`, `Node<E> next`
+- `peekFirst()` returns `first.item` without removing node
+- `pollLast()` removes tail node and updates `last = last.prev`
+- All operations are O(1) - just pointer updates, no array copying
+- Memory overhead: 3 references + object header per element
+
 ---
 
 ### 15. Collections.frequency()
@@ -318,6 +445,15 @@ public class Main {
 3
 0
 ```
+
+**Code Snippet Internal Behavior:**
+- `Collections.frequency()` iterates through collection: `int count = 0; for (E e : c) if (Objects.equals(o, e)) count++;`
+- Uses `Objects.equals()` for null-safe comparison
+- Time complexity: O(n) - linear scan of entire collection
+- For large collections with frequent frequency queries, consider `Map<T, Integer>`
+- Alternative: `list.stream().filter(x -> Objects.equals(x, target)).count()` (Java 8+)
+- No built-in optimization - always scans entire collection
+- Works with any `Collection` implementation, not just lists
 
 ---
 
@@ -339,6 +475,15 @@ public class Main {
 5
 ```
 `Collections.nCopies()` creates an immutable list with n copies of the specified object.
+
+**Code Snippet Internal Behavior:**
+- Returns `ImmutableCollections.ListN` with single object reference
+- Doesn't actually create n copies - stores one reference and returns it for each index
+- `get(int index)` always returns the same object reference: `return element`
+- Memory efficient: O(1) space regardless of n (stores count + single reference)
+- All operations O(1) except `contains()` which is O(n)
+- Immutable - all modification methods throw `UnsupportedOperationException`
+- Useful for creating repeated elements or padding collections
 
 ---
 
@@ -363,6 +508,16 @@ public class Main {
 5
 ```
 
+**Code Snippet Internal Behavior:**
+- `Collections.reverse(list)` uses two-pointer swap algorithm
+- Implementation: `for (int i=0, mid=list.size()/2, j=list.size()-1; i<mid; i++, j--) swap(list, i, j)`
+- `Collections.shuffle(list, random)` uses Fisher-Yates shuffle algorithm
+- Fisher-Yates: `for (int i=list.size()-1; i>0; i--) swap(list, i, random.nextInt(i+1))`
+- Both methods modify list in-place - no new list created
+- Time complexity: O(n) for both operations
+- `Random(42)` provides reproducible shuffle for testing
+- Uses `list.set(i, list.set(j, list.get(i)))` for atomic swapping
+
 ---
 
 ### 18. Arrays.asList() — Fixed Size but Mutable
@@ -379,6 +534,16 @@ public class Main {
 }
 ```
 **A:** `[x, b, c]` then **UnsupportedOperationException**. `Arrays.asList` returns a fixed-size list backed by an array — you can set elements but not add/remove.
+
+**Code Snippet Internal Behavior:**
+- `Arrays.asList()` returns `java.util.Arrays.ArrayList` (inner class, not `java.util.ArrayList`)
+- This inner class stores reference to original array: `private final E[] a`
+- `get(index)` returns `a[index]`, `set(index, element)` assigns `a[index] = element`
+- `add()` and `remove()` throw `UnsupportedOperationException` - array size fixed
+- Size always equals array length - cannot grow or shrink
+- Changes to list are reflected in original array (same backing storage)
+- Useful for converting arrays to lists for API compatibility
+- Different from `new ArrayList<>(Arrays.asList(array))` which copies elements
 
 ---
 
@@ -397,6 +562,16 @@ public class Main {
 }
 ```
 **A:** `7`. HashSet removes duplicates (one `1` dropped). Order is unspecified — do not rely on it.
+
+**Code Snippet Internal Behavior:**
+- `HashSet` internally uses `HashMap<E, Object>` for storage
+- Each element stored as key in backing map with dummy `Object` value: `PRESENT = new Object()`
+- `add(e)` calls `map.put(e, PRESENT)` and returns `map.put()` result
+- Duplicate detection: `HashMap` checks `hashCode()` first, then `equals()` if hash matches
+- Initial capacity 16, load factor 0.75 by default
+- When size > capacity * loadFactor, triggers rehashing: doubles capacity and rehashes all entries
+- Order depends on hash values and internal table structure - not guaranteed
+- `size()` returns `map.size()` - actual number of unique elements
 
 ---
 
@@ -420,6 +595,16 @@ public class Main {
 5
 ```
 
+**Code Snippet Internal Behavior:**
+- `TreeSet` uses `TreeMap<E, Object>` internally with dummy value `PRESENT`
+- Implements `NavigableMap` interface for ordered operations
+- Elements must be `Comparable` or provide `Comparator` at construction
+- `first()` returns `map.firstKey()`, `last()` returns `map.lastKey()`
+- Uses Red-Black Tree data structure - self-balancing binary search tree
+- All operations O(log n): add, remove, contains, first, last
+- Natural ordering: `e1.compareTo(e2)` for `Comparable` elements
+- Tree maintains invariants: no red node has red child, every path to leaf has same black count
+
 ---
 
 ### 21. LinkedHashSet — Insertion Order Preserved
@@ -434,6 +619,17 @@ public class Main {
 }
 ```
 **A:** `[banana, apple, cherry]`. `LinkedHashSet` maintains insertion order and removes duplicates.
+
+**Code Snippet Internal Behavior:**
+- `LinkedHashSet` extends `HashSet` and uses `LinkedHashMap<E, Object>` internally
+- Maintains doubly-linked list of entries in addition to hash table
+- Each entry has `before` and `after` pointers for order maintenance
+- `add(e)` appends to end of linked list if not already present
+- Iteration follows linked list order, not hash table order
+- Slightly more memory overhead than `HashSet` (2 extra pointers per entry)
+- Still O(1) average for add, remove, contains operations
+- Useful when iteration order matters but need Set semantics
+- Rehashing preserves insertion order by rebuilding linked list
 
 ---
 
@@ -457,6 +653,17 @@ public class Main {
 ```
 **A:** `2`. Without overriding `hashCode()` and `equals()`, the two `Point` objects are treated as different (default identity-based comparison).
 
+**Code Snippet Internal Behavior:**
+- `HashSet` uses `hashCode()` to find bucket, then `equals()` to check for duplicates
+- Default `Object.hashCode()` returns unique memory address for each object instance
+- Default `Object.equals()` uses `==` reference comparison
+- Two `new Point(1, 2)` objects have different hash codes and different references
+- `add(point1)` stores in bucket based on `point1.hashCode()`
+- `add(point2)` goes to different bucket (different hash) → no collision check
+- Fix: Override `hashCode()` to return consistent hash for equal coordinates
+- Fix: Override `equals()` to compare x and y fields instead of references
+- Contract: if `equals()` true, `hashCode()` must return same value
+
 ---
 
 ### 23. Set.of() — No Duplicates Allowed
@@ -470,6 +677,16 @@ public class Main {
 }
 ```
 **A:** **IllegalArgumentException at runtime.** `Set.of()` throws an exception if duplicate elements are provided.
+
+**Code Snippet Internal Behavior:**
+- `Set.of()` performs duplicate detection during creation
+- Uses `Object.equals()` to check for duplicates in varargs array
+- Throws `IllegalArgumentException` with message "duplicate element: a"
+- Returns `ImmutableCollections.SetN` or `ImmutableCollections.Set12` for small sets
+- Null elements not allowed - throws `NullPointerException`
+- Immutable set - all modification methods throw `UnsupportedOperationException`
+- Optimized implementations: `Set.of()` (empty), `Set.of(e1)`, `Set.of(e1, e2)` etc.
+- Uses `SetN` for >2 elements, `Set1`/`Set2` for 1-2 elements
 
 ---
 
@@ -488,6 +705,16 @@ public class Main {
 ```
 **A:** `[1, 2, 3, 4, 5]`
 
+**Code Snippet Internal Behavior:**
+- `addAll()` calls `map.putAll()` internally (HashSet uses HashMap)
+- For each element in collection: `add(e)` which calls `map.put(e, PRESENT)`
+- Duplicate elements automatically ignored by HashMap put logic
+- Time complexity: O(n) where n is size of collection being added
+- Hash table may resize if adding many elements beyond load factor threshold
+- Returns `true` if set changed (new elements added), `false` if all duplicates
+- Union operation: result contains all unique elements from both sets
+- More efficient than manual iteration and individual `add()` calls
+
 ---
 
 ### 25. Set retainAll() — Intersection
@@ -504,6 +731,16 @@ public class Main {
 }
 ```
 **A:** `[3, 4]`
+
+**Code Snippet Internal Behavior:**
+- `retainAll()` uses iterator to remove elements not in specified collection
+- Implementation: `Iterator<E> it = iterator(); while (it.hasNext()) if (!c.contains(it.next())) it.remove();`
+- For each element, checks if it exists in collection `b` using `contains()`
+- Removes elements from set `a` that are not present in set `b`
+- Time complexity: O(n * m) where n=size(a), m=size(b) for contains check
+- Uses fail-fast iterator - throws ConcurrentModificationException if set modified during operation
+- Returns `true` if set changed, `false` if no elements removed
+- Intersection operation: result contains only elements present in both sets
 
 ---
 
@@ -522,6 +759,17 @@ public class Main {
 ```
 **A:** `[1, 2]`
 
+**Code Snippet Internal Behavior:**
+- `removeAll()` removes all elements that are also in specified collection
+- Implementation: `Iterator<E> it = iterator(); while (it.hasNext()) if (c.contains(it.next())) it.remove();`
+- For each element in set `a`, checks if it exists in set `b`
+- Removes element from `a` if found in `b`
+- Time complexity: O(n * m) where n=size(a), m=size(b)
+- Uses iterator with safe removal to avoid ConcurrentModificationException
+- Returns `true` if set changed (elements removed), `false` if no overlap
+- Set difference operation: result contains elements in `a` but not in `b`
+- More efficient than creating new set and manually filtering
+
 ---
 
 ### 27. TreeSet with Custom Comparator
@@ -538,6 +786,17 @@ public class Main {
 }
 ```
 **A:** `[fig, kiwi, plum, apple, banana]`
+
+**Code Snippet Internal Behavior:**
+- `TreeSet` constructor accepts custom `Comparator<String>`
+- `Comparator.comparingInt(String::length)` creates comparator based on string length
+- `.thenComparing(Comparator.naturalOrder())` chains secondary alphabetical comparison
+- Comparator returns: negative if first < second, zero if equal, positive if first > second
+- Red-Black tree uses comparator for all ordering decisions (insertion, search)
+- Elements with same length ordered alphabetically as tie-breaker
+- All tree operations O(log n) due to balanced tree property
+- Comparator stored internally and used consistently throughout tree lifecycle
+- No need for elements to implement `Comparable` when custom comparator provided
 
 ---
 
@@ -561,6 +820,17 @@ public class Main {
 5
 ```
 
+**Code Snippet Internal Behavior:**
+- `EnumSet` is specialized Set implementation for enum types
+- Uses bit vector internally - each enum constant maps to a bit position
+- Extremely memory efficient: one long (64 bits) can store up to 64 enum values
+- `EnumSet.of(Day.SAT, Day.SUN)` sets corresponding bits: `bits |= (1L << SAT.ordinal())`
+- `complementOf()` flips all bits: `bits = ~bits & universeMask`
+- Operations are O(1) - just bit manipulation, no hashing or comparisons
+- Iterator returns elements in natural enum order (ordinal order)
+- Fails fast if you try to add non-enum elements (compile-time type safety)
+- More efficient than `HashSet` for enum keys due to bit operations
+
 ---
 
 ### 29. contains() on a List vs Set — Performance
@@ -580,6 +850,16 @@ public class Main {
 }
 ```
 **A:** Both print `true`. But `set.contains()` is **O(1)** average. `list.contains()` is **O(n)** — scans every element. Always use `HashSet` for frequent membership checks.
+
+**Code Snippet Internal Behavior:**
+- `ArrayList.contains()` performs linear search: `for (int i=0; i<size; i++) if (Objects.equals(o, elementData[i])) return true;`
+- `HashSet.contains()` computes hash: `int hash = Objects.hashCode(o); int index = (n-1) & hash; return getNode(hash, o) != null`
+- ArrayList: worst-case O(n) comparisons, best-case O(1) if element at index 0
+- HashSet: average O(1) hash lookup, worst-case O(n) if all elements in same bucket
+- HashSet uses `hashCode()` to find bucket, then `equals()` for collision resolution
+- Performance difference grows dramatically with collection size
+- Memory tradeoff: HashSet uses more memory but faster lookups
+- For 1M elements: ArrayList may need up to 1M comparisons, HashSet typically 1-3
 
 ---
 
@@ -602,6 +882,18 @@ public class Main {
 [7, 8, 9, 10]
 [3, 4, 5, 6]
 ```
+
+**Code Snippet Internal Behavior:**
+- `TreeSet` extends `SortedSet` and provides range view operations
+- `headSet(5)` returns view of elements < 5 (exclusive upper bound)
+- `tailSet(7)` returns view of elements ≥ 7 (inclusive lower bound)
+- `subSet(3, 7)` returns view of elements [3, 7) - inclusive start, exclusive end
+- Returns `TreeSet.SubSet` which is a view, not a copy
+- Changes to original set reflected in sub-sets and vice versa
+- Uses Red-Black tree structure for efficient range operations O(log n)
+- Sub-sets share underlying tree - no data duplication
+- Useful for pagination, data partitioning, and range queries
+- All range operations maintain sorted order automatically
 
 ---
 
@@ -627,6 +919,16 @@ public class Main {
 [a, b, c]
 ```
 
+**Code Snippet Internal Behavior:**
+- `LinkedHashSet` iteration follows doubly-linked list order (insertion order)
+- `TreeSet` iteration follows in-order traversal of Red-Black tree (sorted order)
+- `HashSet` iteration order depends on hash table internal structure and bucket order
+- LinkedHashSet: maintains `head` and `tail` pointers, iteration follows `after` pointers
+- TreeSet: in-order traversal visits left subtree, then node, then right subtree
+- HashSet: iteration order can change between runs and JVM versions
+- Order guarantees affect performance: LinkedHashSet/TreeSet have extra overhead
+- Choose Set type based on whether iteration order matters for your use case
+
 ---
 
 ### 32. Set.copyOf() — Immutable
@@ -642,6 +944,17 @@ public class Main {
 }
 ```
 **A:** **UnsupportedOperationException.** `Set.copyOf()` returns an immutable set.
+
+**Code Snippet Internal Behavior:**
+- `Set.copyOf()` returns `ImmutableCollections.SetN` or optimized variants
+- Creates defensive copy of source collection using `collection.toArray()`
+- For small sets (0-2 elements), uses specialized `Set0`, `Set1`, `Set2` classes
+- For larger sets, uses `SetN` which stores elements in array
+- All modification methods throw `UnsupportedOperationException`
+- Null elements not allowed - throws `NullPointerException` if source contains null
+- Copy is completely independent - changes to original don't affect copy
+- More memory efficient than copying to `HashSet` then wrapping with `unmodifiableSet`
+- Optimized for immutable use case with minimal overhead
 
 ---
 
@@ -671,6 +984,17 @@ null
 ```
 Duplicate key overwrites the value. `get()` returns `null` for missing keys; use `getOrDefault()` to avoid NPE.
 
+**Code Snippet Internal Behavior:**
+- `HashMap` uses array of `Node<K,V>[] table` for storage
+- `put(key, value)` computes hash: `hash = Objects.hashCode(key) ^ (hash >>> 16)`
+- Index calculation: `index = (n-1) & hash` where n is table length (power of 2)
+- `put("a", 1)` creates new node at computed index
+- `put("a", 10)` finds existing node by hash/key and overwrites value
+- `get("a")` computes hash, finds bucket, traverses linked list/red-black tree
+- `get("c")` returns null - bucket empty or key not found in chain
+- `getOrDefault("c", 0)` returns default value instead of null
+- Initial capacity 16, load factor 0.75 - triggers resize at 12 elements
+
 ---
 
 ### 34. Map.putIfAbsent()
@@ -693,6 +1017,17 @@ public class Main {
 99
 ```
 
+**Code Snippet Internal Behavior:**
+- `putIfAbsent(key, value)` checks existence before insertion
+- Implementation: `V v = get(key); if (v == null) return put(key, value); else return v;`
+- For existing key "a": finds value 1, returns it without overwriting
+- For missing key "b": value is null, inserts new entry with value 99
+- Atomic operation - prevents race conditions in concurrent scenarios
+- More efficient than separate `containsKey()` + `put()` calls
+- Returns previous value if key existed, null if key was absent
+- Useful for initializing maps with default values only when needed
+- Internally uses same hash calculation and bucket logic as regular `put()`
+
 ---
 
 ### 35. Map.computeIfAbsent() — Lazy Initialization
@@ -709,6 +1044,18 @@ public class Main {
 }
 ```
 **A:** `[2, 4]`. `computeIfAbsent()` creates the value only if the key is missing, then returns it. Perfect for grouping/multimaps.
+
+**Code Snippet Internal Behavior:**
+- `computeIfAbsent(key, function)` lazily computes value only when key absent
+- First call: key "evens" missing, calls function `k -> new ArrayList<>()`
+- Creates new ArrayList, stores in map, returns reference to list
+- `add(2)` modifies the returned list (now stored in map)
+- Second call: key "evens" exists, returns existing list without calling function
+- `add(4)` modifies same list instance
+- Function called at most once per key - memoization pattern
+- Thread-safe only if the computed value is immutable or map is synchronized
+- More efficient than `get()` + `putIfAbsent()` pattern
+- Common pattern for implementing multimaps: `Map<K, List<V>>`
 
 ---
 
@@ -729,6 +1076,18 @@ public class Main {
 ```
 **A:** `{apple=3, banana=2, cherry=1}`. `merge(key, 1, sum)` inserts 1 if absent, or applies the function (sum) if present.
 
+**Code Snippet Internal Behavior:**
+- `merge(key, value, remappingFunction)` combines existing and new values
+- First "apple": key absent, inserts `apple=1`
+- Second "apple": key exists with value 1, calls `Integer::sum` with (1, 1) → stores 2
+- Third "apple": key exists with value 2, calls `Integer::sum` with (2, 1) → stores 3
+- `Integer::sum` is method reference equivalent to `(old, newVal) -> old + newVal`
+- Function receives existing value and new value, returns combined result
+- If function returns null, entry is removed from map
+- Atomic operation - useful for counters, accumulators, and aggregations
+- More concise than `map.put(key, map.getOrDefault(key, 0) + 1)` pattern
+- Handles all cases: insertion, update, and removal in one method call
+
 ---
 
 ### 37. LinkedHashMap — Insertion Order
@@ -746,6 +1105,18 @@ public class Main {
 }
 ```
 **A:** `[banana, apple, cherry]`. `LinkedHashMap` preserves insertion order, unlike `HashMap`.
+
+**Code Snippet Internal Behavior:**
+- `LinkedHashMap` extends `HashMap` and adds doubly-linked list to maintain order
+- Each entry has `before` and `after` pointers in addition to hash table entry
+- `put()` method appends new entry to end of linked list after hash table insertion
+- `keySet()` iteration follows linked list order, not hash table bucket order
+- Maintains `head` and `tail` pointers for efficient order maintenance
+- Rehashing preserves insertion order by rebuilding linked list
+- Slightly more memory overhead: 2 extra references per entry
+- All operations still O(1) average case like HashMap
+- Useful when iteration order matters but need Map performance
+- Order preserved during serialization/deserialization
 
 ---
 
@@ -768,6 +1139,18 @@ public class Main {
 apple
 cherry
 ```
+
+**Code Snippet Internal Behavior:**
+- `TreeMap` uses Red-Black Tree data structure internally
+- Keys must be `Comparable` or provide `Comparator` at construction
+- `firstKey()` returns leftmost node in tree (minimum key)
+- `lastKey()` returns rightmost node in tree (maximum key)
+- All operations O(log n) due to self-balancing property
+- Tree maintains invariants: no red node has red child, all paths have same black count
+- Natural ordering uses `key1.compareTo(key2)` for `Comparable` keys
+- `TreeMap` implements `NavigableMap` for additional range operations
+- No null keys allowed (throws `NullPointerException`)
+- More memory overhead than `HashMap` but provides sorted iteration
 
 ---
 
@@ -792,6 +1175,18 @@ c=3
 ```
 Always prefer `entrySet()` iteration for maps — more efficient than `keySet()` + `get()`.
 
+**Code Snippet Internal Behavior:**
+- `entrySet()` returns `Set<Map.Entry<K,V>>` of all map entries
+- Each `Map.Entry` has `getKey()` and `getValue()` methods
+- Iterator traverses internal data structure directly (hash table or tree)
+- `keySet()` + `get()` pattern requires two hash lookups per entry
+- `entrySet()` requires only one traversal - reads key and value together
+- For HashMap: iterates array of buckets, then linked lists/red-black trees
+- For TreeMap: in-order traversal of Red-Black tree
+- Iterator is fail-fast - throws `ConcurrentModificationException` on structural changes
+- Memory efficient: no temporary collections created during iteration
+- Performance difference significant for large maps
+
 ---
 
 ### 40. Map.forEach()
@@ -812,6 +1207,18 @@ y -> 20
 z -> 30
 ```
 
+**Code Snippet Internal Behavior:**
+- `forEach(BiConsumer<? super K, ? super V> action)` method added in Java 8
+- Internally iterates over `entrySet()` and calls `action.accept(entry.getKey(), entry.getValue())`
+- Uses same iteration logic as `entrySet()` - efficient single traversal
+- `BiConsumer` functional interface: `void accept(K key, V value)`
+- Lambda `(k, v) -> System.out.println(k + " -> " + v)` implements BiConsumer
+- More concise than traditional for-each loop with entrySet
+- Can be used with method references: `map.forEach(System.out::println)` (prints entries)
+- Iterator is fail-fast like other map iteration methods
+- Performance equivalent to `entrySet()` iteration
+- Supports functional programming style and method chaining
+
 ---
 
 ### 41. Map.of() — No Null Keys or Values
@@ -825,6 +1232,17 @@ public class Main {
 }
 ```
 **A:** **NullPointerException at runtime.** `Map.of()` does not allow `null` keys or values. Use `HashMap` if you need null support.
+
+**Code Snippet Internal Behavior:**
+- `Map.of()` returns `ImmutableCollections.MapN` or optimized variants
+- Performs null checks during creation: `Objects.requireNonNull(key)` and `Objects.requireNonNull(value)`
+- Throws `NullPointerException` immediately, not during later access
+- Returns specialized implementations: `Map0`, `Map1`, `Map2`, `MapN` for different sizes
+- All modification methods throw `UnsupportedOperationException`
+- Internally stores entries in parallel arrays: `final K[] keys`, `final V[] values`
+- Duplicate key detection during creation throws `IllegalArgumentException`
+- More memory efficient than `HashMap` for small, immutable maps
+- Designed for factory methods and functional programming patterns
 
 ---
 
@@ -848,6 +1266,17 @@ public class Main {
 2
 ```
 `HashMap` allows one `null` key. `TreeMap` does NOT allow `null` key (throws NullPointerException).
+
+**Code Snippet Internal Behavior:**
+- `HashMap` handles null key specially: `hash(key)` returns 0 for null
+- Null key stored at index 0 of hash table array
+- Only one null key allowed - subsequent `put(null, value)` overwrites existing
+- `get(null)` directly checks index 0 without hash calculation
+- `TreeMap` calls `key.compareTo()` for ordering - null causes `NullPointerException`
+- HashMap null handling: `if (key == null) return 0; else return key.hashCode()`
+- TreeMap requires all keys to be `Comparable` and non-null
+- Design choice: HashMap optimized for flexibility, TreeMap for strict ordering
+- `containsKey(null)` works in HashMap, throws exception in TreeMap
 
 ---
 
@@ -876,6 +1305,18 @@ false
 true
 ```
 
+**Code Snippet Internal Behavior:**
+- `getOrDefault(key, defaultValue)` returns existing value or default, does NOT modify map
+- `computeIfAbsent(key, function)` computes and stores value if key missing
+- First case: `getOrDefault("key", new ArrayList<>())` creates new ArrayList but doesn't store it
+- `got.add("hello")` modifies temporary list, map remains unchanged
+- Second case: `computeIfAbsent("key2", k -> new ArrayList<>())` stores new list in map
+- `add("world")` modifies stored list, map now contains entry
+- Key difference: `getOrDefault` is read-only, `computeIfAbsent` is read-write
+- `getOrDefault` useful for safe access without side effects
+- `computeIfAbsent` useful for lazy initialization and caching patterns
+- Function in `computeIfAbsent` called at most once per key
+
 ---
 
 ### 44. Frequency Count — Traditional Way
@@ -895,6 +1336,17 @@ public class Main {
 ```
 **A:** `{1=1, 2=2, 3=3, 4=1}`
 
+**Code Snippet Internal Behavior:**
+- `getOrDefault(key, 0)` safely handles missing keys without null checks
+- For each number: checks if key exists, returns current count or 0, then adds 1
+- `put(key, count)` stores updated count back in map
+- HashMap handles hash collisions automatically via linked lists/red-black trees
+- Time complexity: O(n) for all numbers, each operation O(1) average
+- More verbose than `merge()` but clearer for beginners
+- Alternative: `freq.merge(n, 1, Integer::sum)` (Java 8+)
+- HashMap resizes when load factor exceeded (size > capacity * 0.75)
+- Uses `Integer.hashCode()` and `Integer.equals()` for key comparison
+
 ---
 
 ### 45. Map.replaceAll()
@@ -910,6 +1362,17 @@ public class Main {
 }
 ```
 **A:** `{a=10, b=20, c=30}`. `replaceAll` applies a function to each value in place.
+
+**Code Snippet Internal Behavior:**
+- `replaceAll(BiFunction<? super K, ? super V, ? extends V> function)` iterates over all entries
+- For each entry: calls `function.apply(key, value)` and stores result as new value
+- Implementation: `for (Map.Entry<K,V> e : entrySet()) e.setValue(function.apply(e.getKey(), e.getValue()))`
+- Lambda `(k, v) -> v * 10` receives key and value, returns multiplied value
+- `Map.Entry.setValue()` updates value in existing entry (no new entry created)
+- Iterator fail-fast - throws `ConcurrentModificationException` if map modified during operation
+- More efficient than creating new map with transformed values
+- Function can access both key and value for complex transformations
+- Atomic per entry, but not atomic for entire map operation
 
 ---
 
@@ -927,6 +1390,18 @@ public class Main {
 }
 ```
 **A:** `{a=6, b=1}`
+
+**Code Snippet Internal Behavior:**
+- `compute(key, remappingFunction)` updates value based on existing value and computation
+- First call: key "a" exists with value 5, function returns `5 + 1 = 6`
+- Second call: key "b" absent (null), function returns `1` (null case handling)
+- Function receives `(key, oldValue)` where oldValue can be null
+- If function returns null, entry is removed from map
+- Implementation: `V oldValue = get(key); V newValue = remappingFunction.apply(key, oldValue); if (newValue != null) put(key, newValue) else remove(key)`
+- More flexible than `merge()` - can access key in computation
+- Atomic operation - prevents race conditions in concurrent scenarios
+- Useful for conditional updates and complex value transformations
+- Can implement increment, decrement, or any custom logic
 
 ---
 
@@ -953,6 +1428,20 @@ public class Main {
 7
 ```
 
+**Code Snippet Internal Behavior:**
+- `floorKey(key)` finds greatest key ≤ given key using tree navigation
+- `ceilingKey(key)` finds smallest key ≥ given key
+- `lowerKey(key)` finds greatest key < given key
+- `higherKey(key)` finds smallest key > given key
+- Implementation uses Red-Black tree traversal: starts at root, navigates left/right
+- `floorKey(4)`: finds 3 (greatest key ≤ 4)
+- `ceilingKey(4)`: finds 5 (smallest key ≥ 4)
+- `lowerKey(3)`: finds 1 (greatest key < 3)
+- `higherKey(5)`: finds 7 (smallest key > 5)
+- All operations O(log n) due to balanced tree property
+- Returns null if no matching key found (e.g., `floorKey(0)` would return null)
+- Useful for range queries and finding nearest values
+
 ---
 
 ### 48. LinkedHashMap Access Order — LRU Cache Base
@@ -970,6 +1459,18 @@ public class Main {
 }
 ```
 **A:** `[2, 3, 1]`. With `accessOrder=true`, `LinkedHashMap` orders entries by most-recently accessed. Basis of LRU Cache implementation.
+
+**Code Snippet Internal Behavior:**
+- `LinkedHashMap(int initialCapacity, float loadFactor, boolean accessOrder)` constructor
+- `accessOrder=true` enables access-order mode instead of insertion-order
+- Each access (`get()`) moves entry to end of linked list
+- `get(1)` finds entry by hash, then calls `afterNodeAccess()` to move it
+- `afterNodeAccess()` removes entry from current position and appends to tail
+- Linked list maintains order from least-recently-used (head) to most-recently-used (tail)
+- `removeEldestEntry()` can be overridden to implement LRU eviction
+- All operations still O(1) average case (hash lookup + list manipulation)
+- Perfect foundation for LRU Cache with size-based eviction
+- `iteration()` follows access order, not insertion order
 
 ---
 
@@ -989,6 +1490,19 @@ public class Main {
 ```
 **A:** `{MON=Meeting, FRI=Review}`. `EnumMap` maintains natural enum order and is more efficient than `HashMap` for enum keys.
 
+**Code Snippet Internal Behavior:**
+- `EnumMap` uses array internally indexed by enum ordinal values
+- `EnumMap<Day, String>` creates `Object[] vals = new Object[Day.values().length]`
+- `put(Day.MON, "Meeting")` stores at index `Day.MON.ordinal()` (0)
+- `put(Day.FRI, "Review")` stores at index `Day.FRI.ordinal()` (4)
+- All operations O(1) - direct array access, no hashing
+- Memory efficient: only stores values, no hash table overhead
+- Iteration follows enum natural order (ordinal order)
+- Type-safe at compile time - can't put wrong enum type
+- More efficient than `HashMap` for enum keys: no hash calculation, no collisions
+- `size()` tracks number of non-null entries in array
+- Null values allowed, but null keys not (enum constants are never null)
+
 ---
 
 ### 50. IdentityHashMap — Reference Equality
@@ -1007,6 +1521,18 @@ public class Main {
 }
 ```
 **A:** `2`. `IdentityHashMap` uses `==` (reference equality) instead of `equals()`. Two `String` objects with the same content are treated as different keys.
+
+**Code Snippet Internal Behavior:**
+- `IdentityHashMap` uses `System.identityHashCode()` instead of `Object.hashCode()`
+- Key comparison uses `==` reference equality, not `equals()` method
+- `new String("key")` creates two different objects with same content
+- `s1 == s2` is false (different objects), so treated as different keys
+- Hash calculation: `System.identityHashCode(object)` returns unique hash per object instance
+- Useful when object identity matters more than logical equality
+- Common use case: tracking object instances, metadata storage
+- Table size is power of 2, uses linear probing for collision resolution
+- More memory efficient than `WeakHashMap` for identity-based tracking
+- `containsKey()` and `get()` use reference comparison throughout
 
 ---
 
@@ -1030,6 +1556,18 @@ true
 false
 ```
 
+**Code Snippet Internal Behavior:**
+- `containsKey(key)` uses hash table lookup: O(1) average for HashMap
+- Implementation: `getNode(hash(key), key) != null` - direct hash calculation and bucket search
+- `containsValue(value)` requires full scan: O(n) for all map implementations
+- Implementation: `for (Map.Entry<K,V> e : entrySet()) if (Objects.equals(value, e.getValue())) return true;`
+- `containsKey()` optimized: one hash calculation, at most few comparisons in bucket
+- `containsValue()` unoptimized: must check every entry in map
+- Performance difference grows with map size - significant for large maps
+- `containsValue()` cannot be optimized due to lack of value indexing
+- For frequent value lookups, consider maintaining inverse map or using `BiMap`
+- Both methods use `Objects.equals()` for null-safe comparison
+
 ---
 
 ### 52. WeakHashMap — Garbage Collectible Keys
@@ -1051,6 +1589,18 @@ public class Main {
 }
 ```
 **A:** `1` then likely `0`. `WeakHashMap` holds **weak references** to keys — when a key is garbage collected, the entry is automatically removed. Used for caches.
+
+**Code Snippet Internal Behavior:**
+- `WeakHashMap` uses `WeakReference` to wrap keys: `WeakReference<K> ref = new WeakReference<>(key)`
+- Keys stored as weak references - eligible for GC when no strong references exist
+- `key = null` removes strong reference, making key eligible for garbage collection
+- `System.gc()` suggests garbage collection (not guaranteed)
+- Entries with GC'd keys automatically removed during map operations
+- Internal `ReferenceQueue` tracks garbage-collected keys for cleanup
+- `size()` may return stale count until cleanup occurs
+- Useful for caches where entries should expire when keys no longer used
+- Memory leak prevention: automatically removes entries with dead keys
+- Performance overhead due to reference queue processing and cleanup
 
 ---
 

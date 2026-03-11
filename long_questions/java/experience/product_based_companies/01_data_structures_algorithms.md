@@ -50,6 +50,12 @@ public class Stack<T> {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"For implementing a stack in Java, I prefer using ArrayDeque over the legacy Stack class. ArrayDeque is faster because it's not synchronized, and it provides all the stack operations through the Deque interface. The key operations are push() to add to the top, pop() to remove from the top, and peek() to look at the top element without removing it. If I need to implement a custom stack, I can wrap ArrayDeque and add error handling. The important thing to remember is that Stack is synchronized and slower, while ArrayDeque is the modern, preferred approach for both stacks and queues in interview solutions."
+
+---
+
 ### Q2. Implement a Queue using Java
 
 ```java
@@ -74,6 +80,12 @@ System.out.println(maxHeap.poll()); // 5
 PriorityQueue<Task> taskQueue = new PriorityQueue<>(
     Comparator.comparingInt(Task::getPriority).reversed()); // high priority first
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"For queues in Java, I use LinkedList or ArrayDeque for standard FIFO queues with offer() to enqueue and poll() to dequeue. I prefer offer() over add() because it doesn't throw exceptions when the queue is full. For priority queues, PriorityQueue implements a heap - by default it's a min-heap that always extracts the smallest element. I can create a max-heap by providing a reverse comparator. The beauty is that I can also use custom objects with PriorityQueue by providing a Comparator that defines the priority ordering. This makes PriorityQueue perfect for problems like finding the k-th largest element or implementing Dijkstra's algorithm."
 
 ---
 
@@ -110,6 +122,12 @@ public ListNode reverseListRecursive(ListNode head) {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Reversing a linked list is a classic interview problem. The iterative approach uses three pointers: prev, curr, and next. I walk through the list, reversing each link as I go by setting curr.next to prev. This runs in O(n) time with O(1) space. The recursive approach is more elegant but uses O(n) stack space due to the recursion depth. In interviews, I usually show the iterative solution first because it's more space-efficient, then mention the recursive approach as an alternative. The key insight is that I need to carefully handle the pointer updates to avoid losing the rest of the list while reversing."
+
+---
+
 ### Q4. Two Sum — HashMap pattern
 
 ```java
@@ -138,6 +156,12 @@ public int[] twoSumSorted(int[] nums, int target) {
     return new int[]{};
 }
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"The Two Sum problem demonstrates the power of hash maps for O(n) solutions. For the unsorted array version, I use a HashMap to store numbers I've seen and their indices. As I iterate through the array, I check if the complement (target - current number) is already in the map. If it is, I've found the pair. If not, I add the current number to the map. This gives me O(n) time with O(n) space. For the sorted array version, I can use the two-pointer technique - start with left at the beginning and right at the end, then move them inward based on whether the sum is too small or too large. This gives O(n) time with O(1) space. The key is choosing the right approach based on whether the array is sorted."
 
 ---
 
@@ -171,6 +195,12 @@ public int findFirst(int[] nums, int target) {
 // Java built-in
 int idx = Arrays.binarySearch(nums, target);  // must be sorted; negative = not found
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Binary search is fundamental for searching in sorted arrays. The key is maintaining the search boundaries with left and right pointers, and calculating mid as left + (right - left) / 2 to avoid integer overflow. I compare the middle element with the target and adjust the boundaries accordingly. For finding the first occurrence of a duplicate, I continue searching left even after finding a match. Java provides Arrays.binarySearch() which returns the index if found, or a negative insertion point if not found. Binary search runs in O(log n) time, making it much faster than linear search for large sorted datasets. It's the foundation for many advanced algorithms and a must-know for interviews."
 
 ---
 
@@ -216,6 +246,12 @@ public void dfs(int node) {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"BFS and DFS are two fundamental graph traversal algorithms. BFS uses a queue and explores level by level, making it perfect for finding the shortest path in unweighted graphs. I keep track of visited nodes to avoid cycles and process each node's neighbors before moving to the next level. DFS uses recursion or a stack and explores as deep as possible along each branch before backtracking. DFS is great for problems like detecting cycles or exploring all possible paths. In Java, I represent graphs using adjacency lists with HashMap, and use HashSet for tracking visited nodes. The choice between BFS and DFS depends on the problem - BFS for shortest paths, DFS for exhaustive exploration. Both run in O(V+E) time where V is vertices and E is edges."
+
+---
+
 ### Q7. Sliding Window — Maximum sum subarray of size K
 
 ```java
@@ -249,6 +285,12 @@ public int lengthOfLongestSubstring(String s) {
 
 ---
 
+### 🎯 How to Explain in Interview
+
+"Sliding window is a powerful technique for problems involving subarrays or substrings. For the maximum sum subarray of size K, I first compute the sum of the first K elements, then slide the window by subtracting the element leaving the window and adding the new element entering the window. This gives me O(n) time instead of O(n*K) for the naive approach. For longest substring without repeating characters, I maintain a window with left and right pointers, and a HashMap to track the last seen position of each character. When I encounter a duplicate within the current window, I move the left pointer past the previous occurrence. Sliding window reduces many O(n²) problems to O(n) by avoiding reprocessing of elements that are already in the current window."
+
+---
+
 ### Q8. Merge Intervals
 
 ```java
@@ -274,6 +316,12 @@ public int[][] merge(int[][] intervals) {
 // Input:  [[1,3],[2,6],[8,10],[15,18]]
 // Output: [[1,6],[8,10],[15,18]]
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"Merge intervals is a classic sorting and greedy algorithm problem. I first sort the intervals by their start time, then iterate through them merging overlapping intervals. If the current interval's start is less than or equal to the previous interval's end, they overlap and I merge them by extending the end to the maximum of both ends. If they don't overlap, I add the previous interval to the result and start a new current interval. The key insight is that after sorting, I only need to check each interval against the immediately preceding one. This runs in O(n log n) time due to the sort, and O(n) space for the result. This pattern applies to many scheduling and resource allocation problems."
 
 ---
 
@@ -303,3 +351,11 @@ public class LRUCache {
 // From scratch — HashMap + Doubly Linked List (interview answer)
 // For concurrency: use LinkedHashMap wrapped in synchronized or ConcurrentLinkedHashMap
 ```
+
+---
+
+### 🎯 How to Explain in Interview
+
+"LRU cache is a perfect example of combining data structures for O(1) operations. I use LinkedHashMap with accessOrder set to true, which automatically reorders entries on access. When the cache exceeds capacity, I override removeEldestEntry() to remove the least recently used item. The get() and put() operations are both O(1) because LinkedHashMap provides constant-time access and reordering. For interviews, I should also mention the from-scratch implementation using a HashMap for O(1) lookup and a doubly linked list to maintain access order. The key insight is that LinkedHashMap already implements the LRU behavior when accessOrder is true, making it an elegant solution. For concurrent access, I can wrap it in synchronized or use concurrent collections."
+
+---
