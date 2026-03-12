@@ -40,10 +40,10 @@ class Main {
         // Step 3: Sort by salary in descending order
         // Step 4: Collect and display the results
         
-        List<Employee> softwareEngineers = listOfEmployee.stream()
-            .filter(emp -> "Software Engineer".equals(emp.designation))
-            .sorted((e1, e2) -> Integer.compare(e2.salary, e1.salary)) // Sort by salary descending
-            .collect(Collectors.toList());
+       List<Employee> softwareEngineers = listOfEmployee.stream()
+        .filter(emp -> "Software Engineer".equalsIgnoreCase(emp.designation.trim()))
+        .sorted((e1, e2) -> Integer.compare(e2.salary, e1.salary))
+        .collect(Collectors.toList());
         
         System.out.println("Software Engineers sorted by salary (descending order):");
         System.out.println("=====================================================");
