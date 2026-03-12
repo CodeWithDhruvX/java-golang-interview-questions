@@ -1730,3 +1730,65 @@ var r Runner = Person{}  // itab with Run pointer
 ---
 
 *[Questions 321-360 will cover DevOps, Docker, Streaming, and Async Processing]*
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** Can you explain how Go interfaces work internally?
+
+**Your Response:** "Go interfaces are implemented using a two-word structure: a pointer to type information and a pointer to data. The type information includes a method table that allows dynamic dispatch. When I assign a concrete type to an interface, Go creates an 'itab' that contains the interface's method pointers pointing to the concrete type's methods. This allows for efficient method calls without the overhead of traditional v-tables. The beauty of Go's interface system is that it's implicit - any type that satisfies the interface's method set automatically implements it, which enables powerful composition and dependency injection patterns."
+
+---
+
+**Interviewer:** How does Go's garbage collection work?
+
+**Your Response:** "Go uses a concurrent, tri-color mark-and-sweep garbage collector that runs alongside the application. It works in phases: first it stops the world briefly to prepare for marking, then concurrently marks reachable objects by traversing from roots like global variables and goroutine stacks. After marking, it sweeps to free unreachable memory. The GC is generational and optimized for low latency, which is why Go is great for web services. I can tune it with GOGC to control when GC runs, but the defaults work well for most applications. The key benefit is that I don't have to manually manage memory while still getting good performance."
+
+---
+
+**Interviewer:** What are goroutines and how do they differ from threads?
+
+**Your Response:** "Goroutines are lightweight threads managed by Go's runtime, not the OS. They start with a small stack (2KB) that grows as needed, and they're scheduled onto a smaller number of OS threads using Go's M:N scheduler. This means I can create thousands of goroutines without the overhead of creating thousands of OS threads. Goroutines communicate primarily through channels rather than shared memory, following Go's 'share memory by communicating' philosophy. They're also cheaper to create and destroy, making them ideal for concurrent tasks like handling web requests or processing streams."
+
+---
+
+**Interviewer:** How does Go handle reflection?
+
+**Your Response:** "Go's reflection allows me to examine and manipulate types at runtime through the `reflect` package. I can get type information with `reflect.TypeOf()` and value information with `reflect.ValueOf()`. This lets me do things like dynamically call methods, inspect struct fields, or create generic algorithms. However, I use reflection sparingly because it breaks compile-time type safety and has performance overhead. Common use cases include JSON marshaling, dependency injection containers, and testing frameworks. The key is to use reflection only when the flexibility outweighs the performance cost."
+
+---
+
+**Interviewer:** What's the difference between make and new?
+
+**Your Response:** "`make` creates and initializes slices, maps, and channels, returning a ready-to-use value. `new` allocates memory for any type and returns a pointer to a zeroed value. I use `make` for types that need internal initialization - for example, a slice needs its underlying array allocated and length/capacity set. `new` is less common in idiomatic Go; I usually prefer taking the address of a composite literal like `&MyStruct{field: value}` because it's more readable and allows initialization. The key difference is that `make` returns an initialized value while `new` returns a pointer to a zeroed value."
+
+---
+
+**Interviewer:** How do you handle panics in Go?
+
+**Your Response:** "I treat panics as unrecoverable errors that should only happen for exceptional conditions like programming errors. I use `recover()` in deferred functions to catch panics and convert them to errors, typically at the top level of goroutines or in HTTP middleware. For example, in a web server, I might have middleware that recovers from panics and returns a 500 error instead of crashing the whole server. However, I avoid using panics for normal error flow - that's what the error interface is for. The key is to let panics bubble up to where they can be handled gracefully rather than catching them everywhere."
+
+---
+
+**Interviewer:** What's your experience with Go's build tags?
+
+**Your Response:** "Build tags let me conditionally compile code based on target platform or features. I use them for platform-specific code like `//go:build windows` for Windows-only functionality, or for feature flags like `//go:build debug` for debug-only code. I also use them for alternative implementations - for example, having different implementations for production vs testing. Build tags are powerful but I use them judiciously to avoid code complexity. They're particularly useful for cross-platform development where I need different implementations for different operating systems or architectures."
+
+---
+
+**Interviewer:** How does Go handle method sets and interfaces?
+
+**Your Response:** "Go's method sets determine which methods a type has for interface satisfaction. For value receivers, the method set includes methods with both value and pointer receivers. For pointer receivers, the method set only includes methods with pointer receivers. This is why I can call a method with a value receiver on a pointer, but not necessarily vice versa. Understanding this helps me design better interfaces and avoid subtle bugs. The rule of thumb is: if my method needs to modify the receiver, I use a pointer receiver; otherwise, I use a value receiver for consistency."
+
+---
+
+**Interviewer:** What are Go's escape analysis and stack allocation?
+
+**Your Response:** "Go's compiler performs escape analysis to determine whether objects can be allocated on the stack or need to be allocated on the heap. If an object's lifetime doesn't extend beyond the function scope, it can be stack-allocated, which is much faster. But if I return a pointer to a local variable or store it in a global, it 'escapes' to the heap. I can see what escapes using `go build -gcflags='-m'`. Understanding escape analysis helps me write more efficient code by avoiding unnecessary heap allocations, which reduces GC pressure. The key is to keep object lifetimes short and local when possible."
+
+---
+
+**Interviewer:** How do you optimize Go code for performance?
+
+**Your Response:** "I start with profiling using pprof to identify actual bottlenecks rather than guessing. Common optimizations include reducing allocations by reusing objects with sync.Pool, using strings.Builder for string concatenation, and avoiding unnecessary interface conversions. I also tune data structures for cache efficiency and use appropriate concurrency patterns. For hot paths, I might use assembly or unsafe code, but only after proving it's necessary. The key is to measure first, then optimize the actual bottlenecks. I've found that most performance gains come from algorithmic improvements rather than micro-optimizations."
