@@ -19,6 +19,10 @@
 #### 🏢 Company Context
 **Level:** All levels | **Asked at:** Every company — this is the meta-skill for interviews
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How to approach a system design interview?
+**Your Response:** My interview framework is Clarify, Estimate, Architect, Deep Dive. This structured approach prevents the biggest mistake candidates make - jumping to a solution before understanding the problem. First I clarify requirements: scale like DAU and QPS, functional requirements, non-functional requirements like latency SLA, and constraints. Then I estimate with back-of-envelope calculations for storage, peak QPS, and bandwidth - these numbers inform every decision. Next I draw the high-level architecture with main components and explain the request flow. Finally, I deep dive into areas the interviewer wants to explore like database design or failure scenarios.
+
 #### Indepth
 Detailed interview structure (45-minute session):
 
@@ -65,6 +69,10 @@ My approach: round aggressively (10M users, not 8.7M), use powers of 10 for ment
 #### 🏢 Company Context
 **Level:** All levels | **Asked at:** Every system design interview — Amazon particularly loves this; they have the WORKING BACKWARDS mechanism
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How to do back-of-envelope estimation?
+**Your Response:** Back-of-envelope estimation is approximating system scale with quick mental math to get to the right order of magnitude. The goal isn't precision - a system for 1M QPS vs 10M QPS needs fundamentally different architectures. Estimating within one order of magnitude is sufficient. My approach is to round aggressively, use powers of 10 for mental math, and know key numbers like 1 million seconds is about 11 days. For example, designing Twitter: 200M DAU, average user posts 0.1 tweets/day = 20M tweets/day, which is about 230 tweets per second writes. With a 100:1 read ratio, that's 23,000 reads per second.
+
 #### Indepth
 Numbers every engineer should know:
 | Resource | Approximate Values |
@@ -104,7 +112,11 @@ This tells me: write is trivial for one DB. Reads at 23K QPS need Redis caching.
 **D — Dependency Inversion:** High-level modules shouldn't depend on low-level modules. Both should depend on abstractions (interfaces). Your order handler depends on a `PaymentServiceInterface`, not the concrete `StripeService`."
 
 #### 🏢 Company Context
-**Level:** 🟡 Mid | **Asked at:** LLD (Low-Level Design) rounds — Flipkart, Amazon, Uber interview rounds focused on OOP design
+**Level:** 🟡 Mid – 🔴 Senior | **Asked at:** Architecture interviews, senior engineering roles, code review discussions
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What are the SOLID principles in system design?
+**Your Response:** SOLID principles for writing maintainable code apply equally at the system level. Single Responsibility means a service should do one thing well - a User service handles users, a Payment service handles payments. Open/Closed means systems should be open for extension but closed for modification - adding a new payment provider shouldn't require changing existing code. Liskov Substitution means any implementation of an interface should be substitutable without breaking the system. Interface Segregation means clients shouldn't depend on interfaces they don't use. Dependency Inversion means high-level modules shouldn't depend on low-level modules - both should depend on abstractions like interfaces.
 
 #### Indepth
 SOLID at the microservice level (not just OOP):
@@ -127,6 +139,10 @@ Put a proxy (API gateway) in front of the monolith. New features are built as in
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Companies modernizing legacy systems — TCS, Infosys client projects, Flipkart's historic Oracle-to-microservices migration, any legacy modernization project
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is the strangler fig pattern?
+**Your Response:** The Strangler Fig pattern is a migration strategy for gradually replacing a monolith with microservices. Instead of a big-bang rewrite which is risky, you incrementally extract functionality from the monolith piece by piece. You put a proxy like an API gateway in front of the monolith. New features are built as independent microservices that the proxy routes to. Existing features are gradually extracted to services one endpoint at a time. The monolith shrinks as services grow, and eventually the monolith is retired completely.
 
 #### Indepth
 Strangler fig implementation steps:
@@ -153,6 +169,10 @@ Kafka is the backbone of most EDA systems. Events are durable (retained for days
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Uber, Swiggy, Zomato, Amazon, Flipkart — any microservices system at scale
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is event-driven architecture?
+**Your Response:** Event-driven architecture is a design paradigm where services communicate by producing and consuming events rather than making direct synchronous calls. An event is an immutable fact like 'OrderPlaced' or 'PaymentProcessed'. The producer emits the event and doesn't wait for or care about consumers. Multiple consumers can react to the same event independently, creating loose coupling. The Order service emits OrderPlaced and doesn't need to know that Inventory, Notification, and Fulfillment services all consume it. Kafka is the backbone of most EDA systems with durable, replayable events.
 
 #### Indepth
 EDA patterns:
@@ -185,6 +205,10 @@ With a service mesh (Istio + Envoy): the sidecar proxy (Envoy) intercepts all in
 #### 🏢 Company Context
 **Level:** 🔴 Senior / Principal | **Asked at:** Companies operating large Kubernetes-based microservices — Swiggy, Meesho, Google, Amazon, Lyft (Envoy creators)
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a service mesh?
+**Your Response:** A service mesh is a dedicated infrastructure layer for handling service-to-service communication in microservices, offloaded from application code into a sidecar proxy alongside each service. Without a service mesh, every service must implement retry logic, circuit breaking, mTLS, service discovery, load balancing, and distributed tracing itself - duplicating complex infrastructure code across many services. With a service mesh like Istio and Envoy, the sidecar proxy intercepts all traffic and handles these concerns transparently, so application code only contains business logic.
+
 #### Indepth
 Service mesh capabilities:
 - **Traffic management:** A/B testing (route 5% traffic to v2), canary releases, fault injection for chaos testing, retries, timeouts, circuit breaking — all configured via CRDs (Custom Resource Definitions), no code changes.
@@ -209,6 +233,10 @@ The key metrics: **precision** (of flagged content, what % truly violates?) and 
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Meta, Twitter/X, TikTok, ShareChat, MX Player, YouTube — any UGC platform
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a content moderation system?
+**Your Response:** Content moderation at scale requires a combination of automated ML filtering and human review - no single approach works alone. The pipeline is: user submits content, pre-moderation with an ML classifier scores safety probability. If confidence is high, it auto-approves or auto-rejects. If confidence is low, it routes to human review queue where a person makes the final decision. The outcome feeds back to improve the ML model. Key metrics are precision and recall - optimize precision to protect user experience, optimize recall to protect safety.
 
 #### Indepth
 Content moderation system components:
@@ -237,6 +265,10 @@ Netflix/Amazon use hybrid approaches: collaborative filtering identifies 'users 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Amazon (product recommendations), Netflix (content), Flipkart (product), Swiggy (restaurant), Spotify (music) — any personalization-heavy product
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a recommendation system?
+**Your Response:** A recommendation system predicts what content, products, or people a user will want to see next, personalized based on their past behavior and similarity to other users. Two foundational approaches are collaborative filtering where you recommend what similar users liked, and content-based filtering where you recommend items with similar attributes to what the user liked before. Netflix and Amazon use hybrid approaches combining these with deep learning models to learn complex interaction patterns that linear models miss.
+
 #### Indepth
 Recommendation pipeline:
 1. **Candidate Generation:** From millions of items, generate a shortlist of candidates for this user (~1000 items). Fast and approximate. Method: nearest neighbor in embedding space (Matrix Factorization, Word2Vec-style item embeddings using user interaction history).
@@ -259,7 +291,11 @@ When you have 20 app server instances, you can't use in-process cache — each i
 Redis Cluster: data is sharded across 16 nodes using consistent hashing of 16384 hash slots. Each node is responsible for a subset of slots. Replication: each primary node has at least one replica. If a primary fails, its replica promotes. Clients connect using the Redis Cluster protocol which handles slot routing."
 
 #### 🏢 Company Context
-**Level:** 🟡 Mid – 🔴 Senior | **Asked at:** Any company with a horizontally scaled application — Swiggy, Flipkart, Amazon, Netflix
+**Level:** 🔴 Senior | **Asked at:** Any company with a horizontally scaled application — Swiggy, Flipkart, Amazon, Netflix
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a distributed cache?
+**Your Response:** A distributed cache is a cache system that spans multiple nodes, providing a shared, fast data store for all instances of a horizontally scaled application. When you have multiple app server instances, you can't use in-process cache because each instance has its own private memory and would have different cached data. A distributed cache like Redis Cluster or Memcached cluster provides a single shared cache that all instances use consistently. Redis Cluster uses consistent hashing to shard data across nodes with replication for high availability.
 
 #### Indepth
 Redis Cluster architecture:
@@ -299,6 +335,10 @@ The pipeline: event occurs (order status changes) → Notification Service recei
 
 #### 🏢 Company Context
 **Level:** 🔴 Senior | **Asked at:** Swiggy, Zomato, Amazon, WhatsApp (Meta), Razorpay (payment alerts), any real-time user-facing product
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a real-time notification system?
+**Your Response:** Real-time notifications need to deliver messages to users immediately when an event occurs - like WhatsApp's message delivered tick or Swiggy's order status updates. The delivery mechanism depends on whether the user is online or offline. Online users receive notifications via WebSocket or long-polling for instant delivery. Offline users receive push notifications through APNs for iOS, FCM for Android, or Web Push for browsers. The pipeline is: event occurs, Notification Service receives it from Kafka, determines recipients, checks if user is online via a presence registry in Redis, then pushes via WebSocket if online or sends push notification if offline.
 
 #### Indepth
 Real-time notification system architecture:
