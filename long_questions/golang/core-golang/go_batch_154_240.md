@@ -1685,3 +1685,59 @@ rdb := redis.NewClusterClient(&redis.ClusterOptions{
 ---
 
 *[Questions 181-240 will be added in the next batch to manage file size and ensure quality]*
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** Can you explain Gorilla Mux and how it compares to the standard net/http package?
+
+**Your Response:** "Gorilla Mux is a powerful third-party router that extends Go's standard net/http package with advanced routing capabilities. While net/http provides basic routing with `HandleFunc`, Gorilla Mux adds features like URL parameters with `{id}` syntax, method-based routing, regex patterns, and middleware support. For example, instead of being limited to exact path matching, I can create routes like `/users/{id}` to capture dynamic parameters, use `Methods("GET")` to handle different HTTP verbs differently, and even organize routes with subrouters. It's particularly useful for building RESTful APIs where you need more sophisticated routing than what the standard library provides out of the box."
+
+---
+
+**Interviewer:** What are the popular Go web frameworks you've worked with?
+
+**Your Response:** "I've worked with several Go web frameworks. Gin is known for its high performance and minimalist approach - it uses a radix tree for routing and provides a clean API with `c.Param()` for URL parameters and `c.JSON()` for responses. Echo is another high-performance framework that's similar to Gin but with slightly different middleware patterns. Fiber is inspired by Node.js's Express framework, making it familiar for developers coming from JavaScript backgrounds. All three frameworks provide better developer experience than raw net/http with features like automatic JSON binding, built-in middleware, and cleaner routing syntax, while still maintaining Go's performance characteristics."
+
+---
+
+**Interviewer:** When would you choose http.ServeMux over a third-party router?
+
+**Your Response:** "I'd choose http.ServeMux for simple applications where I don't need advanced routing features - like internal tools, simple microservices with just a few endpoints, or when I want to minimize external dependencies. It's lightweight, well-tested, and part of the standard library. However, for complex RESTful APIs with URL parameters, method-based routing, or middleware needs, I'd use third-party routers like Gorilla Mux or Chi. The trade-off is between simplicity and functionality - ServeMux gives me simplicity and zero dependencies, while third-party routers give me advanced features at the cost of an extra dependency and slight overhead."
+
+---
+
+**Interviewer:** How would you implement authentication in a Go API?
+
+**Your Response:** "I typically implement JWT-based authentication for Go APIs. The flow starts with a login endpoint that validates credentials and returns a signed JWT token. For protected routes, I create middleware that extracts the token from the Authorization header, validates it using the same secret key, and extracts user information to add to the request context. The middleware pattern works really well in Go because I can wrap any handler with authentication. I use the `golang-jwt/jwt` library for token handling, set reasonable expiration times, and ensure proper error handling for expired or invalid tokens. This approach is stateless, scalable, and works well with microservices architectures."
+
+---
+
+**Interviewer:** How do you handle file streaming efficiently in Go?
+
+**Your Response:** "For file streaming in Go, I use `io.Copy` which efficiently transfers data in chunks without loading the entire file into memory. I set proper headers like Content-Type and Content-Length, then stream the file directly to the response writer. For more control, I can implement buffered streaming with a 4KB buffer and manually flush the data to the client. This approach is crucial for large files like videos or downloads where loading everything into memory would be inefficient. Go's io package is designed specifically for these streaming scenarios, making it both memory-efficient and performant."
+
+---
+
+**Interviewer:** What's your experience with databases in Go?
+
+**Your Response:** "I work with both the standard `database/sql` package and ORMs like GORM. With `database/sql`, I write raw SQL queries using parameterized statements to prevent SQL injection, manage connection pools with `SetMaxOpenConns` and `SetMaxIdleConns`, and handle transactions with `Begin()` and `Commit()`. For more complex applications, I use GORM which provides automatic migrations, relationship handling, and a cleaner query builder API. I always use prepared statements for better performance and security, implement proper connection pooling, and structure my database layer using the repository pattern for clean separation of concerns. For caching, I integrate Redis to reduce database load, and I'm careful about avoiding the N+1 problem by using proper eager loading with GORM's Preload feature."
+
+---
+
+**Interviewer:** How do you handle database migrations in your Go projects?
+
+**Your Response:** "I use the golang-migrate tool for database version control. The workflow involves creating migration files with up and down SQL scripts - the up script contains the schema changes, and the down script contains the rollback. I organize these in a migrations directory and run them programmatically in my Go application using the migrate library. This approach ensures that database schema changes are version-controlled, repeatable across environments, and can be rolled back if needed. It's particularly important in team environments where multiple developers might be making schema changes simultaneously."
+
+---
+
+**Interviewer:** Can you explain the N+1 problem and how you avoid it?
+
+**Your Response:** "The N+1 problem occurs when fetching related data in a loop - you make one query to get the main records, then N additional queries to get related data for each record. In Go with GORM, I avoid this using eager loading with the `Preload` method, which generates a single query with proper JOINs. For example, instead of querying users and then querying posts for each user, I'd use `db.Preload("Posts").Find(&users)` which executes just two queries regardless of how many users there are. I can also use raw SQL with explicit JOINs for complex scenarios, or the `Joins` method in GORM. This dramatically improves performance and reduces database load."
+
+---
+
+**Interviewer:** How do you structure your database layer in Go applications?
+
+**Your Response:** "I follow the repository pattern for clean database architecture. I define domain entities in a `domain` package, create repository interfaces in a `repository` package, and implement concrete database-specific repositories in subdirectories like `postgres` or `mysql`. This approach gives me several benefits: it makes my code testable since I can mock the repository interfaces, it allows me to switch database implementations without changing business logic, and it separates concerns cleanly. The service layer works with repository interfaces, while the repository implementations handle the actual database operations using either raw SQL or GORM depending on the complexity requirements."
