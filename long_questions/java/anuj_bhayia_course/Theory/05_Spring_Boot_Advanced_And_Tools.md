@@ -88,3 +88,81 @@ When defining an Aspect, you use specific annotations to define *when* the advic
 3. **`@AfterThrowing`:** Executes only if the method exits by throwing an exception. You can access the thrown exception using the `throwing` attribute. Useful for centralizing exception logging.
 4. **`@After` (Finally):** Executes regardless of the outcome of the method (whether it returned normally or threw an exception), similar to a `finally` block in try-catch.
 5. **`@Around`:** The most powerful advice type. It surrounds the join point. The advice method takes a `ProceedingJoinPoint` parameter. It can perform custom behavior before and after the method invocation. Crucially, it must explicitly call `proceedingJoinPoint.proceed()` to allow the actual target method to execute; otherwise, the target method is bypassed entirely. It can also modify the return value or catch and swallow exceptions.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** What is Spring Boot Actuator and why is it important?
+
+**Your Response:** "Spring Boot Actuator provides production-ready features that help us monitor and manage our Spring Boot applications when they're running in production.
+
+It exposes various endpoints that give us operational insights into the application. The most important one is /actuator/health, which tells us if the application is up and running, and can also check the health of connected dependencies like databases and message brokers.
+
+Other useful endpoints include /actuator/info for application information, /actuator/metrics for JVM and application metrics, and /actuator/env for configuration properties. There's also /actuator/loggers which allows us to change log levels at runtime without restarting the application.
+
+These endpoints are crucial for production monitoring because they allow operations teams to check application health, diagnose issues, and even make runtime configuration changes. In production, we typically secure these endpoints with Spring Security so only authorized personnel can access them."
+
+---
+
+**Interviewer:** How do you implement caching in Spring Boot?
+
+**Your Response:** "Spring Boot makes caching incredibly simple through its caching abstraction. I typically use Redis as the cache provider, but Spring supports multiple cache implementations.
+
+The implementation involves a few key steps. First, I add the spring-boot-starter-cache and spring-boot-starter-data-redis dependencies. Then I enable caching with @EnableCaching annotation.
+
+For the actual caching, I use annotations on my service methods. @Cacheable tells Spring to check the cache before executing the method - if the result is found in cache, it returns that without running the method. @CachePut always executes the method and updates the cache with the result. @CacheEvict removes entries from the cache.
+
+The beauty of this approach is that it's completely non-invasive to the business logic. My service code stays clean and focused on business requirements, while Spring handles all the complex caching operations behind the scenes. If I ever want to switch from Redis to another cache provider, I just change the configuration, not the code."
+
+---
+
+**Interviewer:** What are Spring Profiles and how do you use them?
+
+**Your Response:** "Spring Profiles are a powerful feature that allows us to segregate configuration for different environments like development, testing, and production.
+
+The way I use them is by creating environment-specific property files. For example, I might have application-dev.properties for local development, application-staging.properties for the staging environment, and application-prod.properties for production.
+
+Each of these files can have different configurations - like using an in-memory H2 database for development, a PostgreSQL instance for staging, and a clustered production database for production. The profiles can also control which beans get created using the @Profile annotation.
+
+To activate a profile, I can set the spring.profiles.active property in application.properties, pass it as a command-line argument when running the JAR, or set it as an environment variable.
+
+This approach allows me to build the application once and deploy the same artifact to different environments, with each environment automatically picking up its appropriate configuration. This is essential for CI/CD pipelines and maintaining consistency across environments."
+
+---
+
+**Interviewer:** What is AOP and how do you use it in Spring?
+
+**Your Response:** "AOP, or Aspect-Oriented Programming, is a programming paradigm that helps us separate cross-cutting concerns from our business logic. Cross-cutting concerns are functionalities that span across multiple parts of an application, like logging, security, transaction management, or caching.
+
+In Spring, I use AOP to handle these concerns without cluttering my business code. Instead of having logging statements scattered throughout all my service methods, I can create a single logging aspect that automatically logs method entry and exit for all methods in a package.
+
+The core concepts in Spring AOP are: an Aspect is the module containing the cross-cutting logic, a Join Point is a specific point in execution like a method call, an Advice is the actual code that executes at that point, and a Pointcut defines which join points the advice should apply to.
+
+For example, I might create an aspect with @Before advice to log method entry, @After advice to log method exit, and @Around advice to measure execution time. This keeps my business logic clean and focused, while handling infrastructure concerns separately and consistently."
+
+---
+
+**Interviewer:** How do you implement logging in Spring Boot applications?
+
+**Your Response:** "Spring Boot uses SLF4J as the logging facade and Logback as the default implementation, which provides a robust logging setup out of the box.
+
+In my applications, I typically use Lombok's @Slf4j annotation to automatically create a logger instance. Then I use different log levels appropriately - DEBUG for detailed debugging information, INFO for general application flow, WARN for potential issues, and ERROR for actual problems.
+
+For configuration, I use application.properties to set log levels for different packages. For example, I might set the root level to INFO but enable DEBUG level specifically for my application package. I also configure file logging to write logs to files instead of just the console.
+
+For more complex setups in production, I might provide a custom logback-spring.xml configuration file. This gives me full control over things like rolling file appenders, different log formats for different appenders, or structured JSON logging for integration with centralized logging systems like ELK stack."
+
+---
+
+**Interviewer:** What is JPA Auditing and how do you implement it?
+
+**Your Response:** "JPA Auditing is a Spring Data JPA feature that automatically tracks metadata about entity creation and modification - like who created an entity, when it was created, who last modified it, and when it was modified.
+
+To implement it, I first enable auditing with the @EnableJpaAuditing annotation. Then I add annotations to my entity fields - @CreatedDate for creation timestamps, @LastModifiedDate for modification timestamps, @CreatedBy for the user who created it, and @LastModifiedBy for the user who last modified it.
+
+I also add @EntityListeners(AuditingEntityListener.class) to my entity classes to register the audit listener.
+
+For the user-related fields (@CreatedBy and @LastModifiedBy), I need to provide an AuditorAware bean that tells Spring who the current user is. This typically involves getting the current user from the Spring Security context.
+
+The beauty of this approach is that it's completely automatic - I don't have to manually set these fields in my code. Spring Data JPA automatically populates them when entities are created or updated, which ensures consistent audit trails across the entire application without any boilerplate code."

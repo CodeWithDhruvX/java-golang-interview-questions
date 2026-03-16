@@ -174,3 +174,131 @@ When you execute the `main` method in a Spring Boot application, `SpringApplicat
 12. **Trigger `ApplicationStartedEvent`:** The context is refreshed, but explicitly defined `CommandLineRunner` or `ApplicationRunner` beans haven't run yet.
 13. **Execute Runners:** Any beans implementing `CommandLineRunner` or `ApplicationRunner` are executed. (Useful for custom database seeding or startup scripts).
 14. **Trigger `ApplicationReadyEvent`:** The application has fully started and is ready to accept incoming HTTP traffic.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** Can you explain what Spring Framework is and why we should use it?
+
+**Your Response:** "Spring is a lightweight, open-source framework that makes Java development much easier and more efficient. The main reason we use Spring is because it handles all the boilerplate code and complex infrastructure for us, so we can focus on writing business logic.
+
+The core of Spring is built around **Inversion of Control** and **Dependency Injection**. Instead of our code creating dependencies using 'new' keyword, Spring manages and injects them for us. This makes our code loosely coupled, easier to test, and more maintainable.
+
+Spring also provides excellent support for web development through Spring MVC, handles transactions automatically, and integrates well with databases through its data access layer. With Spring Boot, we can get a production-ready application running in minutes instead of hours."
+
+---
+
+**Interviewer:** What is a Spring Bean?
+
+**Your Response:** "A **Spring Bean** is essentially a Java object that is created, managed, and assembled by the Spring IoC container instead of being created directly by our code using the 'new' keyword.
+
+Think of it this way: in traditional Java programming, we create objects ourselves. But in Spring, we define what objects we need, and Spring takes care of creating them, wiring them together with their dependencies, and managing their complete lifecycle.
+
+Beans are the backbone of any Spring application. We can define them in several ways - using annotations like @Component, @Service, @Repository, @Controller for automatic discovery, or using the @Bean annotation in configuration classes for more complex objects.
+
+The key benefit is that Spring handles everything from instantiation to dependency injection to destruction. This means our code becomes loosely coupled, easier to test, and more maintainable because we're not manually managing object creation and dependencies."
+
+---
+
+**Interviewer:** What's the difference between IoC and Dependency Injection?
+
+**Your Response:** "That's a great question! **Inversion of Control (IoC)** is the broader design principle where we hand over control of object creation and lifecycle management to the Spring container. Instead of our code controlling when and how objects are created, the container takes over.
+
+**Dependency Injection (DI)** is the specific implementation of IoC. It's how Spring achieves IoC by injecting dependencies into our classes rather than having our classes create them.
+
+Think of it this way: IoC is the concept, DI is the implementation. In traditional programming, if a UserService needs a UserRepository, it would do 'new UserRepository()'. With DI, we just declare that UserService needs a UserRepository, and Spring injects it for us - either through constructor, setter, or field injection."
+
+---
+
+**Interviewer:** Can you explain the Spring Bean lifecycle?
+
+**Your Response:** "Certainly! The Spring Bean lifecycle is how Spring manages beans from creation to destruction. It starts with **instantiation** where Spring creates the bean instance using its constructor.
+
+Then comes **dependency injection** where Spring injects all the required dependencies. After that, if the bean implements any Aware interfaces like BeanNameAware, Spring sets those properties.
+
+Next is the **initialization phase** where Spring calls any @PostConstruct methods, then if the bean implements InitializingBean, it calls afterPropertiesSet(). Any custom init-methods are also called here.
+
+Finally, the bean is **ready for use** in the application. When the application shuts down, Spring handles **destruction** by calling @PreDestroy methods and destroy() methods if the bean implements DisposableBean.
+
+The whole process ensures that beans are properly initialized before being used and cleanly destroyed when the application stops."
+
+---
+
+**Interviewer:** What are the different Spring Bean scopes and when would you use them?
+
+**Your Response:** "Spring provides several bean scopes to control how and when bean instances are created.
+
+The **singleton scope** is the default, where Spring creates exactly one instance per container. This is perfect for stateless services like business logic or data access objects.
+
+The **prototype scope** creates a new instance every time we request it. We use this when we need stateful objects or when each user should get their own instance.
+
+For web applications, we have **request scope** which creates one instance per HTTP request - great for form backing objects or request-specific data.
+
+**Session scope** creates one instance per HTTP session, perfect for user-specific data like shopping carts or user preferences.
+
+**Application scope** creates one instance per ServletContext, useful for application-wide configuration or shared resources.
+
+Choosing the right scope is important for both performance and correctness - using singleton for stateful objects can cause thread safety issues, while using prototype for stateless services wastes memory."
+
+---
+
+**Interviewer:** What's the difference between @Component, @Service, @Repository, and @Controller?
+
+**Your Response:** "These are all stereotype annotations that mark classes as Spring beans, but they serve different semantic purposes.
+
+**@Component** is the most generic annotation - it simply marks a class as a Spring bean.
+
+**@Service** is a specialization of @Component that we use for classes containing business logic. While it behaves the same as @Component, it adds semantic meaning to our code structure.
+
+**@Repository** is used for data access objects. It does everything @Component does, plus it automatically translates persistence-specific exceptions like SQLException into Spring's unified DataAccessException hierarchy. This makes our data access layer more consistent across different persistence technologies.
+
+**@Controller** is used in Spring MVC for web controllers that handle HTTP requests. When combined with @RequestMapping, it maps URLs to handler methods. For REST APIs, we typically use @RestController which combines @Controller and @ResponseBody.
+
+Using the right annotation makes our code more readable and self-documenting, and in the case of @Repository, provides real functional benefits."
+
+---
+
+**Interviewer:** How does Spring Boot auto-configuration work?
+
+**Your Response:** "Spring Boot auto-configuration is one of its most powerful features. It automatically configures our application based on the dependencies we include in our classpath.
+
+Here's how it works: When our application starts, Spring Boot scans for auto-configuration classes listed in META-INF/spring.factories files. These classes use conditional annotations to decide whether to apply the configuration.
+
+For example, if Spring Boot sees HikariCP on the classpath, it will automatically configure a DataSource bean. If it sees Spring Web MVC, it will configure a DispatcherServlet and default error handling.
+
+The key is the **conditional annotations** like @ConditionalOnClass, @ConditionalOnMissingBean, and @ConditionalOnProperty. These ensure that auto-configuration only applies when appropriate and backs off gracefully when we define our own beans.
+
+This means we can get a fully functional web application with just a few dependencies, but still have full control to override any auto-configuration when needed."
+
+---
+
+**Interviewer:** Which dependency injection approach do you prefer and why?
+
+**Your Response:** "I strongly prefer **constructor injection** for several important reasons.
+
+First, it ensures that the object is in a fully initialized state when created - all required dependencies are available right from the start. This prevents null pointer exceptions and makes the object more reliable.
+
+Second, it supports immutability. Dependencies can be declared as final fields, which makes our code thread-safe and prevents accidental modification.
+
+Third, it makes dependencies explicit and visible. Anyone reading the constructor immediately knows what the class needs to function, which improves code readability and maintainability.
+
+Finally, it makes unit testing much easier. In tests, we can simply pass mock dependencies directly to the constructor without needing Spring or reflection.
+
+While setter injection can be useful for optional dependencies, and field injection is concise, constructor injection provides the best combination of safety, testability, and code clarity. It's the approach recommended by the Spring team and most experienced developers."
+
+---
+
+**Interviewer:** How do you handle circular dependencies in Spring?
+
+**Your Response:** "Circular dependencies occur when Bean A needs Bean B, and Bean B needs Bean A. They're often a sign of design issues, but Spring can handle them in certain cases.
+
+Spring can automatically resolve circular dependencies when using **setter or field injection** for singleton beans. It does this by exposing partially constructed objects during creation.
+
+However, **constructor injection** will fail with a BeanCurrentlyInCreationException because neither bean can be fully instantiated before the other.
+
+The best solution is usually to **redesign the code** - extract common functionality into a third component or restructure the responsibilities to break the circular dependency.
+
+If redesign isn't possible, we can use the **@Lazy annotation** on one of the dependencies. This tells Spring to inject a proxy instead of the actual bean, breaking the startup cycle. The real bean gets created only when first accessed.
+
+In practice, I try to avoid circular dependencies altogether by following good design principles like Single Responsibility and proper separation of concerns."

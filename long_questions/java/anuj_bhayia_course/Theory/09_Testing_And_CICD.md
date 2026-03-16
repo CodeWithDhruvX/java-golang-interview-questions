@@ -99,3 +99,73 @@ AWS provides a suite of managed services to automate the release process.
 
 **4. AWS CodePipeline (The Orchestrator):**
 - A service that models and visualizes the entire release pipeline. You configure it to watch your source code repository. When a push happens to the `main` branch, CodePipeline automatically triggers CodeBuild, takes the resulting artifact, and passes it to CodeDeploy or Elastic Beanstalk, achieving full automation from commit to production.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** What's the difference between unit testing and integration testing?
+
+**Your Response:** "Unit testing and integration testing serve different purposes in the testing pyramid.
+
+**Unit testing** focuses on testing individual components in isolation. I write unit tests to test a single class or method by mocking all its external dependencies like databases, web services, or other classes. These tests are fast, lightweight, and help me catch logic errors early. For example, I'd write a unit test for a UserService by mocking the UserRepository and verifying that the business logic works correctly.
+
+**Integration testing** tests how different parts of the system work together. These tests involve real components - they might test the integration between my service layer and the database, or between my REST controller and the full Spring application context. Integration tests are slower but more realistic because they test actual interactions.
+
+In my Spring Boot applications, I use JUnit and Mockito for unit tests, and @SpringBootTest with Testcontainers for integration tests. The combination gives me confidence that both my individual components work correctly and that they integrate properly as a complete system."
+
+---
+
+**Interviewer:** How do you unit test a Spring service with Mockito?
+
+**Your Response:** "I use Mockito to test Spring services by mocking their dependencies, which allows me to test the business logic in complete isolation.
+
+The typical approach is to use the @ExtendWith(MockitoExtension.class) annotation on my test class to enable Mockito. Then I use @Mock to create mock instances of the dependencies - like a UserRepository or ExternalServiceClient. I use @InjectMocks on the service class I'm testing, and Mockito automatically injects the mocks into it.
+
+Before calling the method under test, I set up the mock behavior using the 'when-then' pattern. For example: 'when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser))'. This tells the mock what to return when specific methods are called.
+
+After executing the test method, I use assertions from JUnit to verify the returned results, and I use Mockito's verify() method to ensure the dependencies were called correctly. For example: 'verify(userRepository, times(1)).save(user)'.
+
+This approach gives me fast, reliable tests that focus purely on the business logic without being affected by external systems."
+
+---
+
+**Interviewer:** How do you test REST APIs in Spring Boot?
+
+**Your Response:** "I test REST APIs at different levels depending on what I need to verify.
+
+For controller-layer testing, I use @WebMvcTest which loads only the web layer - controllers, filters, and security configuration. I mock the service layer with @MockBean and use MockMvc to perform HTTP requests and verify the responses. This is fast and allows me to test URL routing, request/response handling, and validation logic.
+
+For full end-to-end testing, I use @SpringBootTest with a random port and TestRestTemplate or WebTestClient. This starts the entire application context including the database (often using Testcontainers for real databases). This approach tests the complete request flow from HTTP request through all layers to the database.
+
+For reactive APIs built with WebFlux, I use WebTestClient which is designed specifically for testing reactive endpoints. It allows me to test the reactive streams non-blocking.
+
+The key is to test at the right level - @WebMvcTest for fast unit-style tests of the web layer, and @SpringBootTest for comprehensive integration tests that verify everything works together."
+
+---
+
+**Interviewer:** What is CI/CD and why is it important?
+
+**Your Response:** "CI/CD stands for Continuous Integration and Continuous Deployment/ Delivery, and it's essential for modern software development.
+
+**Continuous Integration** is the practice of automatically building and testing code every time developers push changes to the repository. This catches integration issues early and ensures the codebase is always in a releasable state. In my projects, I set up CI pipelines that run unit tests, integration tests, and build the application automatically on every commit.
+
+**Continuous Deployment** takes this further by automatically deploying the validated code to production environments. This eliminates manual deployment processes and reduces the risk of human error.
+
+CI/CD is important because it enables fast, reliable, and frequent releases. Instead of big, risky deployments every few months, we can deploy small changes multiple times a day. This reduces risk, improves feedback loops, and allows teams to deliver value to users much faster.
+
+In my Spring Boot projects, I typically use GitHub Actions or Jenkins for CI, and AWS CodePipeline or Kubernetes for CD, creating fully automated pipelines from commit to production."
+
+---
+
+**Interviewer:** How do you set up a CI/CD pipeline for a Spring Boot application?
+
+**Your Response:** "I set up CI/CD pipelines using a combination of tools to automate the entire build, test, and deployment process.
+
+For the CI part, I use GitHub Actions or Jenkins. The pipeline triggers on every push to the repository, runs 'mvn clean package' to build the application, executes all unit and integration tests, and if everything passes, creates deployment artifacts like Docker images or JAR files.
+
+For the CD part, I use AWS CodePipeline or Kubernetes deployment strategies. The pipeline takes the artifacts from CI and deploys them through different environments - first to staging for additional testing, then to production. I implement deployment strategies like blue-green deployments or rolling updates to ensure zero downtime.
+
+The pipeline includes quality gates - if tests fail or code quality metrics don't meet thresholds, the pipeline stops and prevents deployment. I also include security scanning and dependency vulnerability checks.
+
+The entire process is automated and version-controlled, which means every deployment is reproducible and traceable back to the exact code commit that triggered it. This gives us confidence in our deployments and allows us to release frequently and safely."

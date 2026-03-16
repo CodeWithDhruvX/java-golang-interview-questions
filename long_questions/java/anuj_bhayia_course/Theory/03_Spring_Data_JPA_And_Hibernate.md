@@ -164,3 +164,89 @@ Locking prevents two concurrent transactions from updating the same row simultan
 - **Mental Model:** "I know there will be conflicts, so I will aggressively lock the actual database row until I'm completely finished."
 - **Implementation:** Using `@Lock(LockModeType.PESSIMISTIC_WRITE)` on a Spring Data JPA Repository method.
 - **How it works:** Hibernate translates this into a `SELECT ... FOR UPDATE` SQL statement. The database physically locks the row. If Transaction 2 tries to read or update that row, it will be physically blocked (frozen) until Transaction 1 commits or rolls back (or times out). It guarantees data integrity but heavily reduces concurrency and can cause deadlocks.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** What's the difference between JPA and Hibernate?
+
+**Your Response:** "JPA is just a specification, while Hibernate is the actual implementation.
+
+Think of it like this: JPA defines the interfaces and annotations - like @Entity, @Id, @OneToMany - that tell us HOW to map Java objects to database tables. But JPA doesn't provide the actual code that does the work.
+
+Hibernate is the most popular implementation that takes those JPA annotations and actually generates the SQL, manages the database connections, and handles all the object-relational mapping behind the scenes.
+
+In a Spring Boot application, we program against the JPA interfaces using JPA annotations, but under the hood, it's Hibernate doing all the heavy lifting. This is good because if we ever wanted to switch to another JPA provider like EclipseLink, our code wouldn't need to change since we're programming to the JPA specification."
+
+---
+
+**Interviewer:** What is Spring Data JPA and how does it simplify database access?
+
+**Your Response:** "Spring Data JPA is a layer of abstraction on top of JPA that dramatically reduces the amount of boilerplate code we need to write for data access.
+
+Instead of writing manual SQL queries or even JPQL queries for common operations, Spring Data JPA allows us to simply define repository interfaces that extend JpaRepository or CrudRepository.
+
+The magic happens when Spring sees our interface - it automatically creates a proxy implementation at runtime that provides all the standard CRUD operations like save, findById, findAll, delete, and so on.
+
+Even more impressively, we can create methods with specific names like findByEmailAndStatus or findByLastNameOrderByCreatedAtDesc, and Spring Data JPA will automatically parse the method name and generate the appropriate query for us.
+
+This means we can have a fully functional data access layer with almost no code - just interface definitions!"
+
+---
+
+**Interviewer:** Explain the difference between FetchType.LAZY and FetchType.EAGER.
+
+**Your Response:** "This is about when related data is loaded from the database.
+
+**EAGER fetching** means that when I load an entity, all its related entities are loaded immediately in the same query using JOINs. So if I load a User object, and that User has a collection of Orders, all those Orders are fetched right away along with the User.
+
+**LAZY fetching** means the related entities are NOT loaded immediately. Instead, Hibernate puts a proxy object in their place. The actual data is only fetched from the database when I specifically access it - like calling user.getOrders() for the first time.
+
+The defaults are important here: @OneToOne and @ManyToOne relationships are EAGER by default, while @OneToMany and @ManyToMany are LAZY by default.
+
+In practice, I almost always prefer LAZY fetching because EAGER fetching can cause serious performance issues. If you load 100 users and each has 1000 orders, EAGER fetching would try to load 100,000 order records at once, which could kill your application."
+
+---
+
+**Interviewer:** What is the N+1 select problem and how do you solve it?
+
+**Your Response:** "The N+1 problem is a classic performance issue where the application executes one query to fetch N entities, and then N additional queries to fetch the related data for each of those entities.
+
+For example, if I query for 100 authors and then access their books, without proper configuration, Hibernate might run 101 separate queries - one to get the authors, and then one for each author's books.
+
+There are several ways to solve this:
+
+The most common is using JOIN FETCH in JPQL queries. This tells Hibernate to eagerly load the related collection in the same initial query using SQL JOINs.
+
+Another approach is using EntityGraphs, which allow us to dynamically override the default lazy fetching for specific repository methods without writing custom JPQL.
+
+For less critical cases, we can use @BatchSize, which makes Hibernate fetch related entities in batches rather than one-by-one, reducing N queries to maybe N/10 queries.
+
+The key is to be aware of this issue and proactively use these strategies when you know you'll need the related data."
+
+---
+
+**Interviewer:** How do transactions work in Spring Boot?
+
+**Your Response:** "Spring makes transaction management incredibly simple using the @Transactional annotation.
+
+I typically apply @Transactional at the service layer, either on individual methods or the entire class. When a method annotated with @Transactional is called, Spring's AOP proxy intercepts the call and begins a database transaction before the method executes.
+
+If the method completes successfully, the proxy automatically commits the transaction. If the method throws a RuntimeException, it automatically rolls back the transaction, ensuring data integrity.
+
+This is powerful because it allows us to have business methods that perform multiple database operations - like updating an order, creating an invoice, and sending a notification - all within a single transaction. If any part fails, everything rolls back automatically.
+
+We can also control the transaction behavior using attributes like isolation level, propagation behavior, and specifying which exceptions should trigger a rollback."
+
+---
+
+**Interviewer:** What's the difference between optimistic and pessimistic locking?
+
+**Your Response:** "These are two strategies for handling concurrent updates to the same data.
+
+**Optimistic locking** assumes that conflicts are rare. Instead of locking database rows, we use a version field annotated with @Version. When we try to save an entity, Hibernate includes the version in the WHERE clause. If another transaction has updated the row since we read it, the version won't match, the update will affect 0 rows, and Hibernate throws an OptimisticLockException. This is great for web applications with high concurrency.
+
+**Pessimistic locking** assumes conflicts are likely. It actually locks the database row using SELECT FOR UPDATE. If another transaction tries to access that row, it gets blocked until the first transaction commits or rolls back. This guarantees data integrity but kills concurrency and can cause deadlocks.
+
+In most web applications, I prefer optimistic locking because it provides better performance and scalability. Pessimistic locking is reserved for specific scenarios where you absolutely must prevent any concurrent modifications, like in financial systems or inventory management."

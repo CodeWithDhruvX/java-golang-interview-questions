@@ -141,3 +141,71 @@ When building REST APIs, returning raw domain objects, primitives, or different 
 2. **Uniform Error Handling:** Frontend clients can write a single, central interceptor to intercept all incoming API responses, check the `success` flag or `error` object, and display global toast notifications or error dialogs.
 3. **Metadata Support:** A wrapper easily accommodates adding metadata later, such as pagination details (`page`, `size`, `totalElements`) or correlation IDs for tracing, without breaking the existing contract.
 4. **Implementation:** In Spring, this can be achieved manually by having controllers return a `ApiResponse<T>` generic class payload, or automatically using `ResponseBodyAdvice` to intercept and wrap every outgoing response globally before it is written to the HTTP stream.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+
+**Interviewer:** Can you explain the Spring MVC request flow?
+
+**Your Response:** "Certainly! Spring MVC follows the Front Controller pattern where every request first hits the DispatcherServlet, which acts as the central coordinator.
+
+The flow starts when an HTTP request comes in and is intercepted by the DispatcherServlet. Then it consults the HandlerMapping to figure out which controller method should handle this specific request based on the URL pattern.
+
+Once the right controller is identified, the DispatcherServlet routes the request to that controller method. The controller executes the business logic, usually calling service layer methods, and prepares the response data.
+
+For traditional web applications, the controller returns a ModelAndView object containing the data and the logical view name. The ViewResolver then maps this logical name to an actual view template like a JSP or Thymeleaf file, which gets rendered and sent back to the client.
+
+For REST APIs, it's simpler - the controller method returns a Java object which gets automatically serialized to JSON by HttpMessageConverters and written directly to the response body, bypassing the view resolution entirely."
+
+---
+
+**Interviewer:** What's the difference between @Controller and @RestController?
+
+**Your Response:** "The main difference is in how they handle the return value from controller methods.
+
+**@Controller** is the traditional Spring MVC annotation used for web applications that render HTML pages. When you return a String from a @Controller method, Spring treats it as a logical view name and tries to resolve it to a template file. If you want to return JSON data from a specific method, you need to add @ResponseBody to that method explicitly.
+
+**@RestController** is a convenience annotation that combines @Controller and @ResponseBody. It's specifically designed for REST APIs. Every method in a @RestController automatically has @ResponseBody applied, meaning whatever you return - whether it's a String, Object, or List - gets serialized directly to JSON/XML and written to the response body.
+
+So if you're building a REST API, @RestController is the way to go. If you're building a traditional web application with server-side rendering, you'd use @Controller."
+
+---
+
+**Interviewer:** How do you handle exceptions globally in a Spring Boot REST API?
+
+**Your Response:** "For global exception handling, I use the @RestControllerAdvice annotation combined with @ExceptionHandler.
+
+I create a class annotated with @RestControllerAdvice, which acts as a global exception handler for all controllers in the application. Inside this class, I define methods annotated with @ExceptionHandler for specific exception types.
+
+For example, I might have one method to handle ResourceNotFoundException, another for validation errors, and a general one for unexpected exceptions. Each method builds a standardized error response object containing fields like timestamp, status code, error message, and path.
+
+The beauty of this approach is that it centralizes error handling logic. Instead of having try-catch blocks scattered throughout all my controllers, I have one place where all exceptions are caught and transformed into consistent, user-friendly error responses. This makes the API much more maintainable and ensures clients always get predictable error formats."
+
+---
+
+**Interviewer:** What is the DTO pattern and why is it important in REST APIs?
+
+**Your Response:** "DTO stands for Data Transfer Object, and it's a crucial pattern in REST APIs for several important reasons.
+
+The main purpose of DTOs is to separate the internal domain model from the external API contract. Instead of exposing our database entities directly to clients, we create separate DTO classes that represent exactly what we want to send or receive.
+
+This separation gives us several benefits. First, it prevents security issues where we might accidentally expose sensitive data like password hashes or internal IDs. Second, it protects against over-posting attacks where malicious clients try to set fields they shouldn't have access to.
+
+DTOs also give us the flexibility to shape the data exactly as the client needs it. We can combine data from multiple entities, flatten complex structures, or include calculated fields that don't exist in our database model.
+
+Additionally, we can put validation annotations specific to the API context on DTOs, which is cleaner than polluting our domain entities with presentation-layer concerns."
+
+---
+
+**Interviewer:** How do you perform data validation in Spring Boot?
+
+**Your Response:** "Spring Boot integrates seamlessly with the Jakarta Bean Validation API, making validation very straightforward.
+
+First, I add validation annotations to my DTO fields - things like @NotNull, @NotBlank, @Size, @Email, and @Pattern for more complex validations. These annotations define the rules for what constitutes valid data.
+
+Then, in my controller methods, I annotate the @RequestBody parameter with @Valid. This tells Spring to validate the incoming request body against the annotations before the method body executes.
+
+If validation fails, Spring automatically throws a MethodArgumentNotValidException. I catch this in my global exception handler and transform it into a user-friendly error response that lists all the validation failures with their field names and error messages.
+
+This approach gives us automatic validation with minimal code, and it keeps the validation logic declarative and close to the data model, making it easy to understand and maintain."
