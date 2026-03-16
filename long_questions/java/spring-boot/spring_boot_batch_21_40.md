@@ -291,3 +291,98 @@ Or static factory methods specified in XML (legacy).
 **Your Response:** "Inversion of Control is a fundamental principle where control of object creation shifts from me manually creating objects with 'new' to the framework managing object creation. Dependency Injection is the design pattern that implements IoC. Instead of my controller creating its own service dependencies, the Spring container injects those dependencies into the controller. This decouples my code - the controller doesn't need to know how to create or find its dependencies. It just declares what it needs, and Spring provides it. This makes my code more testable, flexible, and easier to maintain because I can swap implementations without changing the consuming classes."
 
 ---
+
+
+In Java/Spring, you can define beans in several ways:
+
+## 1. **Annotation-based Configuration**
+```java
+@Component
+public class MyService {
+    // Bean implementation
+}
+
+@Service
+public class UserService {
+    // Service bean
+}
+
+@Repository
+public class UserRepository {
+    // Repository bean
+}
+
+@Controller
+public class UserController {
+    // Controller bean
+}
+```
+
+## 2. **@Configuration Class with @Bean Methods**
+```java
+@Configuration
+public class AppConfig {
+    
+    @Bean
+    public MyService myService() {
+        return new MyService();
+    }
+    
+    @Bean
+    public DataSource dataSource() {
+        return new HikariDataSource();
+    }
+}
+```
+
+## 3. **XML Configuration**
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans">
+    <bean id="myService" class="com.example.MyService"/>
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"/>
+</beans>
+```
+
+## 4. **Java-based Configuration (Spring Boot)**
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+## 5. **@ComponentScan for Auto-detection**
+```java
+@Configuration
+@ComponentScan(basePackages = "com.example")
+public class AppConfig {
+}
+```
+
+**Most Common Approach**: Use `@Component`, `@Service`, `@Repository`, or `@Controller` annotations on classes, combined with `@ComponentScan` (automatically included in `@SpringBootApplication`).
+
+
+"You can explain **Ways to Define Beans in Spring** in the same **simple, interview-style explanation** like your IoC/DI answer. For example:
+
+---
+
+**Your Response:**
+
+“In Spring, beans are objects that are created and managed by the Spring IoC container. There are several ways to define these beans.
+
+The most common approach today is **annotation-based configuration**, where I annotate classes with `@Component`, `@Service`, `@Repository`, or `@Controller`. When Spring starts, it scans the packages using `@ComponentScan` (which is automatically included in `@SpringBootApplication`) and registers those classes as beans.
+
+Another approach is using a **`@Configuration` class with `@Bean` methods**, where I explicitly define and return objects that should be managed by Spring. This is useful when I need to configure third-party classes or have more control over bean creation.
+
+Earlier Spring applications often used **XML configuration**, where beans were defined in XML files with `<bean>` tags. This approach is now mostly considered legacy but is still supported.
+
+In modern Spring Boot applications, the typical setup is **`@SpringBootApplication` with component scanning**, which automatically detects and registers beans using annotations.
+
+So in practice, I usually rely on annotation-based beans with component scanning, and use `@Bean` methods in configuration classes when I need custom or external object configuration.”
+
+---
+
+If you'd like, I can also show you a **shorter 20-second interview version** (very useful for Spring Boot interviews).
+"
