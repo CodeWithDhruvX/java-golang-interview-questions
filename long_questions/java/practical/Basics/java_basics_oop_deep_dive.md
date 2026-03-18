@@ -266,11 +266,36 @@ public class Main {
 **Q: Does this compile?**
 ```java
 class Builder {
-    Builder setName(String name) { return this; }
+    protected String name;
+
+    Builder setName(String name) {
+        this.name = name;
+        System.out.println("Builder setting name: " + name);
+        return this;
+    }
 }
+
 class AdvancedBuilder extends Builder {
+    // Covariant return: returning AdvancedBuilder instead of Builder
     @Override
-    AdvancedBuilder setName(String name) { return this; } // covariant return
+    AdvancedBuilder setName(String name) {
+        this.name = name;
+        System.out.println("AdvancedBuilder setting name: " + name);
+        return this;
+    }
+
+    void specialAction() {
+        System.out.println(name + " is performing an advanced action!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Without covariant returns, this would require a cast to call specialAction()
+        new AdvancedBuilder()
+            .setName("Titan")      // Returns AdvancedBuilder
+            .specialAction();      // Accessible because of the covariant return
+    }
 }
 ```
 **A:** **Yes, compiles.** An overriding method can return a subtype of the original return type (Java 5+). Enables fluent builder APIs.
@@ -549,10 +574,39 @@ interface BadFI { void doA(); void doB(); }
 ### 24. Private Interface Methods (Java 9+)
 **Q: Does this compile?**
 ```java
+// 1. Define the Interface
 interface Logger {
-    private void log(String msg) { System.out.println("[LOG] " + msg); }
-    default void info(String msg) { log(msg); }
-    default void error(String msg) { log(msg); }
+    // Private method: Only accessible within this interface
+    private void log(String msg) { 
+        System.out.println("[LOG] " + msg); 
+    }
+
+    // Default methods: Inherited by classes that implement this interface
+    default void info(String msg) { 
+        log("INFO: " + msg); 
+    }
+
+    default void error(String msg) { 
+        log("ERROR: " + msg); 
+    }
+}
+
+// 2. Implement the Interface
+class ConsoleLogger implements Logger {
+    // No need to override info or error unless you want custom behavior
+}
+
+// 3. Main Class to run the program
+public class Main {
+    public static void main(String[] args) {
+        ConsoleLogger myLogger = new ConsoleLogger();
+
+        myLogger.info("System started successfully.");
+        myLogger.error("Unable to connect to database.");
+        
+        // Note: myLogger.log("test") would cause a compilation error 
+        // because the log method is private to the interface.
+    }
 }
 ```
 **A:** **Yes, compiles** (Java 9+). Private interface methods allow code reuse between default methods without exposing the helper method.

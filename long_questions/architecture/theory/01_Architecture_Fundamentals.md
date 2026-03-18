@@ -301,9 +301,38 @@ SOLID at the architecture level:
 
 #### 🗣️ How to Explain in Interview
 **Interviewer:** What is the SOLID principle in the context of architecture?
-**Your Response:** "SOLID principles provide a roadmap for avoiding a 'distributed monolith.' **Single Responsibility (SRP)** at the service level means each service should own exactly one business Bounded Context, such as 'Payments' or 'Inventory.' 
+**Your Response:** "SOLID principles are five design principles that help us create maintainable, scalable, and robust software architectures. At the microservices level, they prevent us from building 'distributed monoliths' - where we have multiple services but they're tightly coupled like one big monolith.
 
-**Open/Closed (OCP)** is best achieved through Event-Driven architectures, where you can extend system behavior by adding new subscribers without modifying the publisher's code. **Dependency Inversion (DIP)** is implemented by services depending on stable API contracts (OpenAPI/Protobuf) rather than their internal implementations. Following macro-level SOLID ensures that your services remain decoupled and independently evolvable."
+Let me first define each principle in simple terms:
+
+**Single Responsibility Principle (SRP):** Each service should have exactly one reason to change - it should do one thing and do it well.
+
+**Open/Closed Principle (OCP):** Systems should be open for extension but closed for modification - we should be able to add new features without changing existing code.
+
+**Liskov Substitution Principle (LSP):** Services should be substitutable without breaking the system - if you replace one service with another that follows the same contract, everything should still work.
+
+**Interface Segregation Principle (ISP):** Don't force clients to depend on interfaces they don't need - create specific, focused interfaces rather than general ones.
+
+**Dependency Inversion Principle (DIP):** High-level modules should depend on abstractions, not concrete implementations - services should depend on contracts, not on specific implementations.
+
+Now let me walk you through each principle with real-world examples:
+
+**Single Responsibility (SRP)** at the service level means each service should own exactly one business Bounded Context. For example, at Flipkart, we have separate services for 'Inventory Management,' 'Order Processing,' and 'Payment Gateway.' If we need to change how we calculate GST, we only touch the Pricing service - not the entire order flow. The violation would be an Order service that also sends emails and generates invoices - that's three reasons to change in one service.
+
+**Open/Closed (OCP)** is best achieved through Event-Driven architectures. When Swiggy wanted to add 'Grocery Delivery' alongside 'Food Delivery,' they didn't modify existing restaurant services. Instead, they added new event subscribers for grocery vendors while keeping the restaurant ordering system untouched. This is 'open for extension, closed for modification.'
+
+**Liskov Substitution (LSP)** ensures services are truly substitutable. At Paytm, both 'UPI Payment Service' and 'Credit Card Service' implement the same PaymentProcessor interface. This means the checkout service can use either one without knowing the difference - they must honor the same contract. A violation would be a mock payment service that always returns 'success' without actual validation - this breaks contract testing and gives false confidence.
+
+**Interface Segregation (ISP)** is why we use BFF pattern. At Ola, the mobile app needs lightweight APIs like 'nearby cabs' and 'estimated fare,' while the web dashboard needs rich data like 'driver analytics' and 'revenue reports.' Instead of one giant API, we create separate interfaces - mobile gets slim APIs, web gets comprehensive ones. This prevents mobile apps from depending on heavy endpoints they'll never use.
+
+**Dependency Inversion (DIP)** means services depend on stable contracts, not implementations. At Razorpay, our Order Service depends on the PaymentGateway interface defined via OpenAPI, not on the specific UPI or Bitcoin implementation. When we added Bitcoin payments, we didn't touch the Order service - we just added a new BitcoinPaymentService that implements the same PaymentGateway contract.
+
+**The key benefit:** When RBI introduced new UPI transaction limits, only the UPI service needed changes. The Order service, Inventory service, and Notification service remained untouched because they depend on abstractions, not concrete implementations. This is how SOLID principles enable independent evolution of services in a distributed system."
+
+**Follow-up Questions to Prepare:**
+- *"How do you enforce SOLID across teams?"* → Code reviews, architecture decision records (ADRs), and contract testing
+- *"What happens when SOLID conflicts with deadlines?"* → Technical debt tracking, phased refactoring
+- *"How do you measure SOLID compliance?"* → Metrics like service coupling, change frequency, and test coverage
 
 ---
 
