@@ -3,6 +3,8 @@
 ## ðŸŸ¢ Schema & Sample Data
 **Description:** Use the following schema to answer the questions. The data includes edge cases like NULLs, duplicates, and unmatched records to test different join behaviors.
 
+https://dbfiddle.uk/teWNrlub
+
 ### 1. Tables Structure
 ```sql
 CREATE TABLE Departments (

@@ -22,7 +22,10 @@
 ```java
 import java.util.*;
 import java.util.stream.*;
+import java.time.LocalDateTime; // Added this import
+
 public class Main {
+    // Note: Records require Java 14+
     record Sale(String product, double amount, String region, LocalDateTime date) {}
     
     public static void main(String[] args) {

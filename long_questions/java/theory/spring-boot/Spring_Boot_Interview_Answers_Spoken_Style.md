@@ -1776,3 +1776,40 @@ Command pattern is used in Spring's task scheduling and command objects in Sprin
 These patterns make Spring flexible, extensible, and easier to use. They also provide good examples of how to apply design patterns in our own code.
 
 So Spring is essentially a showcase of well-applied design patterns that work together to provide a powerful, flexible framework for building applications."
+
+### 6. What are the Spring Boot versions and what features are included?
+
+**How to Explain in Interview (Spoken style format):**
+
+"Spring Boot has gone through several major versions, each bringing significant improvements and new features. Let me break down the main versions and their key features:
+
+**Spring Boot 2.x** was a major milestone that built upon Spring Framework 5. The key features include:
+- Auto-configuration with @EnableAutoConfiguration that automatically configures beans based on classpath dependencies
+- Starter dependencies that simplify dependency management - like spring-boot-starter-web for web applications
+- Embedded servers (Tomcat, Jetty, Undertow) allowing applications to run as standalone JARs
+- Spring Boot Actuator for production-ready monitoring with endpoints like /health, /metrics, /info
+- DevTools for automatic restart and live reload during development
+- Reactive programming support with Spring WebFlux for non-blocking applications
+- Comprehensive testing support with annotations like @SpringBootTest, @WebMvcTest, @DataJpaTest
+- Lazy initialization introduced in Spring Boot 2.2+ for faster startup times
+
+**Spring Boot 3.x** represents a major architectural shift released in November 2022. The most significant changes include:
+- **Baseline Java 17** - minimum Java version requirement increased from Java 8/11 to Java 17
+- **Jakarta EE 9/10 namespace** - migration from javax.* to jakarta.* packages (this is a breaking change)
+- **Native Image Support** - first-class support for GraalVM native compilation for faster startup and lower memory footprint
+- **AOT (Ahead of Time) Compilation** - optimizes application context computation at build time for better performance
+- **Observability improvements** - enhanced metrics and tracing capabilities with Micrometer
+- **Functional Bean Registration** - lambda-based bean registration for faster startup without reflection
+- **Security improvements** - SecurityFilterChain replaces the deprecated WebSecurityConfigurerAdapter
+- **Performance enhancements** - faster startup times and reduced memory usage even on JVM
+
+The key differences when migrating from Spring Boot 2.x to 3.x include:
+1. Upgrade Java to version 17 or higher
+2. Change all imports from javax.* to jakarta.* (javax.servlet → jakarta.servlet, javax.persistence → jakarta.persistence, etc.)
+3. Update Spring Security configuration to use the new DSL-based approach
+4. Use spring-boot-properties-migrator to identify deprecated properties
+5. For native compilation, use Maven command: mvn -Pnative native:compile
+
+Both versions share core features like auto-configuration, starter dependencies, embedded servers, and Actuator, but Spring Boot 3.x is more focused on cloud-native deployment, modern Java features, and performance optimization.
+
+The choice between versions depends on your project requirements - Spring Boot 2.x for legacy systems or Java 11 compatibility, and Spring Boot 3.x for new projects requiring modern Java features and native compilation support."

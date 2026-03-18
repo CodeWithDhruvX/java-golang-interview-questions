@@ -99,3 +99,61 @@ Browsers have default, built-in CSS stylesheets (user-agent styles) that apply v
 **Answer:**
 *   **Canvas (`<canvas>`):** Raster-based (pixel-based). Drawn via JavaScript. Best for complex animations, games, or manipulating thousands of objects. When scaled up, it becomes pixelated. Does not support native DOM events for elements drawn inside it.
 *   **SVG (`<svg>`):** Vector-based. Drawn via XML format. Best for logos, icons, and illustrations that need to scale infinitely without losing quality. Each element within the SVG is available in the DOM, so you can easily attach event handlers and style them with CSS.
+
+## 11. What are the key features of HTML5?
+**Answer:**
+HTML5 introduced numerous features that revolutionized web development:
+
+### **Semantic Elements**
+- `<article>`, `<section>`, `<header>`, `<footer>`, `<nav>`, `<main>`, `<aside>` - Provide meaning to content structure
+- `<figure>`, `<figcaption>` - Images with captions
+- `<time>`, `<mark>`, `<details>`, `<summary>` - Enhanced content semantics
+
+### **Multimedia Support**
+- `<audio>` - Native audio playback without plugins
+- `<video>` - Native video playback without Flash
+- `<canvas>` - 2D/3D graphics rendering via JavaScript
+- `<svg>` - Scalable vector graphics
+
+### **Form Enhancements**
+- **New Input Types:** `email`, `tel`, `url`, `search`, `date`, `time`, `datetime-local`, `month`, `week`, `number`, `range`, `color`
+- **New Attributes:** `placeholder`, `required`, `pattern`, `min`, `max`, `step`, `autofocus`, `autocomplete`
+- **New Elements:** `<datalist>`, `<progress>`, `<meter>`
+
+### **Storage APIs**
+- **localStorage** - Persistent client-side storage (no expiration)
+- **sessionStorage** - Session-based storage (clears on tab close)
+- **IndexedDB** - Client-side database for structured data
+
+### **Graphics & Media**
+- **Canvas API** - Dynamic graphics and animations
+- **WebGL** - 3D graphics rendering
+- **Drag & Drop API** - Native drag and drop functionality
+
+### **Communication APIs**
+- **WebSockets** - Real-time bidirectional communication
+- **Server-Sent Events** - Server-to-client updates
+- **Web Workers** - Background JavaScript processing
+- **Geolocation API** - Location services
+- **WebRTC** - Real-time audio/video communication
+
+### **Performance & Optimization**
+- **Script Loading:** `defer` and `async` attributes for better performance
+- **Resource Hints:** `preload`, `prefetch`, `preconnect`
+- **Service Workers** - Offline functionality and advanced caching
+
+### **Device Integration**
+- **Device Orientation API** - Detect device rotation
+- **Vibration API** - Haptic feedback
+- **Camera/Microphone Access** - Media capture capabilities
+
+### **Accessibility Improvements**
+- **ARIA attributes** integration
+- **Enhanced semantic markup** for screen readers
+- **Improved `tabindex`** and focus management
+
+### **Other Features**
+- **ContentEditable** - Inline editing capabilities
+- **Data attributes** (`data-*`) - Custom data storage
+- **Cross-Origin Resource Sharing (CORS)** support
+- **Better error handling and parsing**

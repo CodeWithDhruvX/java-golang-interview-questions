@@ -1,4 +1,4 @@
-﻿# Comprehensive E-Commerce SQL Interview Questions (Product & Service Based Companies)
+# Comprehensive E-Commerce SQL Interview Questions (Product & Service Based Companies)
 
 ## 📌 Rationale
 This E-commerce schema is the "Gold Standard" for SQL interviews at product-based companies (Amazon, FAANG, Flipkart, Uber, etc.) and service-based companies alike. It closely mimics a real-world relational database. It perfectly tests Basic Joins, Advanced Window Functions, CTEs, Date Manipulations, and Complex Aggregations.
