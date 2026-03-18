@@ -237,3 +237,20 @@ It also provides **Caching**, **CORS management**, and **Metrics collection**, e
 
 #### Indepth
 By offloading JWT validation to the Gateway, internal microservices only need to trust the headers passed by the Gateway. However, one must be careful not to put business logic inside the Gateway (an anti-pattern known as "Smart Pipes, Dumb Endpoints"), as this recreates the monolith tightly coupled at the API layer.
+
+---
+
+### 21. What approach to follow while creating microservices application?
+"When creating a microservices application, I follow a systematic approach that balances business needs with technical constraints. My approach has three key phases:
+
+**Phase 1: Domain Analysis & Service Identification**
+I start with Domain-Driven Design (DDD) workshops to identify Bounded Contexts. I work with domain experts to map business capabilities and determine where natural boundaries exist. This helps me avoid the common mistake of creating services based on technical layers rather than business domains.
+
+**Phase 2: Strategic Migration Planning**
+I evaluate whether to build greenfield microservices or migrate an existing monolith. For new projects, I still start with a well-modularized monolith to understand the domain better. For migrations, I use the Strangler Fig pattern - gradually extracting services one by one while keeping the system operational.
+
+**Phase 3: Implementation & Governance**
+I establish clear architectural principles: database-per-service, asynchronous communication where possible, and API versioning from day one. I also set up observability, CI/CD pipelines, and service governance before scaling out."
+
+#### Indepth
+The critical mistake most teams make is jumping straight to microservices without understanding the domain boundaries. This leads to 'distributed monoliths' where services are tightly coupled. I always recommend starting with business capability mapping first, then technical implementation. The approach should be iterative - identify one clear bounded context, extract it successfully, learn from the experience, then repeat. This minimizes risk while building organizational microservices maturity.

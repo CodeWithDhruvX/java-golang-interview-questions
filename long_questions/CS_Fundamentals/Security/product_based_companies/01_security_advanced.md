@@ -116,4 +116,253 @@ These algorithms are intentionally **slow** and require high CPU/RAM, resisting 
 
 ---
 
+### Q6: Compare AES-GCM vs ChaCha20-Poly1305. When would you choose each?
+
+**Answer:**
+
+**AES-GCM (Advanced Encryption Standard - Galois/Counter Mode):**
+- **Hardware acceleration** on most modern CPUs (AES-NI)
+- **128-bit** block size, **256-bit** key max
+- **96-bit** nonce recommended (12 bytes)
+- **Performance**: Excellent on servers with AES-NI
+- **Adoption**: TLS 1.3 standard, widely supported
+
+**ChaCha20-Poly1305:**
+- **Software-optimized** stream cipher
+- **256-bit** key, **96-bit** nonce (12 bytes)
+- **Performance**: Consistently fast on all hardware (mobile, IoT)
+- **Adoption**: TLS 1.3 alternative, mobile networks (5G), QUIC
+
+**Decision Matrix:**
+
+| Scenario | Choose | Why |
+|---|---|---|
+| **Server-side encryption** | **AES-GCM** | Hardware acceleration makes it 3-5x faster |
+| **Mobile apps** | **ChaCha20-Poly1305** | Consistent performance, no hardware dependency |
+| **IoT devices** | **ChaCha20-Poly1305** | No AES hardware, power-efficient |
+| **High-throughput APIs** | **AES-GCM** | Leverages server CPU acceleration |
+| **Cross-platform compatibility** | **ChaCha20-Poly1305** | Uniform performance across devices |
+
+**Implementation (Go):**
+```go
+// AES-GCM (server-side)
+func encryptAESGCM(key, plaintext []byte) ([]byte, error) {
+    block, _ := aes.NewCipher(key)
+    gcm, _ := cipher.NewGCM(block)
+    nonce := make([]byte, gcm.NonceSize())
+    io.ReadFull(rand.Reader, nonce)
+    return gcm.Seal(nonce, nonce, plaintext, nil), nil
+}
+
+// ChaCha20-Poly1305 (mobile/IoT)
+func encryptChaCha20(key, plaintext []byte) ([]byte, error) {
+    aead, _ := chacha20poly1305.NewX(key) // XChaCha20 for larger nonce
+    nonce := make([]byte, aead.NonceSize())
+    io.ReadFull(rand.Reader, nonce)
+    return aead.Seal(nonce, nonce, plaintext, nil), nil
+}
+```
+
+---
+
+### Q7: What are the security implications of nonce reuse in GCM/CTR modes?
+
+**Answer:**
+**Nonce reuse is catastrophic** for counter-based modes (GCM, CTR). It completely breaks confidentiality.
+
+**Why it's so dangerous:**
+- Both modes use XOR: `ciphertext = plaintext ⊕ keystream`
+- Keystream = `encrypt(counter + nonce)`
+- **Same nonce + same counter = same keystream**
+- Attacker can XOR two ciphertexts to eliminate keystream:
+  ```
+  C1 ⊕ C2 = (P1 ⊕ K) ⊕ (P2 ⊕ K) = P1 ⊕ P2
+  ```
+
+**Real-world attack scenario:**
+```
+Two messages encrypted with same nonce:
+C1 = P1 ⊕ K  (known: "GET /users/123")
+C2 = P2 ⊕ K  (unknown: secret API key)
+
+Attacker computes:
+P1 ⊕ P2 = C1 ⊕ C2
+Since P1 is known, attacker derives P2!
+```
+
+**Prevention strategies:**
+
+**1. Counter-based nonce generation:**
+```go
+// Atomic counter ensures uniqueness
+var nonceCounter uint64
+func nextNonce() []byte {
+    n := atomic.AddUint64(&nonceCounter, 1)
+    return make([]byte, 12) // 96-bit nonce
+}
+```
+
+**2. Random with collision detection:**
+```go
+func generateRandomNonce() []byte {
+    nonce := make([]byte, 12)
+    for {
+        rand.Read(nonce)
+        if !isNonceUsed(nonce) { // Check in-memory set
+            markNonceUsed(nonce)
+            return nonce
+        }
+    }
+}
+```
+
+**3. Use XChaCha20-Poly1305:**
+- 192-bit nonce makes collision practically impossible
+- Can use random nonce safely
+
+**Production best practices:**
+- **Never reuse keys** with same nonce
+- **Use key rotation** to limit damage
+- **Monitor nonce usage** in distributed systems
+- **Prefer AEADs** with larger nonce spaces
+
+---
+
+### Q8: Design an encryption service for a microservices architecture. What are the key considerations?
+
+**Answer:**
+
+**Architecture Overview:**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Service A     │    │   Service B     │    │   Service C     │
+│                 │    │                 │    │                 │
+│  encrypt(data)──┼────┼──encrypt(data)──┼────┼──encrypt(data)──┼─────►
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                    ┌─────────────────────┐
+                    │  Encryption Service │
+                    │                     │
+                    │  • Key Management   │
+                    │  • Algorithm Choice │
+                    │  • Audit Logging    │
+                    └─────────────────────┘
+```
+
+**Key Design Considerations:**
+
+**1. Key Management:**
+- **Never store keys in application code**
+- Use **KMS** (AWS KMS, Azure Key Vault, GCP KMS)
+- **Envelope encryption**: KMS encrypts data keys, data keys encrypt payload
+- **Key rotation**: Automatic every 90 days
+- **Key separation**: Different keys per service/data type
+
+**2. Algorithm Selection:**
+```yaml
+production:
+  algorithm: "AES-256-GCM"
+  key_size: 256
+  nonce_size: 12
+  
+legacy_compatibility:
+  algorithm: "AES-256-CBC"
+  additional_protection: "HMAC-SHA256"
+  
+mobile_iot:
+  algorithm: "XChaCha20-Poly1305"
+  key_size: 256
+```
+
+**3. API Design:**
+```go
+type EncryptionRequest struct {
+    Data        []byte            `json:"data"`
+    KeyID       string            `json:"key_id"`
+    Algorithm   string            `json:"algorithm"`
+    Context     map[string]string `json:"context"` // For audit
+}
+
+type EncryptionResponse struct {
+    Ciphertext  []byte `json:"ciphertext"`
+    KeyID       string `json:"key_id"`
+    Algorithm   string `json:"algorithm"`
+    Timestamp   int64  `json:"timestamp"`
+    RequestID   string `json:"request_id"`
+}
+```
+
+**4. Security Controls:**
+- **mTLS** between services
+- **Rate limiting** to prevent DoS
+- **Audit logging** of all encryption operations
+- **Input validation** (max payload size, format checks)
+- **Circuit breaker** for KMS failures
+
+**5. Performance Optimizations:**
+- **Connection pooling** to KMS
+- **Local caching** of encrypted data keys (TTL: 1 hour)
+- **Batch operations** for bulk encryption
+- **Async processing** for non-critical operations
+
+**6. Monitoring & Alerting:**
+- **Encryption latency** (P95 < 50ms)
+- **Key rotation failures**
+- **Unusual access patterns**
+- **Error rates** by service/algorithm
+
+**Implementation Example:**
+```go
+type EncryptionService struct {
+    kmsClient    kms.Client
+    keyCache     *sync.Map
+    auditLogger  logger.Logger
+    metrics      metrics.Collector
+}
+
+func (s *EncryptionService) Encrypt(ctx context.Context, req EncryptionRequest) (*EncryptionResponse, error) {
+    // 1. Validate request
+    if err := s.validateRequest(req); err != nil {
+        return nil, err
+    }
+    
+    // 2. Get or create data key
+    dataKey, err := s.getDataKey(ctx, req.KeyID)
+    if err != nil {
+        return nil, err
+    }
+    
+    // 3. Encrypt data
+    ciphertext, err := s.encryptWithKey(req.Data, dataKey, req.Algorithm)
+    if err != nil {
+        return nil, err
+    }
+    
+    // 4. Audit log
+    s.auditLogger.Info("encryption_completed",
+        "service", req.Context["service"],
+        "key_id", req.KeyID,
+        "algorithm", req.Algorithm,
+        "data_size", len(req.Data),
+    )
+    
+    return &EncryptionResponse{
+        Ciphertext: ciphertext,
+        KeyID:      req.KeyID,
+        Algorithm:  req.Algorithm,
+        Timestamp:  time.Now().Unix(),
+        RequestID:  uuid.New().String(),
+    }, nil
+}
+```
+
+**Deployment Considerations:**
+- **Multi-region** replication for global services
+- **Blue-green** deployments for key rotation
+- **Health checks** including KMS connectivity
+- **Graceful degradation** during KMS outages
+
+---
+
 *Prepared for technical rounds at product-based companies (Google, Meta, Amazon, Flipkart, Swiggy, CRED, Zepto, Razorpay, Groww).*

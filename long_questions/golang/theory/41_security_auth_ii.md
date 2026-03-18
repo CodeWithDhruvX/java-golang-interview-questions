@@ -241,3 +241,459 @@ Tips:
 2.  **StopTimer/StartTimer**: Pause during non-measured work.
 3.  **RunParallel**: `b.RunParallel(func(pb *testing.PB) { ... })` to saturate all CPU cores and test contention.
 Measurement: `ns/op` (Time) and `B/op` (Allocations).
+
+---
+
+## 821. What encryption modes are available in Go's crypto package? How do you implement them?
+
+**Answer:**
+Go's `crypto/cipher` package provides several encryption modes for block ciphers like AES.
+
+**Available Modes in Go:**
+
+| Mode | Package | Use Case | Security Level |
+|---|---|---|---|
+| **GCM** | `crypto/cipher` | **Modern standard** - authenticated encryption | ✅ Excellent |
+| **CBC** | `crypto/cipher` | Legacy compatibility | ⚠️ Needs HMAC |
+| **CTR** | `crypto/cipher` | Stream cipher, high performance | ⚠️ Needs HMAC |
+| **CFB** | `crypto/cipher` | Stream mode, self-synchronizing | ⚠️ Needs HMAC |
+| **OFB** | `crypto/cipher` | Stream mode, error propagation | ⚠️ Needs HMAC |
+
+**Implementation Examples:**
+
+**1. AES-GCM (Recommended):**
+```go
+import (
+    "crypto/aes"
+    "crypto/cipher"
+    "crypto/rand"
+    "io"
+)
+
+func EncryptAESGCM(key, plaintext []byte) ([]byte, error) {
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    gcm, err := cipher.NewGCM(block)
+    if err != nil {
+        return nil, err
+    }
+    
+    nonce := make([]byte, gcm.NonceSize())
+    if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+        return nil, err
+    }
+    
+    // Prepend nonce to ciphertext
+    return gcm.Seal(nonce, nonce, plaintext, nil), nil
+}
+
+func DecryptAESGCM(key, ciphertext []byte) ([]byte, error) {
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    gcm, err := cipher.NewGCM(block)
+    if err != nil {
+        return nil, err
+    }
+    
+    nonceSize := gcm.NonceSize()
+    if len(ciphertext) < nonceSize {
+        return nil, errors.New("ciphertext too short")
+    }
+    
+    nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+    return gcm.Open(nil, nonce, ciphertext, nil)
+}
+```
+
+**2. AES-CBC with HMAC (Legacy):**
+```go
+import (
+    "crypto/aes"
+    "crypto/cipher"
+    "crypto/hmac"
+    "crypto/sha256"
+    "crypto/rand"
+    "encoding/binary"
+)
+
+func EncryptAESCBC(key, plaintext []byte) ([]byte, error) {
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    // Add PKCS#7 padding
+    padding := aes.BlockSize - len(plaintext)%aes.BlockSize
+    plaintext = append(plaintext, bytes.Repeat([]byte{byte(padding)}, padding)...)
+    
+    // Generate random IV
+    ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+    iv := ciphertext[:aes.BlockSize]
+    if _, err := rand.Read(iv); err != nil {
+        return nil, err
+    }
+    
+    mode := cipher.NewCBCEncrypter(block, iv)
+    mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintext)
+    
+    // Calculate HMAC
+    mac := hmac.New(sha256.New, key)
+    mac.Write(ciphertext)
+    return append(ciphertext, mac.Sum(nil)...), nil
+}
+```
+
+**3. CTR Mode for High Performance:**
+```go
+func EncryptAESCTR(key, plaintext []byte) ([]byte, error) {
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    // Generate IV (counter)
+    iv := make([]byte, aes.BlockSize)
+    if _, err := rand.Read(iv); err != nil {
+        return nil, err
+    }
+    
+    ciphertext := make([]byte, len(plaintext))
+    stream := cipher.NewCTR(block, iv)
+    stream.XORKeyStream(ciphertext, plaintext)
+    
+    // Prepend IV to ciphertext
+    return append(iv, ciphertext...), nil
+}
+```
+
+**Best Practices in Go:**
+- **Always use GCM** for new code
+- **Never reuse IVs/nonce** with the same key
+- **Use `crypto/rand`** for generating random values
+- **Handle authentication** separately for non-AEAD modes
+- **Prefer `crypto/aes`** over third-party implementations
+
+---
+
+## 822. How do you handle key rotation in Go applications?
+
+**Answer:**
+Key rotation is critical for security. Here's a production-ready approach:
+
+**1. Key Versioning Strategy:**
+```go
+type EncryptionKey struct {
+    ID        string    `json:"id"`
+    Version   int       `json:"version"`
+    Key       []byte    `json:"-"` // Never serialize
+    Algorithm string    `json:"algorithm"`
+    CreatedAt time.Time `json:"created_at"`
+    ExpiresAt time.Time `json:"expires_at"`
+}
+
+type KeyManager struct {
+    currentKey   *EncryptionKey
+    keys         map[string]*EncryptionKey // version -> key
+    rotationTime time.Duration
+    mutex        sync.RWMutex
+}
+```
+
+**2. Automatic Rotation:**
+```go
+func (km *KeyManager) StartRotation(ctx context.Context) {
+    ticker := time.NewTicker(km.rotationTime)
+    defer ticker.Stop()
+    
+    for {
+        select {
+        case <-ctx.Done():
+            return
+        case <-ticker.C:
+            km.rotateKey()
+        }
+    }
+}
+
+func (km *KeyManager) rotateKey() {
+    km.mutex.Lock()
+    defer km.mutex.Unlock()
+    
+    // Create new key
+    newKey := &EncryptionKey{
+        ID:        uuid.New().String(),
+        Version:   km.currentKey.Version + 1,
+        Key:       generateKey(),
+        Algorithm: "AES-256-GCM",
+        CreatedAt: time.Now(),
+        ExpiresAt: time.Now().Add(90 * 24 * time.Hour), // 90 days
+    }
+    
+    // Archive old key but keep it for decryption
+    km.keys[km.currentKey.ID] = km.currentKey
+    km.currentKey = newKey
+    
+    log.Info("Key rotated", "new_version", newKey.Version)
+}
+```
+
+**3. Encryption with Key Versioning:**
+```go
+type EncryptedData struct {
+    KeyVersion string `json:"key_version"`
+    Algorithm  string `json:"algorithm"`
+    Nonce      []byte `json:"nonce"`
+    Ciphertext []byte `json:"ciphertext"`
+}
+
+func (km *KeyManager) Encrypt(data []byte) (*EncryptedData, error) {
+    km.mutex.RLock()
+    key := km.currentKey
+    km.mutex.RUnlock()
+    
+    encrypted, err := encryptWithKey(data, key)
+    if err != nil {
+        return nil, err
+    }
+    
+    return &EncryptedData{
+        KeyVersion: key.ID,
+        Algorithm:  key.Algorithm,
+        Nonce:      encrypted.Nonce,
+        Ciphertext: encrypted.Ciphertext,
+    }, nil
+}
+
+func (km *KeyManager) Decrypt(encrypted *EncryptedData) ([]byte, error) {
+    km.mutex.RLock()
+    key, exists := km.keys[encrypted.KeyVersion]
+    km.mutex.RUnlock()
+    
+    if !exists {
+        return nil, errors.New("key version not found")
+    }
+    
+    return decryptWithKey(encrypted, key)
+}
+```
+
+**4. Integration with KMS:**
+```go
+type KMSKeyManager struct {
+    client     *kms.Client
+    keyID      string
+    cache      map[string][]byte // encrypted data key -> plaintext key
+    cacheMutex sync.RWMutex
+    cacheTTL   time.Duration
+}
+
+func (k *KMSKeyManager) GetDataKey(ctx context.Context) ([]byte, error) {
+    // Generate data key in KMS
+    result, err := k.client.GenerateDataKey(ctx, &kms.GenerateDataKeyInput{
+        KeyId:   &k.keyID,
+        KeySpec: types.DataKeySpecAes256,
+    })
+    if err != nil {
+        return nil, err
+    }
+    
+    // Cache plaintext key briefly (5 minutes)
+    k.cacheMutex.Lock()
+    k.cache[string(result.CiphertextBlob)] = result.Plaintext
+    k.cacheMutex.Unlock()
+    
+    // Schedule cache cleanup
+    go func() {
+        time.Sleep(k.cacheTTL)
+        k.cacheMutex.Lock()
+        delete(k.cache, string(result.CiphertextBlob))
+        k.cacheMutex.Unlock()
+    }()
+    
+    return result.Plaintext, nil
+}
+```
+
+**5. Monitoring and Alerting:**
+```go
+type KeyRotationMetrics struct {
+    RotationCount    prometheus.Counter
+    DecryptionErrors prometheus.Counter
+    KeyAge           prometheus.Gauge
+}
+
+func (km *KeyManager) collectMetrics() {
+    km.currentKeyAge.Set(time.Since(km.currentKey.CreatedAt).Hours())
+    
+    // Alert if key is older than rotation period
+    if time.Since(km.currentKey.CreatedAt) > km.rotationTime {
+        log.Warn("Key rotation overdue", 
+            "key_age", time.Since(km.currentKey.CreatedAt),
+            "rotation_period", km.rotationTime)
+    }
+}
+```
+
+**Production Checklist:**
+- ✅ **Automated rotation** every 90 days
+- ✅ **Key versioning** for backward compatibility
+- ✅ **Secure storage** (KMS, HashiCorp Vault)
+- ✅ **Audit logging** of all key operations
+- ✅ **Graceful degradation** during rotation
+- ✅ **Monitoring** for rotation failures
+- ✅ **Backup and recovery** procedures
+
+---
+
+## 823. How do you implement ChaCha20-Poly1305 in Go for mobile/IoT?
+
+**Answer:**
+ChaCha20-Poly1305 is ideal for mobile/IoT because it's software-optimized and doesn't require AES hardware acceleration.
+
+**Implementation:**
+```go
+import (
+    "golang.org/x/crypto/chacha20poly1305"
+)
+
+func EncryptChaCha20(key, plaintext []byte) ([]byte, error) {
+    // Use XChaCha20 for larger nonce space (24 bytes)
+    aead, err := chacha20poly1305.NewX(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    // Generate random nonce (24 bytes for XChaCha20)
+    nonce := make([]byte, aead.NonceSize())
+    if _, err := rand.Read(nonce); err != nil {
+        return nil, err
+    }
+    
+    // Encrypt and authenticate
+    ciphertext := aead.Seal(nonce, nonce, plaintext, nil)
+    return ciphertext, nil
+}
+
+func DecryptChaCha20(key, ciphertext []byte) ([]byte, error) {
+    aead, err := chacha20poly1305.NewX(key)
+    if err != nil {
+        return nil, err
+    }
+    
+    nonceSize := aead.NonceSize()
+    if len(ciphertext) < nonceSize {
+        return nil, errors.New("ciphertext too short")
+    }
+    
+    nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+    return aead.Open(nil, nonce, ciphertext, nil)
+}
+```
+
+**Performance Comparison:**
+```go
+func BenchmarkEncryptAESGCM(b *testing.B) {
+    key := make([]byte, 32)
+    plaintext := make([]byte, 1024)
+    rand.Read(key)
+    rand.Read(plaintext)
+    
+    b.ResetTimer()
+    for i := 0; i < b.N; i++ {
+        EncryptAESGCM(key, plaintext)
+    }
+}
+
+func BenchmarkEncryptChaCha20(b *testing.B) {
+    key := make([]byte, 32)
+    plaintext := make([]byte, 1024)
+    rand.Read(key)
+    rand.Read(plaintext)
+    
+    b.ResetTimer()
+    for i := 0; i < b.N; i++ {
+        EncryptChaCha20(key, plaintext)
+    }
+}
+```
+
+**Mobile-Specific Optimizations:**
+```go
+// Battery-friendly encryption with adaptive chunking
+type MobileEncryptor struct {
+    chunkSize int // Adjust based on battery level
+    algorithm string
+}
+
+func (m *MobileEncryptor) EncryptStream(data []byte) <-chan []byte {
+    out := make(chan []byte)
+    
+    go func() {
+        defer close(out)
+        
+        for i := 0; i < len(data); i += m.chunkSize {
+            end := i + m.chunkSize
+            if end > len(data) {
+                end = len(data)
+            }
+            
+            chunk := data[i:end]
+            encrypted, _ := m.encryptChunk(chunk)
+            out <- encrypted
+            
+            // Yield CPU to save battery
+            runtime.Gosched()
+        }
+    }()
+    
+    return out
+}
+
+func (m *MobileEncryptor) adjustForBattery(batteryLevel float64) {
+    if batteryLevel < 0.2 {
+        m.chunkSize = 512 // Smaller chunks for low battery
+    } else if batteryLevel < 0.5 {
+        m.chunkSize = 1024
+    } else {
+        m.chunkSize = 4096 // Larger chunks for good battery
+    }
+}
+```
+
+**IoT-Specific Considerations:**
+```go
+// Memory-constrained encryption for IoT devices
+type IoTEncryptor struct {
+    keyPool sync.Pool // Reuse key buffers
+    nonce   [24]byte  // Fixed nonce to avoid allocations
+}
+
+func (i *IoTEncryptor) EncryptMinimal(data []byte) ([]byte, error) {
+    // Use fixed nonce with counter to avoid allocations
+    binary.BigEndian.PutUint64(i.nonce[:8], atomic.AddUint64(&counter, 1))
+    
+    aead, _ := chacha20poly1305.NewX(i.keyPool.Get().([]byte))
+    defer i.keyPool.Put(aead)
+    
+    return aead.Seal(nil, i.nonce[:], data, nil), nil
+}
+```
+
+**When to Choose ChaCha20:**
+- **Mobile apps** (iOS/Android)
+- **IoT devices** (Raspberry Pi, ESP32)
+- **Embedded systems** without AES-NI
+- **Cross-platform** consistency
+- **Low-power** environments
+
+**When to Choose AES-GCM:**
+- **Server-side** with AES-NI
+- **High-throughput** APIs
+- **Hardware acceleration** available
+- **Compatibility** with existing systems

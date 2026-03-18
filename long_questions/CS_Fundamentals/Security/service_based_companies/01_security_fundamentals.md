@@ -210,4 +210,114 @@ This is why TLS is both secure AND fast.
 
 ---
 
+### Q7: What are the different encryption modes of operation? Explain with examples.
+
+**Answer:**
+Encryption modes define how to encrypt data larger than the block size using block ciphers like AES.
+
+**Common Modes:**
+
+| Mode | Description | Pros | Cons | Use Case |
+|---|---|---|---|---|
+| **ECB** (Electronic Codebook) | Each block encrypted independently | Simple, parallelizable | **Insecure** - identical blocks produce identical ciphertext | Never use in production |
+| **CBC** (Cipher Block Chaining) | Each block XORed with previous ciphertext | Better security than ECB | Sequential (slow), needs padding | Legacy systems, disk encryption |
+| **CFB** (Cipher Feedback) | Stream cipher mode, self-synchronizing | No padding needed, error recovery | Sequential | Network protocols |
+| **OFB** (Output Feedback) | Stream cipher, prevents error propagation | No error propagation | Sequential | Audio/video streaming |
+| **CTR** (Counter Mode) | Turns block cipher into stream cipher | Parallelizable, random access | Counter must never repeat | High-performance systems |
+| **GCM** (Galois/Counter Mode) | CTR + authentication tag | **Authenticated encryption**, parallelizable | Complex implementation | **Modern standard** - TLS 1.3, APIs |
+
+**Why GCM is preferred today:**
+- Provides both confidentiality **and** integrity (authentication)
+- Parallel encryption/decryption
+- No padding required
+- Resistant to many attacks
+
+---
+
+### Q8: What's wrong with ECB mode? Show with an example.
+
+**Answer:**
+ECB mode is **cryptographically insecure** because identical plaintext blocks produce identical ciphertext blocks, revealing patterns.
+
+**Example - Encrypting an image with ECB:**
+```
+Original Image (with repeating patterns)
+┌─────────────────────────────────────┐
+│ ████    ████    ████    ████      │
+│ ████    ████    ████    ████      │
+│                                    │
+│    ████    ████    ████    ████    │
+│    ████    ████    ████    ████    │
+└─────────────────────────────────────┘
+
+After ECB Encryption (patterns still visible!)
+┌─────────────────────────────────────┐
+│ AAAA    BBBB    AAAA    BBBB      │
+│ AAAA    BBBB    AAAA    BBBB      │
+│                                    │
+│    CCCC    DDDD    CCCC    DDDD    │
+│    CCCC    DDDD    CCCC    DDDD    │
+└─────────────────────────────────────┘
+
+After CBC/GCM Encryption (no patterns)
+┌─────────────────────────────────────┐
+│ X#j@! k$Lm^ p&Q*r Z$n@t ...        │
+│ (completely random-looking data)    │
+└─────────────────────────────────────┘
+```
+
+**Real-world impact:**
+- Encrypted ZIP files using ECB reveal file structure
+- Database encryption with ECB reveals identical values
+- **Never use ECB for anything serious**
+
+---
+
+### Q9: How do you choose the right encryption mode for your application?
+
+**Answer:**
+
+**Decision Framework:**
+
+**For NEW applications (2024+):**
+- **Always use GCM** - it's the modern standard
+- Provides authenticated encryption (confidentiality + integrity)
+- Supported by all major crypto libraries
+
+**For HIGH-PERFORMANCE systems:**
+- **CTR mode** - parallelizable, no authentication (add HMAC separately)
+- Use when you need maximum speed and can handle integrity separately
+
+**For LEGACY system compatibility:**
+- **CBC mode** - widely supported but slower
+- Must handle padding carefully (PKCS#7)
+- Add HMAC for integrity
+
+**For STREAMING data:**
+- **OFB/CFB** - self-synchronizing
+- Good for network protocols where packets may be lost
+
+**NEVER use:**
+- **ECB** - unless you're teaching crypto concepts
+
+**Implementation Example (Java):**
+```java
+// Modern approach - GCM
+SecretKey key = KeyGenerator.getInstance("AES").generateKey();
+Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+cipher.init(Cipher.ENCRYPT_MODE, key);
+byte[] encrypted = cipher.doFinal(plaintext);
+
+// Legacy approach - CBC with HMAC
+Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+byte[] iv = new byte[16]; // Never reuse IV!
+SecureRandom random = new SecureRandom();
+random.nextBytes(iv);
+cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+byte[] encrypted = cipher.doFinal(plaintext);
+// Then calculate HMAC-SHA256 on encrypted + iv
+```
+
+---
+
 *Prepared for technical screening at service-based companies (TCS, Infosys, Wipro, Capgemini, HCL, Cognizant, Tech Mahindra).*
