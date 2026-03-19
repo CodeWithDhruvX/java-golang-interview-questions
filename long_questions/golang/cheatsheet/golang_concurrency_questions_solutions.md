@@ -1173,6 +1173,129 @@ func main() {
 ## 30. Fan-Out / Fan-In Safe
 **Question:** Fan out work to multiple goroutines and fan in results safely.
 
+## program 1(simple)(unordered)
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	in := make(chan int)      // input (for fan-out)
+	results := make(chan int) // output (fan-in)
+	var wg sync.WaitGroup
+
+	// 🔹 Fan-out: start workers
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			for n := range in {        // shared input
+				results <- n * 2      // send result
+			}
+		}(i)
+	}
+
+	// 🔹 Send input
+	go func() {
+		for i := 1; i <= 5; i++ {
+			in <- i
+		}
+		close(in) // important!
+	}()
+
+	// 🔹 Close results after all workers finish (fan-in complete)
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// 🔹 Consume results
+	for r := range results {
+		fmt.Println("Result:", r)
+	}
+}
+        in
+        |
+   -------------
+   |    |     |
+ workers (fan-out)
+   |    |     |
+   -------------
+        |
+     results (shared)  ← fan-in
+```
+
+## program 1.1()
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+type Job struct {
+	index int
+	value int
+}
+
+type Result struct {
+	index int
+	value int
+}
+
+func main() {
+	in := make(chan Job)
+	results := make(chan Result)
+	var wg sync.WaitGroup
+
+	// Fan-out workers
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for job := range in {
+				results <- Result{
+					index: job.index,
+					value: job.value * 2,
+				}
+			}
+		}()
+	}
+
+	// Input
+	go func() {
+		for i := 0; i < 5; i++ {
+			in <- Job{index: i, value: i + 1}
+		}
+		close(in)
+	}()
+
+	// Close results
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect results
+	output := make([]int, 5)
+	for r := range results {
+		output[r.index] = r.value
+	}
+
+	// Print in order
+	for _, v := range output {
+		fmt.Println("Result:", v)
+	}
+}
+```
+
+
+## program 2(modern)
 ```go
 package main
 
@@ -1230,5 +1353,18 @@ func merge(cs ...<-chan int) <-chan int {
 	}()
 	return out
 }
+
 ```
+        in
+        |
+   -------------
+   |    |     |
+ workers (fan-out)
+   |    |     |
+  ch1  ch2   ch3
+    \    |    /
+     \   |   /
+      merge()   ← fan-in
+         |
+       output
 ```

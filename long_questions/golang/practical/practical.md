@@ -248,6 +248,33 @@ Very senior or backend-heavy roles.
 
 ---
 
+# ⚪ LEVEL 8 — Readability & Clean Design
+
+Essential for long-term maintainability and senior roles.
+
+### 📌 Idiomatic Naming
+*   Brevity vs. Clarity
+*   Receiver naming conventions
+*   Variable shadowing traps
+
+### 📌 Effective Error Handling
+*   Sentinels (`io.EOF`) vs. Custom types
+*   Error wrapping (`%w`)
+*   Panic/Recover vs. explicit returns
+
+### 📌 Function & Package Design
+*   Small interfaces ("The bigger the interface, the weaker the abstraction")
+*   Constructor patterns (`New...`)
+*   Avoiding `init()` side effects
+
+### 📌 Code Structure
+*   Guard clauses and "Happy Path" on the left
+*   Avoiding deep nesting (closures/if-blocks)
+
+> **Detailed Guide:** [Go Readability & Clean Design](./go_readability_clean_code.md)
+
+---
+
 # 🎯 Interview Preparation Strategy
 
 If you're:
@@ -1566,5 +1593,49 @@ type Secret interface { secretMethod() }
 ### 200. Go 1.22 Loop Variable Fix
 **Q:** What massive change happened to `for i := 0` in Go 1.22?
 **A:** `for` loop variables are now instantiated **per-iteration** instead of **per-loop**. This fundamentally prevents the 10-year-old historic bug where launching goroutines inside a loop inadvertently captured the exact same reference pointer across every execution.
+
+---
+
+# 🔥 Part 4: Go Code Readability & Clean Design (Q201–Q210)
+
+### 201. The "Happy Path" Rule
+**Q: What is the "Happy Path" rule in Go readability?**
+**A:** Main logic should be aligned to the left margin. Use "Guard Clauses" (return early on Errors) so the successful logic stays at the minimum indentation level.
+
+### 202. Receiver Naming
+**Q: Should you use 'self' or 'this' as method receivers?**
+**A:** **No.** Go idiomatic style uses 1–2 letters representing the type (e.g., `func (c *Customer) ...`). Using `self` or `this` is a "smell" from other languages like Python or Java.
+
+### 203. Function Length
+**Q: What is the general rule of thumb for function length in Go?**
+**A:** Functions should be small and do one thing. If a function requires more than one page of scrolling, it's a candidate for refactoring into smaller, testable helpers.
+
+### 204. Variable Shadowing
+**Q: Why is `err :=` inside an `if` block dangerous for readability?**
+**A:** It creates a new local `err` that shadows the outer one. A reader might see `return err` at the end and assume it's the one from the `if` block, when it's actually the original (likely nil) one.
+
+### 205. Interface Size
+**Q: "The bigger the interface, the weaker the abstraction." Explain.**
+**A:** Large interfaces (many methods) are harder to implement and mock. They couple code together. Small interfaces (1–3 methods) like `io.Reader` allow for extremely flexible and decoupled systems.
+
+### 206. Constructor Pattern
+**Q: How do you enforce a "required" field when creating a struct?**
+**A:** Keep the struct fields unexported (private) and provide a constructor function `func New(requiredField string) *MyStruct`. This ensures callers can't create an invalid "zero-value" version of your type.
+
+### 207. Documentation Style
+**Q: How do you document an exported function for `godoc`?**
+**A:** The comment must be a full sentence starting with the name of the function: `// Process executes the business logic...`
+
+### 208. Panic vs Error
+**Q: When is it acceptable to use `panic()` in a production library?**
+**A:** Only for "unrecoverable" programmer errors that shouldn't happen at runtime (e.g., a critical `init()` failure). Otherwise, always return an `error` explicitly.
+
+### 209. Naked Returns
+**Q: Why are "Naked Returns" (empty `return` with named variables) discouraged in long functions?**
+**A:** In a 50-line function, a naked `return` forces the reader to scroll back to the signature to remember what `x` and `y` were. Explicit `return x, y` is always more readable.
+
+### 210. Avoiding `init()`
+**Q: Why is global state in `init()` functions considered a readability "red flag"?**
+**A:** `init()` runs automatically and can perform hidden side effects (like connecting to a DB). It makes unit testing difficult and hides the "wiring" logic from `main.go`.
 
 ---
