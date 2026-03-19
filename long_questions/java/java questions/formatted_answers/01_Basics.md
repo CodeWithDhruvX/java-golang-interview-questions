@@ -186,7 +186,7 @@ The performance difference comes down to memory layout - ArrayList stores elemen
 
 "Let me explain the three main types of Maps in Java and when to use each one.
 
-**HashMap** is your go-to choice for most situations. It offers O(1) constant time performance for basic operations like get and put, which makes it incredibly fast. The tradeoff is that it makes no guarantees about order - if you iterate through a HashMap, the keys might come out in a completely different order than how you put them in.
+**HashMap** is your go-to choice for most situations. It offers O(1) constant time performance for basic operations like get and put, which makes it incredibly fast. The tradeoff is that it makes no guarantees about order - if you iterate through a HashMap, the k eys might come out in a completely different order than how you put them in.
 
 **LinkedHashMap** preserves insertion order. When you iterate through it, the keys come out in exactly the same order you put them in. It's slightly slower than HashMap due to the overhead of maintaining the order, but it's perfect for things like implementing an LRU cache where the order matters.
 
