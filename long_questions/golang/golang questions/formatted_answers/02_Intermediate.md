@@ -16,6 +16,17 @@ Goroutines are **multiplexed** onto OS threads (M:N scheduling). The Go Schedule
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What are goroutines?
+
+**Your Response:** "Goroutines are Go's lightweight threads that are managed by the Go runtime instead of the operating system. What makes them really powerful is their efficiency - they start with just a 2KB stack compared to 1MB for regular OS threads, and this stack grows or shrinks dynamically as needed. This means I can run tens of thousands of goroutines on a single machine without running out of memory.
+
+I think of them as 'fire-and-forget' functions - I just use the `go` keyword and the function runs independently. But I always make sure to plan how they'll finish or communicate back, otherwise I can end up with goroutine leaks.
+
+Under the hood, Go uses M:N scheduling, which means it multiplexes many goroutines onto fewer OS threads. The scheduler is smart too - it uses work-stealing, so if one processor runs out of work, it can steal goroutines from another processor's queue. This gives me great CPU utilization without having to manage threads manually."
+
+---
+
 ### 63. What do you start a goroutine?
 "I simply use the keyword `go` followed by a function invocation. It’s syntactically the easiest concurrent model I’ve ever used.
 

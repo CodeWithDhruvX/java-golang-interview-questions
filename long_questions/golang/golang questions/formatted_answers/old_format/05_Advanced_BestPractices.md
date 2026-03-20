@@ -96,6 +96,17 @@ Contextually, it made Go reproducible. I can clone a repo anywhere on my disk, r
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is `go mod` and how does it work?
+
+**Your Response:** "Go mod is Go's built-in dependency management system that replaced the old GOPATH approach. It works by using two main files: a `go.mod` file that defines our module path and lists all our dependencies with their exact versions, and a `go.sum` file that contains cryptographic hashes to ensure we get the same code every time we build.
+
+The key advantage is reproducibility - anyone can clone our repository and run `go build`, and Go will automatically download the exact same versions of all dependencies. What's really clever about Go mod is its Minimal Version Selection algorithm. Unlike other package managers that grab the latest compatible version, Go chooses the oldest version that satisfies all requirements. This makes our builds more stable because we don't get unexpected upgrades to potentially buggy versions.
+
+In practice, I just run `go get` to add dependencies, `go mod tidy` to clean up unused ones, and Go handles the rest. It's made Go development much more reliable and portable."
+
+---
+
 ### 90. What is vendoring in Go modules?
 "Vendoring is the practice of copying all third-party dependencies into a local `vendor/` directory inside my project.
 
