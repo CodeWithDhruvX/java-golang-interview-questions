@@ -241,3 +241,95 @@ Semantic Versioning (MAJOR.MINOR.PATCH) is standard. Only changes that break bac
 
 #### Indepth
 Most major tech companies (Twitter, Stripe, GitHub) have gravitated toward URI versioning simply because the developer experience is significantly easier. You can drop a URI-versioned endpoint into Postman or a browser and see the result instantly without fumbling with headers.
+
+---
+
+### 41. Payment Service notifying Account Service about completed transaction using Kafka - Synchronous vs Asynchronous?
+
+**Scenario**: Payment Service needs to notify an Account Service of a completed transaction using Kafka.
+
+**Synchronous Approach**:
+- Payment Service makes HTTP REST call to Account Service after transaction completes
+- Payment Service blocks and waits for Account Service response
+- If Account Service is down/slow, Payment Service transaction fails or times out
+- Tight temporal coupling - both services must be available simultaneously
+
+**Asynchronous Approach (Kafka)**:
+- Payment Service publishes 'TransactionCompleted' event to Kafka topic after transaction completes
+- Payment Service immediately returns success to client without waiting
+- Account Service subscribes to the topic and processes events at its own pace
+- If Account Service is down, events queue up in Kafka until it recovers
+- Loose temporal coupling - services don't need to be available simultaneously
+
+**Why choose Kafka for this notification**:
+
+1. **Resilience**: If Account Service is temporarily down, no transaction data is lost - events persist in Kafka
+2. **Scalability**: Account Service can process transactions in batches during off-peak hours
+3. **Decoupling**: Payment Service doesn't need to know Account Service's endpoint or implementation details
+4. **Performance**: Payment Service responds faster to clients since it doesn't wait for Account Service
+5. **Audit Trail**: Kafka provides a durable log of all transaction events for compliance and debugging
+6. **Multiple Consumers**: Other services (Fraud Detection, Analytics, Notification Service) can also consume the same event
+
+**Trade-offs**: Eventual consistency - account balance updates aren't instantaneous, and you need to handle duplicate message processing.
+
+#### Indepth
+For financial transactions, I'd implement exactly-once processing using Kafka's transactional API and idempotent consumers. The Account Service would store processed transaction IDs to prevent double-processing. I'd also add a Dead Letter Queue (DLQ) for failed events and monitoring to alert on high queue depths.
+
+---
+
+### 42. How does circuit breaker prevent the failure in the account service from thrashing payment service?
+
+**Scenario**: Account Service is experiencing failures and Payment Service needs to make repeated calls to it for transaction validation.
+
+**Without Circuit Breaker**:
+- Payment Service keeps calling Account Service even when it's failing
+- Each call times out after several seconds
+- Payment Service threads get blocked waiting for responses
+- Resource exhaustion in Payment Service (memory, connections, threads)
+- Cascading failure - Payment Service becomes unresponsive
+- Users experience payment failures even when Payment Service is healthy
+
+**With Circuit Breaker**:
+
+**Closed State (Normal Operation)**:
+- Payment Service calls Account Service normally
+- Circuit breaker tracks success/failure rates
+- If failure rate exceeds threshold (e.g., 50% failures in last 10 requests), it trips to Open
+
+**Open State (Fast Failure)**:
+- Payment Service calls to Account Service fail immediately
+- No network calls made - returns "Circuit Breaker Open" error
+- Payment Service can implement fallback logic (use cached data, default response, or queue for later)
+- Prevents resource exhaustion and thread blocking
+- After timeout period (e.g., 30 seconds), moves to Half-Open
+
+**Half-Open State (Testing Recovery)**:
+- Allows limited number of requests through to test if Account Service recovered
+- If successful, resets to Closed state
+- If still failing, returns to Open state
+
+**Key Benefits**:
+1. **Prevents Thrashing**: Stops repeated failed calls that waste resources
+2. **Fast Failure**: Immediate response instead of waiting for timeouts
+3. **Resource Protection**: Preserves Payment Service memory, connections, and threads
+4. **Automatic Recovery**: Detects when Account Service is healthy again
+5. **Graceful Degradation**: Allows Payment Service to continue operating with limited functionality
+
+**Implementation Example**:
+```java
+// In Payment Service
+@CircuitBreaker(name = "accountService", fallbackMethod = "fallbackAccountValidation")
+public boolean validateAccount(String accountId) {
+    return accountServiceClient.isValid(accountId);
+}
+
+public boolean fallbackAccountValidation(String accountId, Exception ex) {
+    // Use cached account status or default validation
+    return accountCache.getOrDefault(accountId, false);
+}
+```
+
+#### Indepth
+In production, I'd configure different thresholds for different operations. Critical operations might have higher failure tolerance, while non-critical calls trip faster. I'd also implement monitoring to track circuit breaker state changes and alert when services are degraded. The fallback strategy depends on business requirements - some payments might be queued for retry, while others might be rejected with user-friendly error messages.
+
+---

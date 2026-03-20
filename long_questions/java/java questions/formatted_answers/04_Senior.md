@@ -418,20 +418,57 @@
 
 ---
 
-**Q: @ControllerAdvice vs @ExceptionHandler**
-> "**@ExceptionHandler** handles exceptions for **one specific Controller**.
+**Q: Which annotation is used for centralized global exception handling in Spring Boot?**
+> "**@ControllerAdvice** is the primary annotation for **centralized global exception handling** in Spring Boot.
 >
-> "**@ControllerAdvice** is global. It wraps **all Controllers**.
-> Always use `@ControllerAdvice` so you have a single, central place for error handling logic (like converting `UserNotFoundException` to a 404 JSON response)."
+> **@RestControllerAdvice** is a specialized version for REST APIs (combines @ControllerAdvice + @ResponseBody).
+>
+> **@ExceptionHandler** handles exceptions for **one specific Controller** when used within a controller class."
 
-**Indepth:**
-> **Response Body**: `ResponseBodyAdvice`. You can also implement `ResponseBodyAdvice` in a `@ControllerAdvice` class to intercept and modify the *return body* of every controller (e.g., wrapping every response in a standardized `{ "data": ..., "status": "success" }` envelope).
+**Complete Example:**
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(404)
+            .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(400)
+            .body(new ErrorResponse("VALIDATION_ERROR", "Invalid input"));
+    }
+    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
+        return ResponseEntity.status(500)
+            .body(new ErrorResponse("INTERNAL_ERROR", "Something went wrong"));
+    }
+}
+```
+
+**Key Differences:**
+- **@ControllerAdvice**: Global exception handling for all controllers
+- **@RestControllerAdvice**: Same as @ControllerAdvice but for REST APIs (auto @ResponseBody)
+- **@ExceptionHandler**: Local exception handling within a single controller
+
+**Best Practice:** Always use @ControllerAdvice for centralized error handling to ensure consistent error responses across your entire application.
 
 ---
 
 ### How to Explain in Interview (Spoken style format)
-**Interviewer:** What's the difference between @ControllerAdvice and @ExceptionHandler?
-**Your Response:** "@ExceptionHandler handles exceptions for one specific controller, while @ControllerAdvice is global and handles exceptions for all controllers. I always use @ControllerAdvice because it gives me a central place for error handling logic. I can convert specific exceptions like UserNotFoundException to proper HTTP status codes and JSON responses, ensuring consistent error handling across my entire application."
+**Interviewer:** Which annotation is used for centralized global exception handling in Spring Boot?
+
+**Your Response:** "For centralized global exception handling in Spring Boot, I use **@ControllerAdvice**. It allows me to handle exceptions globally across all controllers in my application. 
+
+For REST APIs, I prefer **@RestControllerAdvice** which is essentially @ControllerAdvice combined with @ResponseBody, so I don't need to add @ResponseBody to each handler method.
+
+I create a GlobalExceptionHandler class with multiple @ExceptionHandler methods - one for ResourceNotFoundException returning 404, another for validation errors returning 400, and a catch-all for unexpected exceptions returning 500. This ensures consistent error responses across my entire application.
+
+The key difference is that @ExceptionHandler works locally within a single controller, while @ControllerAdvice makes it global. I always use @ControllerAdvice for production applications to maintain consistent error handling."
 
 
 ---

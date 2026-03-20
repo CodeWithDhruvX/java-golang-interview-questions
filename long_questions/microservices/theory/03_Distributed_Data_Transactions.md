@@ -25,6 +25,7 @@ Furthermore, it couples microservices at a deep protocol level and scales terrib
 ---
 
 ### 43. What is Saga pattern?
+### 43. Which architecture pattern handle transactions across the distributed microservice?
 "The Saga pattern is the modern alternative to 2PC for handling distributed transactions. Instead of one giant, blocking ACID transaction, a Saga breaks it down into a sequence of smaller, local ACID database transactions.
 
 Each local transaction updates the database and publishes a message/event to trigger the next local transaction in the chain. 

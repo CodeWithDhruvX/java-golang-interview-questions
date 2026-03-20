@@ -1,9 +1,26 @@
-# 🧪 Go Theory Questions: 821–840 Testing & Quality II
+# Go Theory Questions: 821–840 Testing & Quality II
 
 ## 821. How do you structure tests for a large Go codebase?
 
 **Answer:**
 1.  **Unit Tests**: Alongside code (`foo_test.go`). White-box.
+2.  **Integration Tests**: In `tests/` folder. Black-box (build binary, run against Docker).
+3.  **Test Helpers**: `internal/testutil` package (reusable factories).
+4.  **Packages**: Use `package foo_test` (external testing) avoids circular deps and forces testing the public API only.
+This is how we structure tests for a large Go codebase.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you structure tests for a large Go codebase?
+
+**Your Response:** "1.  **Unit Tests**: Alongside code (`foo_test.go`). White-box.
+2.  **Integration Tests**: In `tests/` folder. Black-box (build binary, run against Docker).
+3.  **Test Helpers**: `internal/testutil` package (reusable factories).
+4.  **Packages**: Use `package foo_test` (external testing) avoids circular deps and forces testing the public API only.
+This is how we structure tests for a large Go codebase."
+
+---
 2.  **Integration Tests**: In `tests/` folder. Black-box (build binary, run against Docker).
 3.  **Test Helpers**: `internal/testutil` package (reusable factories).
 4.  **Packages**: Use `package foo_test` (external testing) avoids circular deps and forces testing the public API only.
@@ -13,7 +30,16 @@
 ## 822. How do you use interfaces for testability?
 
 **Answer:**
-We follow the **Consumer Defined Interface** pattern.
+We follow the **Consumer Defined Interface** pattern. Service A needs Database. Define `type DataStore interface { Save(u User) }`. In Prod: Inject `PostgresStore`. In Test: Inject `MockStore`. This allows us to test Service A's logic without spinning up a real Postgres instance, keeping unit tests sub-millisecond. This is how we use interfaces for testability in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you use interfaces for testability?
+
+**Your Response:** "We follow the **Consumer Defined Interface** pattern. Service A needs Database. Define `type DataStore interface { Save(u User) }`. In Prod: Inject `PostgresStore`. In Test: Inject `MockStore`. This allows us to test Service A's logic without spinning up a real Postgres instance, keeping unit tests sub-millisecond. This is how we use interfaces for testability in Go."
+
+---
 Service A needs Database.
 Define `type DataStore interface { Save(u User) }`.
 In Prod: Inject `PostgresStore`.
@@ -25,7 +51,16 @@ This allows us to test Service A's logic without spinning up a real Postgres ins
 ## 823. How do you test panics in Go?
 
 **Answer:**
-We use `defer` + `recover`.
+We use `defer` + `recover`. `func TestPanic(t *testing.T) { defer func() { if r := recover(); r == nil { t.Errorf("The code did not panic") } }(); TriggerPanic() }`. Helper libraries like `assert.Panics(t, func(){...})` make this cleaner. This is how we test panics in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you test panics in Go?
+
+**Your Response:** "We use `defer` + `recover`. `func TestPanic(t *testing.T) { defer func() { if r := recover(); r == nil { t.Errorf(\"The code did not panic\") } }(); TriggerPanic() }`. Helper libraries like `assert.Panics(t, func(){...})` make this cleaner. This is how we test panics in Go."
+
+---
 ```go
 func TestPanic(t *testing.T) {
     defer func() {
@@ -43,6 +78,22 @@ Helper libraries like `assert.Panics(t, func(){...})` make this cleaner.
 ## 824. How do you generate test data in Go?
 
 **Answer:**
+1.  **Faker Libraries**: `gofakeit` or `go-faker` to generate Names, Emails, IPs.
+2.  **Factories**: Create helpers `CreateUser(t, db)` that insert a valid user and return struct.
+3.  **Golden Files**: For complex JSON/HTML outputs, store expected string in `testdata/a.json` and compare file contents.
+This is how we generate test data in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you generate test data in Go?
+
+**Your Response:** "1.  **Faker Libraries**: `gofakeit` or `go-faker` to generate Names, Emails, IPs.
+2.  **Factories**: Create helpers `CreateUser(t, db)` that insert a valid user and return struct.
+3.  **Golden Files**: For complex JSON/HTML outputs, store expected string in `testdata/a.json` and compare file contents.
+This is how we generate test data in Go."
+
+---
 1.  **Faker Libraries**: `gofakeit` or `go-faker` to generate Names, Emails, IPs.
 2.  **Factories**: Create helpers `CreateUser(t, db)` that insert a valid user and return the struct.
 3.  **Golden Files**: For complex JSON/HTML outputs, store the expected string in `testdata/a.json` and compare file contents.

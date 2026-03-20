@@ -320,3 +320,49 @@ Angular replaces `environment.ts` with environment-specific file at build time:
 For **sensitive values** (API keys, secrets), I never put them directly in `environment.ts` files (which are committed to Git). Instead, I use `environment.ts` for build-time references like API URLs and use **runtime environment injection** for secrets: the server injects `window.ENV_VARS = { apiKey: '...' }` from environment variables (Docker/Kubernetes secrets) into the HTML before serving it. This way, secrets live in the deployment platform, not the codebase.
 
 ---
+
+### 15. What is the specific command used to update Angular version and dependencies? 🟢 | 🏭
+
+"The specific command used to update Angular version and dependencies is:
+
+```bash
+ng update @angular/core @angular/cli
+```
+
+This command:
+- Updates `@angular/core` and `@angular/cli` to their latest compatible versions
+- Automatically updates related dependencies (like `@angular/common`, `@angular/forms`, etc.)
+- Runs automated migrations for breaking changes
+- Updates `package.json` and `angular.json` configurations
+
+For updating specific packages:
+```bash
+# Update individual packages
+ng update @angular/material
+ng update @ngrx/store
+
+# Update all packages to latest compatible versions
+ng update --all
+```
+
+Before updating, always:
+1. Commit your code to version control
+2. Check the Angular update guide for breaking changes
+3. Run `ng update --dry-run` to preview changes
+4. Test thoroughly after update"
+
+#### In Depth
+The `ng update` command uses **Angular DevKit** schematics to automate migrations. When updating major versions, it can:
+- Refactor deprecated APIs (like `HttpModule` → `HttpClientModule`)
+- Update template syntax (like `[hidden]` → `*ngIf`)
+- Modify `angular.json` configuration changes
+- Add missing imports and remove deprecated ones
+
+For **complex updates** (like Angular 14→16 with standalone components), I run updates incrementally:
+```bash
+ng update @angular/core@14 @angular/cli@14  # First to latest 14.x
+ng update @angular/core@15 @angular/cli@15  # Then to 15.x
+ng update @angular/core@16 @angular/cli@16  # Finally to 16.x
+```
+
+This approach makes debugging easier and reduces risk of breaking changes."

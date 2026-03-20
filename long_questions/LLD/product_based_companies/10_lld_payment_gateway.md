@@ -144,6 +144,100 @@ type Transaction struct {
 *   **Bank Integration:** Connect with multiple UPI providers
 *   **Settlement Cycle:** T+1 or T+2 settlement to merchant accounts
 
+## PIT (Payment Interface Token) Security Questions
+
+### Q: What is the primary token time used for stateless security in PIT?
+
+**Answer:**
+The primary token time in PIT (Payment Interface Token) refers to the **JWT expiration time (`exp` claim)** which is typically set to **15-30 minutes** for stateless security in payment systems.
+
+**Detailed Explanation:**
+
+**1. Primary Token Time Components:**
+- **Access Token TTL:** 15-30 minutes (primary token time)
+- **Refresh Token TTL:** 7-30 days 
+- **Token Issuance Time (`iat`):** When token was created
+- **Not Before Time (`nbf`):** Token becomes valid after this time
+
+**2. Why 15-30 Minutes for Primary Token?**
+- **Security:** Limits damage if token is compromised
+- **Performance:** Balances security with user experience
+- **Scalability:** Reduces token revocation overhead
+- **Compliance:** Meets PCI DSS requirements for session timeout
+
+**3. Stateless Security Implementation:**
+```java
+// PIT Token Generation with Primary Time
+public class PITTokenGenerator {
+    private static final long PRIMARY_TOKEN_TTL = 15 * 60 * 1000; // 15 minutes
+    
+    public String generatePITToken(User user, PaymentContext context) {
+        long now = System.currentTimeMillis();
+        long expiryTime = now + PRIMARY_TOKEN_TTL;
+        
+        return Jwts.builder()
+            .setSubject(user.getUserId())
+            .claim("paymentContext", context)
+            .claim("merchantId", context.getMerchantId())
+            .claim("transactionLimit", context.getTransactionLimit())
+            .setIssuedAt(new Date(now))
+            .setExpiration(new Date(expiryTime)) // Primary token time
+            .signWith(SignatureAlgorithm.HS256, getSigningKey())
+            .compact();
+    }
+}
+```
+
+**4. Token Renewal Strategy:**
+```go
+// Go Implementation for PIT Token Renewal
+type PITTokenManager struct {
+    primaryTokenTTL time.Duration // 15 minutes
+    refreshTTL      time.Duration // 7 days
+}
+
+func (ptm *PITTokenManager) RenewToken(refreshToken string) (*TokenPair, error) {
+    // Validate refresh token
+    claims, err := ptm.validateRefreshToken(refreshToken)
+    if err != nil {
+        return nil, err
+    }
+    
+    // Generate new primary token with fresh expiration
+    newAccessToken := ptm.generatePrimaryToken(claims.UserID)
+    
+    return &TokenPair{
+        AccessToken:  newAccessToken,  // New 15-min token
+        RefreshToken: refreshToken,    // Same refresh token
+        ExpiresIn:    int(ptm.primaryTokenTTL.Seconds()),
+    }, nil
+}
+```
+
+**5. Security Benefits of Short Primary Token Time:**
+- **Reduced Attack Window:** Limited time for token exploitation
+- **Automatic Session Timeout:** Enforces session limits
+- **Token Rotation:** Frequent renewal reduces token theft impact
+- **Compliance:** Meets regulatory requirements for session management
+
+**6. Trade-offs and Considerations:**
+- **User Experience:** Balance between security and convenience
+- **System Load:** More frequent token renewal requests
+- **Network Reliability:** Handle token expiry during network issues
+- **Offline Support:** Graceful degradation for poor connectivity
+
+**7. PIT-Specific Security Features:**
+- **Transaction Context Binding:** Token tied to specific payment parameters
+- **Merchant Validation:** Token restricted to specific merchant
+- **Amount Limits:** Token validity based on transaction amounts
+- **Geo-Fencing:** Location-based token validation
+
+**Interview Follow-up Points:**
+- How do you handle token expiry during payment processing?
+- What's your strategy for token refresh in mobile apps?
+- How do you implement token revocation for fraud detection?
+- What happens when primary token expires mid-transaction?
+
 ## Interview Success Tips
 *   Discuss how to handle payment failures and retries
 *   Explain idempotency in payment systems
@@ -152,3 +246,4 @@ type Transaction struct {
 *   Discuss how to handle concurrent payment processing
 *   Explain webhook reliability and retry mechanisms
 *   Talk about fraud detection algorithms and risk scoring
+*   **NEW:** Explain PIT token security and primary token time strategy

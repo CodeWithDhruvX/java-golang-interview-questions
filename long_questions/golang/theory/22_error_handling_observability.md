@@ -1,43 +1,63 @@
-# 🟢 Go Theory Questions: 421–440 Error Handling & Observability
+# Go Theory Questions: 421–440 Error Handling & Observability
 
 ## 421. How do you create custom error types in Go?
 
 **Answer:**
 We define a struct that implements the `error` interface (`Error() string`).
-
 `type NotFoundError struct { ID string }`
 `func (e *NotFoundError) Error() string { return "not found: " + e.ID }`
+This allows us to carry **Structured Data** (like ID or UserID) inside the error, rather than just a string. This is vital for upper layers to make decisions (e.g., "If it's a NotFoundError, return 404; if it's a DBError, return 500").
 
-This allows us to carry **Structured Data** (like the ID or UserID) inside the error, rather than just a string. This is vital for upper layers to make decisions (e.g., "If it's a NotFoundError, return 404; if it's a DBError, return 500").
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you create custom error types in Go?
+
+**Your Response:** "We define a struct that implements the `error` interface (`Error() string`). `type NotFoundError struct { ID string }`. `func (e *NotFoundError) Error() string { return "not found: " + e.ID }`. This allows us to carry **Structured Data** (like ID or UserID) inside the error, rather than just a string. This is vital for upper layers to make decisions (e.g., \"If it's a NotFoundError, return 404; if it's a DBError, return 500\"). This is how we create custom error types in Go."
 
 ---
 
 ## 422. How does Go 1.20+ `errors.Join` and `errors.Is` work?
 
 **Answer:**
-`errors.Join(err1, err2)` creates a **Multi-Error**. It bundles multiple errors into one parent error.
-`errors.Is(err, target)` recursively unwraps the error tree to see if *any* error in the chain matches the target.
+`errors.Join(err1, err2)` creates a **Multi-Error**. It bundles multiple errors into one parent error. `errors.Is(err, target)` recursively unwraps the error tree to see if *any* error in the chain matches the target. This is huge for parallel tasks. If you launch 10 goroutines and 3 fail, you can use `errors.Join` to return all 3 errors to the caller, and the caller can check `errors.Is(err, sql.ErrNoRows)` to detect specific failure modes within the aggregate. This is how we handle multiple errors in concurrent Go operations.
 
-This is huge for parallel tasks. If you launch 10 goroutines and 3 fail, you can use `errors.Join` to return all 3 errors to the caller, and the caller can check `errors.Is(err, sql.ErrNoRows)` to detect specific failure modes within the aggregate.
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How does Go 1.20+ `errors.Join` and `errors.Is` work?
+
+**Your Response:** "`errors.Join(err1, err2)` creates a **Multi-Error**. It bundles multiple errors into one parent error. `errors.Is(err, target)` recursively unwraps the error tree to see if *any* error in the chain matches the target. This is huge for parallel tasks. If you launch 10 goroutines and 3 fail, you can use `errors.Join` to return all 3 errors to the caller, and the caller can check `errors.Is(err, sql.ErrNoRows)` to detect specific failure modes within the aggregate. This is how we handle multiple errors in concurrent Go operations."
 
 ---
 
 ## 423. How do you implement error wrapping and unwrapping?
 
 **Answer:**
-We use `%w` in `fmt.Errorf`.
+We use `%w` in `fmt.Errorf` to wrap the original error. `return fmt.Errorf("query failed: %w", err)`. This wraps the original error. To unwrap, we use `errors.Unwrap(err)`, but usually we use `errors.As(err, &target)` to find a specific custom error type deep in the chain. This preserves the **Stack Trace** of context ("query failed") while keeping the root cause (DB disconnected) inspectionable. This is how we implement error wrapping and unwrapping in Go.
 
-`return fmt.Errorf("query failed: %w", err)`
-This wraps the original error. The result preserves the underlying type.
+---
 
-To unwrap, we use `errors.Unwrap(err)`, but usually we use `errors.As(err, &target)` to find a specific custom error type deep in the chain. This preserves the "Stack Trace" of context ("query failed") while keeping the root cause (DB disconnected) inspectionable.
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement error wrapping and unwrapping?
+
+**Your Response:** "We use `%w` in `fmt.Errorf` to wrap the original error. `return fmt.Errorf("query failed: %w", err)`. This wraps the original error. To unwrap, we use `errors.Unwrap(err)`, but usually we use `errors.As(err, &target)` to find a specific custom error type deep in the chain. This preserves the **Stack Trace** of context (\"query failed\") while keeping the root cause (DB disconnected) inspectionable. This is how we implement error wrapping and unwrapping in Go."
 
 ---
 
 ## 424. What are best practices for error categorization?
 
 **Answer:**
-We categorize errors by **Behavior**, not just Type.
+We categorize errors by **Behavior**, not just Type. We define interfaces or helper methods: `IsTemporary(err) bool` -> Retry. `IsInput(err) bool` -> Return 400. `IsSystem(err) bool` -> Return 500 and Alert Op. We often use a central `apperrors` package that maps low-level errors (postgres duplicate key) to high-level domains (UserAlreadyExists), decoupling the HTTP layer from the DB layer. This is how we categorize and handle different types of errors in Go applications.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement error wrapping and unwrapping?
+
+**Your Response:** "We categorize errors by **Behavior**, not just Type. We define interfaces or helper methods: `IsTemporary(err) bool` -> Retry. `IsInput(err) bool` -> Return 400. `IsSystem(err) bool` -> Return 500 and Alert Op. We often use a central `apperrors` package that maps low-level errors (postgres duplicate key) to high-level domains (UserAlreadyExists), decoupling the HTTP layer from the DB layer. This is how we categorize and handle different types of errors in Go applications."
+
+---
 
 We define interfaces or helper methods:
 `IsTemporary(err) bool` -> Retry.

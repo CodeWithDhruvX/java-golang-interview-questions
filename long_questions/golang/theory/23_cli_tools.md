@@ -3,7 +3,16 @@
 ## 441. How do you build an interactive CLI in Go?
 
 **Answer:**
-We use `manifoldco/promptui` or `charmbracelet/bubbletea`.
+We use `manifoldco/promptui` or `charmbracelet/bubbletea`. Standard `fmt.Scanln` is too primitive. `promptui` allows: **Select Lists**: Arrow keys to choose options. **Confirmations**: "Are you sure? [y/N]". **Password Masking**: "Enter Password: *****". The `bubbletea` library takes this further, allowing full TUI (Text User Interface) applications with complex layout models (elm architecture) right in the terminal. This is how we build interactive CLI applications in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you build an interactive CLI in Go?
+
+**Your Response:** "We use `manifoldco/promptui` or `charmbracelet/bubbletea`. Standard `fmt.Scanln` is too primitive. `promptui` allows: **Select Lists**: Arrow keys to choose options. **Confirmations**: \"Are you sure? [y/N]\". **Password Masking**: \"Enter Password: *****\". The `bubbletea` library takes this further, allowing full TUI (Text User Interface) applications with complex layout models (elm architecture) right in the terminal. This is how we build interactive CLI applications in Go."
+
+---
 
 Standard `fmt.Scanln` is too primitive. `promptui` allows:
 1.  **Select Lists**: Arrow keys to choose options.
@@ -17,6 +26,17 @@ The `bubbletea` library takes this further, allowing full TUI (Text User Interfa
 ## 442. What libraries do you use for command-line tools in Go?
 
 **Answer:**
+**Cobra** is the industry standard (used by Kubernetes, Docker, Hugo). It handles: **Subcommands** (`git commit`, `git clone`). **Global vs Local flags**. **Help text generation** (`-h`). We pair it with **Viper** for config management. For smaller, simpler tools, `urfave/cli` is a lightweight alternative, but Cobra is the choice for anything enterprise-grade. This is how we structure CLI applications in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What libraries do you use for command-line tools in Go?
+
+**Your Response:** "**Cobra** is the industry standard (used by Kubernetes, Docker, Hugo). It handles: **Subcommands** (`git commit`, `git clone`). **Global vs Local flags**. **Help text generation** (`-h`). We pair it with **Viper** for config management. For smaller, simpler tools, `urfave/cli` is a lightweight alternative, but Cobra is the choice for anything enterprise-grade. This is how we structure CLI applications in Go."
+
+---
+
 **Cobra** is the industry standard (used by Kubernetes, Docker, Hugo).
 It handles:
 *   Subcommands (`git commit`, `git clone`).
@@ -31,7 +51,16 @@ For smaller, simpler tools, `urfave/cli` is a lightweight alternative, but Cobra
 ## 443. How do you parse flags and config in CLI?
 
 **Answer:**
-For flags: `cobra` commands define flags.
+For flags: `cobra` commands define flags. `rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")`. For processing: **Defaults**: Defined in code. **Config File**: Viper reads `config.yaml`. **Env Vars**: Viper reads `MYAPP_PORT`. **Flags**: Highest priority (overrides everything). This hierarchy allows a user to have a base config file but override specific settings for a one-off command run. This is how we handle configuration in CLI applications.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you parse flags and config in CLI?
+
+**Your Response:** "For flags: `cobra` commands define flags. `rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")`. For processing: **Defaults**: Defined in code. **Config File**: Viper reads `config.yaml`. **Env Vars**: Viper reads `MYAPP_PORT`. **Flags**: Highest priority (overrides everything). This hierarchy allows a user to have a base config file but override specific settings for a one-off command run. This is how we handle configuration in CLI applications."
+
+---
 `rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")`.
 
 For processing:
@@ -47,7 +76,16 @@ This hierarchy allows a user to have a base config file but override specific se
 ## 444. How do you implement bash autocompletion for Go CLI?
 
 **Answer:**
-Cobra allows generating completion scripts automatically.
+Cobra allows generating completion scripts automatically. This is useful for shell integration and developer productivity. This is how we implement bash autocompletion for Go CLI tools.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement bash autocompletion for Go CLI?
+
+**Your Response:** "Cobra allows generating completion scripts automatically. This is useful for shell integration and developer productivity. This is how we implement bash autocompletion for Go CLI tools."
+
+---
 
 `rootCmd.GenBashCompletion(os.Stdout)`
 `rootCmd.GenZshCompletion(os.Stdout)`

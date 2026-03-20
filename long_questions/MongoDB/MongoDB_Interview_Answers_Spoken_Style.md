@@ -749,6 +749,82 @@ db.articles.find({
 
 This provides good search capabilities for most applications without needing external search engines."
 
+### 21. What MongoDB operations update documents and create them if they don't exist?
+
+**How to Explain in Interview (Spoken style format):**
+
+"MongoDB provides several operations that can update existing documents or create new ones if they don't exist - this is called 'upsert' behavior.
+
+The main operations that support upsert are:
+
+**`updateOne()` with upsert:**
+```javascript
+// Updates if found, creates if not found
+await User.updateOne(
+  { email: 'new@example.com' },
+  { $set: { name: 'New User', createdAt: new Date() } },
+  { upsert: true }
+)
+```
+
+**`updateMany()` with upsert:**
+```javascript
+// Updates multiple matching documents or creates one if none match
+await Product.updateMany(
+  { category: 'electronics' },
+  { $set: { discount: 10 } },
+  { upsert: true }
+)
+```
+
+**`findOneAndUpdate()` with upsert:**
+```javascript
+// Finds, updates, and returns the document (creates if not found)
+const user = await User.findOneAndUpdate(
+  { email: 'new@example.com' },
+  { $set: { name: 'New User', createdAt: new Date() } },
+  { upsert: true, new: true }
+)
+```
+
+**`replaceOne()` with upsert:**
+```javascript
+// Replaces entire document or creates new one
+await User.replaceOne(
+  { email: 'user@example.com' },
+  { name: 'Updated User', email: 'user@example.com', age: 30 },
+  { upsert: true }
+)
+```
+
+**Key Points:**
+- **upsert: true** enables the 'create if not found' behavior
+- **new: true** in `findOneAndUpdate()` returns the created/updated document
+- For `updateOne()` and `updateMany()`, use `getUpsertedId()` to get the ID of created documents
+- Upsert is useful for idempotent operations, counters, and configuration data
+
+**Real-world Example:**
+```javascript
+// User login counter - increments if exists, creates with count=1 if new
+const result = await User.updateOne(
+  { email: 'user@example.com' },
+  { 
+    $setOnInsert: { name: 'New User', createdAt: new Date() },
+    $inc: { loginCount: 1 },
+    $set: { lastLogin: new Date() }
+  },
+  { upsert: true }
+)
+
+if (result.upsertedId) {
+  console.log('New user created with ID:', result.upsertedId)
+} else {
+  console.log('Existing user updated')
+}
+```
+
+I use upsert operations frequently for user profiles, configuration settings, and any data that should be initialized with default values on first access."
+
 ---
 
 ## Quick Reference Summary
@@ -785,6 +861,7 @@ This provides good search capabilities for most applications without needing ext
 - Sharding strategies
 - Transaction usage patterns
 - Performance monitoring tools
+- Upsert operations and use cases
 
 ---
 

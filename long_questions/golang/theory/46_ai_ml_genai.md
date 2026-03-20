@@ -3,7 +3,16 @@
 ## 901. How do you generate code snippets using LLMs in Go?
 
 **Answer:**
-We construct a prompt:
+We construct a prompt: `prompt := "Write a Go function to reverse a string."`. Send to OpenAI/Anthropic API (`Completion` endpoint). Parse `response.Choices[0].Text`. For structured code, we can prompt with: "Return ONLY the code block, no markdown." We can then write this string to a `.go` file and run `go fmt` on it programmatically. This is how we generate code snippets using LLMs in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you generate code snippets using LLMs in Go?
+
+**Your Response:** "We construct a prompt: `prompt := \"Write a Go function to reverse a string.\"`. Send to OpenAI/Anthropic API (`Completion` endpoint). Parse `response.Choices[0].Text`. For structured code, we can prompt with: \"Return ONLY the code block, no markdown.\" We can then write this string to a `.go` file and run `go fmt` on it programmatically. This is how we generate code snippets using LLMs in Go."
+
+---
 `prompt := "Write a Go function to reverse a string."`
 Send to OpenAI/Anthropic API (`Completion` endpoint).
 Parse `response.Choices[0].Text`.
@@ -15,7 +24,16 @@ We can then write this string to a `.go` file and run `go fmt` on it programmati
 ## 902. How do you do prompt templating in Go?
 
 **Answer:**
-`text/template`.
+We use `text/template`. `const promptTpl = "Translating {{.Text}} to {{.Language}}."`. `t := template.Must(template.New("p").Parse(promptTpl))`. `t.Execute(&buf, data)`. This allows dynamic injection of user input into system prompts while preventing basic injection attacks (if using specialized escaping logic, though rarely needed for LLM prompts). We can iterate on this template in code. We can load different template files (`v1.tpl`, `v2.tpl`) at runtime to A/B test which prompt yields better JSON output from the model. This is how we do prompt templating in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you do prompt templating in Go?
+
+**Your Response:** "We use `text/template`. `const promptTpl = \"Translating {{.Text}} to {{.Language}}.\"`. `t := template.Must(template.New(\"p\")).Parse(promptTpl))`. `t.Execute(&buf, data)`. This allows dynamic injection of user input into system prompts while preventing basic injection attacks (if using specialized escaping logic, though rarely needed for LLM prompts). We can iterate on this template in code. We can load different template files (`v1.tpl`, `v2.tpl`) at runtime to A/B test which prompt yields better JSON output from the model. This is how we do prompt templating in Go."
+
+---
 `const promptTpl = "Translating {{.Text}} to {{.Language}}."`
 `t := template.Must(template.New("p").Parse(promptTpl))`
 `t.Execute(&buf, data)`.
@@ -26,7 +44,16 @@ This allows dynamic injection of user input into system prompts while preventing
 ## 903. How do you build a LangChain-style pipeline in Go?
 
 **Answer:**
-Chain pattern.
+Chain pattern. `type Chain interface { Run(ctx, input) output }`. Structs: `PromptTemplate`, `LLMChain`, `VectorDBChain`. We compose them: `chain := NewSequentialChain(PromptTpl, OpenAIModel, OutputParser)`. Libraries like `tmc/langchaingo` provide these primitives out of the box. This is how we build a LangChain-style pipeline in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you build a LangChain-style pipeline in Go?
+
+**Your Response:** "Chain pattern. `type Chain interface { Run(ctx, input) output }`. Structs: `PromptTemplate`, `LLMChain`, `VectorDBChain`. We compose them: `chain := NewSequentialChain(PromptTpl, OpenAIModel, OutputParser)`. Libraries like `tmc/langchaingo` provide these primitives out of the box. This is how we build a LangChain-style pipeline in Go."
+
+---
 `type Chain interface { Run(ctx, input) output }`.
 Structs: `PromptTemplate`, `LLMChain`, `VectorDBChain`.
 We compose them:
@@ -38,7 +65,16 @@ Libraries like `tmc/langchaingo` provide these primitives out of the box.
 ## 904. How do you fine-tune prompts using Go templates?
 
 **Answer:**
-We use **Few-Shot Prompting**.
+We use **Few-Shot Prompting**. Template: `Classify the sentiment: "I love usage": Positive. "I hate it": Negative. "{{.Input}}":`. We iterate on this template in code. We can load different template files (`v1.tpl`, `v2.tpl`) at runtime to A/B test which prompt yields better JSON output from the model. This is how we fine-tune prompts using Go templates.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you fine-tune prompts using Go templates?
+
+**Your Response:** "We use **Few-Shot Prompting**. Template: `Classify the sentiment: \"I love usage\": Positive. \"I hate it\": Negative. \"{{.Input}}\":`. We iterate on this template in code. We can load different template files (`v1.tpl`, `v2.tpl`) at runtime to A/B test which prompt yields better JSON output from the model. This is how we fine-tune prompts using Go templates."
+
+---
 Template:
 ```text
 Classify the sentiment:

@@ -1,4 +1,4 @@
-# 🟢 Go Theory Questions: 401–420 Networking and Low-Level Programming
+# Go Theory Questions: 401–420 Networking and Low-Level Programming
 
 ## 401. How do you create a TCP server in Go?
 
@@ -13,40 +13,52 @@ The magic is the `go handle(conn)`. Because goroutines are cheap, we spawn one p
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you create a TCP server in Go?
+
+**Your Response:** "We use the `net` package. Listen: `ln, _ := net.Listen("tcp", ":8080")`. Accept Loop: `for { conn, _ := ln.Accept(); go handle(conn) }`. Handle: `conn.Read()` and `conn.Write()`. The magic is the `go handle(conn)`. Because goroutines are cheap, we spawn one per connection. This allows us to handle 10,000 concurrent TCP connections with simple blocking I/O code, whereas in C/Node.js you'd need complex event loops/callbacks. This is how we build scalable TCP servers in Go."
+
+---
+
 ## 402. How do you create a UDP client in Go?
 
 **Answer:**
-UDP is connectionless, but we still "Dial" to set a default destination.
+UDP is connectionless, but we still 'Dial' to set a default destination. `conn, _ := net.Dial("udp", "127.0.0.1:8080")`. `fmt.Fprintf(conn, "Message")`. Unlike TCP, `Dial` doesn't actually send packets (no handshake). It just sets the socket address. If the server is down, `Write` still "succeeds" because UDP is fire-and-forget. We use UDP for metrics (StatsD) or real-time gaming where packet loss is acceptable. This is how we implement UDP clients in Go.
 
-`conn, _ := net.Dial("udp", "127.0.0.1:8080")`
-`fmt.Fprintf(conn, "Message")`
+---
 
-Unlike TCP, `Dial` doesn't actually send packets (no handshake). It just sets the socket address. If the server is down, `Write` still "succeeds" because UDP is fire-and-forget. We use UDP for metrics (StatsD) or real-time gaming where packet loss is acceptable.
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you create a UDP client in Go?
+
+**Your Response:** "UDP is connectionless, but we still 'Dial' to set a default destination. `conn, _ := net.Dial("udp", "127.0.0.1:8080")`. `fmt.Fprintf(conn, "Message")`. Unlike TCP, `Dial` doesn't actually send packets (no handshake). It just sets the socket address. If the server is down, `Write` still "succeeds" because UDP is fire-and-forget. We use UDP for metrics (StatsD) or real-time gaming where packet loss is acceptable. This is how we implement UDP clients in Go."
 
 ---
 
 ## 403. What is the difference between `net.Listen` and `net.Dial`?
 
 **Answer:**
-`net.Listen` creates a **Server Socket**. It binds to a local port and waits for incoming connections (Passive Open).
+In TCP three-way handshake terms: `Dial` sends SYN. `Listen` (via Accept) sends SYN-ACK. In Go, the three-way handshake is abstracted away, but we can see the underlying TCP behavior. This is how TCP connections work under the hood in Go.
 
-`net.Dial` creates a **Client Socket**. It initiates a connection to a remote address (Active Open).
+---
 
-In TCP three-way handshake terms: `Dial` sends the SYN. `Listen` (via Accept) sends the SYN-ACK.
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is the difference between `net.Listen` and `net.Dial`?
+
+**Your Response:** "`net.Listen` creates a **Server Socket**. It binds to a local port and waits for incoming connections (Passive Open). `net.Dial` creates a **Client Socket**. It initiates a connection to a remote address (Active Open). In TCP three-way handshake terms: `Dial` sends SYN. `Listen` (via Accept) sends SYN-ACK. In Go, the three-way handshake is abstracted away, but we can see the underlying TCP behavior. This is how TCP connections work under the hood in Go."
 
 ---
 
 ## 404. How do you manage TCP connection pools?
 
 **Answer:**
-The standard library `sql.DB` and `http.Client` handle pooling automatically.
+The standard library `sql.DB` and `http.Client` handle pooling automatically. For custom protocols, we implement a pool using a **Buffered Channel** of connections. `pool := make(chan net.Conn, 10)`. Get: `conn := <-pool`. Put: `pool <- conn`. If the channel is empty, we `Dial` a new one. If full, we close the connection (or block). We must also handle "Health Checks"—if a connection sits in the pool for an hour, a firewall might silently drop it, so we check readiness before returning it to the caller. This is how we implement connection pooling in Go.
 
-For custom protocols, we implement a pool using a **Buffered Channel** of connections.
-`pool := make(chan net.Conn, 10)`
-Get: `conn := <-pool`.
-Put: `pool <- conn`.
+---
 
-If the channel is empty, we `Dial` a new one. If full, we close the connection (or block). We must also handle "Health Checks"—if a connection sits in the pool for an hour, the firewall might silently drop it, so we check readiness before returning it to the caller.
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you manage TCP connection pools?
+
+**Your Response:** "The standard library `sql.DB` and `http.Client` handle pooling automatically. For custom protocols, we implement a pool using a **Buffered Channel** of connections. `pool := make(chan net.Conn, 10)`. Get: `conn := <-pool`. Put: `pool <- conn`. If the channel is empty, we `Dial` a new one. If full, we close the connection (or block). We must also handle "Health Checks"—if a connection sits in the pool for an hour, a firewall might silently drop it, so we check readiness before returning it to the caller. This is how we implement connection pooling in Go."
 
 ---
 
@@ -59,6 +71,13 @@ It allows us to intercept the request *at the socket level*.
 Common use case: **Logging** or **Authentication**.
 `t := &http.Transport{ DialContext: func(...) { ... } }`.
 We can inject logic to route traffic through a SOCKS5 proxy, or force a specific DNS resolution logic, or enable HTTP/2 only.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How would you implement a custom HTTP transport?
+
+**Your Response:** "We wrap the default `http.Transport`. It allows us to intercept the request *at the socket level*. Common use case: **Logging** or **Authentication**. `t := &http.Transport{ DialContext: func(...) { ... } }`. We can inject logic to route traffic through a SOCKS5 proxy, or force a specific DNS resolution logic, or enable HTTP/2 only. This is how we implement custom HTTP transports in Go."
 
 ---
 
@@ -75,6 +94,13 @@ This is used for building firewalls, network analyzers, or deep packet inspectio
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you read raw packets using `gopacket`?
+
+**Your Response:** "`gopacket` (from Google) uses `libpcap` to capture raw ethernet frames (like Wireshark). We open a handle: `pcap.OpenLive("eth0", 1600, true, pcap.BlockForever)`. We process the packet source: `packet := source.NextPacket()`. We can inspect layers: `ipLayer := packet.Layer(layers.LayerTypeIPv4)`. This is used for building firewalls, network analyzers, or deep packet inspection tools directly in Go."
+
+---
+
 ## 407. What is a connection hijack in `net/http` and how is it done?
 
 **Answer:**
@@ -85,6 +111,13 @@ Useful for **WebSockets**.
 `conn, buf, _ := hj.Hijack()`
 
 Once hijacked, the standard HTTP server stops managing that connection. You are now responsible for reading/writing raw bytes to the TCP socket and closing it when done. If you forget to close it, you leak a file descriptor.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is a connection hijack in `net/http` and how is it done?
+
+**Your Response:** "Hijacking lets a handler take over the underlying TCP connection from the HTTP server. Useful for **WebSockets**. `hj, ok := w.(http.Hijacker)`. `conn, buf, _ := hj.Hijack()`. Once hijacked, the standard HTTP server stops managing that connection. You are now responsible for reading/writing raw bytes to the TCP socket and closing it when done. If you forget to close it, you leak a file descriptor. This is how we implement connection hijacking in Go."
 
 ---
 
@@ -101,6 +134,13 @@ For a forward proxy (CONNECT method), we manually `Hijack` the connection, Dial 
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How to implement a proxy server in Go?
+
+**Your Response:** "The `net/http/httputil` package provides `ReverseProxy`. `proxy := httputil.NewSingleHostReverseProxy(targetURL)`. `http.ListenAndServe(":8080", proxy)`. It automatically handles forwarding headers, copying the body, and connection pooling. For a forward proxy (CONNECT method), we manually `Hijack` the connection, Dial the target, and shovel bytes between the two connections using `io.Copy(dest, src)` in two goroutines. This is how we implement proxy servers in Go."
+
+---
+
 ## 409. How would you create an HTTP2 server from scratch in Go?
 
 **Answer:**
@@ -109,6 +149,13 @@ You don't need to do anything "from scratch." Go's `net/http` supports HTTP/2 au
 `http.ListenAndServeTLS(...)`.
 During the TLS handshake (ALPN), if the client supports `h2`, Go transparently switches to the HTTP/2 framer.
 If you *must* force H2C (HTTP/2 Cleartext, no TLS), you need `golang.org/x/net/http2` and specifically configure the `H2C` server handler, as browsers generally don't support H2C.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How would you create an HTTP2 server from scratch in Go?
+
+**Your Response:** "You don't need to do anything "from scratch." Go's `net/http` supports HTTP/2 automatically if TLS is enabled. `http.ListenAndServeTLS(...)`. During the TLS handshake (ALPN), if the client supports `h2`, Go transparently switches to the HTTP/2 framer. If you *must* force H2C (HTTP/2 Cleartext, no TLS), you need `golang.org/x/net/http2` and specifically configure the `H2C` server handler, as browsers generally don't support H2C. This is how we implement HTTP/2 servers in Go."
 
 ---
 
@@ -123,6 +170,13 @@ If you see "Too Many Open Files" errors, you might be forgetting to close `resp.
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How does Go handle connection reuse (keep-alive)?
+
+**Your Response:** "Go's `http.Client` enables Keep-Alive by default. After a request finishes, the TCP connection is not closed. It is placed in an "Idle Pool" inside the Transport. The next request to the same host reuses this connection, skipping the expensive TCP/TLS handshake. If you see "Too Many Open Files" errors, you might be forgetting to close `resp.Body`—Go only returns the connection to the pool after the body is fully read and closed. This is how Go handles connection reuse."
+
+---
+
 ## 411. How do you set timeouts on sockets in Go?
 
 **Answer:**
@@ -131,6 +185,13 @@ We use `conn.SetDeadline(time.Now().Add(5 * time.Second))`.
 This applies to both Read and Write.
 If a Read blocks longer than 5s, it returns an "i/o timeout" error.
 This is critical for preventing "Slowloris" attacks where an attacker opens 1000 connections and sends 1 byte per minute to keep them open, exhausting server resources.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you set timeouts on sockets in Go?
+
+**Your Response:** "We use `conn.SetDeadline(time.Now().Add(5 * time.Second))`. This applies to both Read and Write. If a Read blocks longer than 5s, it returns an "i/o timeout" error. This is critical for preventing "Slowloris" attacks where an attacker opens 1000 connections and sends 1 byte per minute to keep them open, exhausting server resources. This is how we set timeouts on sockets in Go."
 
 ---
 
@@ -144,6 +205,13 @@ This is critical for preventing "Slowloris" attacks where an attacker opens 1000
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is the difference between `net/http` and `fasthttp`?
+
+**Your Response:** "`net/http` allocates a new goroutine for every request and is generous with memory allocations (user-friendly interfaces). `fasthttp` is a zero-allocation library. It reuses goroutines (worker pool) and reuses byte buffers aggressively. **Trade-off**: `fasthttp` implementation is complex and doesn't fully conform to standard HTTP/2. We only use it if we are building a gateway doing 1M+ RPS. For 99% of apps, `net/http` is fast enough and safer. This is how we choose between `net/http` and `fasthttp`."
+
+---
+
 ## 413. How do you throttle network traffic in Go?
 
 **Answer:**
@@ -152,6 +220,13 @@ We wrap the `net.Conn`.
 We implement a `ThrottledConn` struct that implements `io.Reader`.
 In `Read()`, we check a **Token Bucket**. If we want 1MB/s, we allow reading 1KB every 1ms. If the bucket is empty, we sleep.
 This is mostly used in file servers or backup tools to prevent saturating the entire uplink.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you throttle network traffic in Go?
+
+**Your Response:** "We wrap the `net.Conn`. We implement a `ThrottledConn` struct that implements `io.Reader`. In `Read()`, we check a **Token Bucket**. If we want 1MB/s, we allow reading 1KB every 1ms. If the bucket is empty, we sleep. This is mostly used in file servers or backup tools to prevent saturating the entire uplink. This is how we throttle network traffic in Go."
 
 ---
 

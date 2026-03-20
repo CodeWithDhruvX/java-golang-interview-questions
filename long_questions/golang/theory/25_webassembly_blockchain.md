@@ -3,7 +3,16 @@
 ## 481. What is WebAssembly and how can Go compile to WASM?
 
 **Answer:**
-WebAssembly (Wasm) allows running binary code in the browser at near-native speed.
+WebAssembly (Wasm) allows running binary code in browser at near-native speed. Go compiles to Wasm natively: `GOOS=js GOARCH=wasm go build -o main.wasm`. This produces a `.wasm` file and a glue JS file (`wasm_exec.js`). We can run complex Go logic (image processing, crypto) inside Chrome, communicating with the DOM via the JS object bindings. This is how we run Go applications in the browser using WebAssembly.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is WebAssembly and how can Go compile to WASM?
+
+**Your Response:** "WebAssembly (Wasm) allows running binary code in browser at near-native speed. Go compiles to Wasm natively: `GOOS=js GOARCH=wasm go build -o main.wasm`. This produces a `.wasm` file and a glue JS file (`wasm_exec.js`). We can run complex Go logic (image processing, crypto) inside Chrome, communicating with the DOM via the JS object bindings. This is how we run Go applications in the browser using WebAssembly."
+
+---
 
 Go compiles to Wasm natively: `GOOS=js GOARCH=wasm go build -o main.wasm`.
 This produces a `.wasm` file and a glue JS file (`wasm_exec.js`).
@@ -14,7 +23,17 @@ We can run complex Go logic (image processing, crypto) inside Chrome, communicat
 ## 482. How do you share memory between JS and Go in WASM?
 
 **Answer:**
-Direct memory sharing is limited for security.
+Direct memory sharing is limited for security. We use the `syscall/js` package. To pass data: **Go -> JS**: `js.Global().Set("myVar", "Hello")`. **JS -> Go**: `js.Global().Get("myVar")`. For large data (like an image), we copy bytes into a Go Wasm memory buffer (`uint8Array`), allowing Go to process raw bits without serialization overhead. This is how we share memory between JavaScript and Go in WebAssembly applications.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you share memory between JS and Go in WASM?
+
+**Your Response:** "Direct memory sharing is limited for security. We use the `syscall/js` package. To pass data: **Go -> JS**: `js.Global().Set("myVar", "Hello")`. **JS -> Go**: `js.Global().Get("myVar")`. For large data (like an image), we copy bytes into a Go Wasm memory buffer (`uint8Array`), allowing Go to process raw bits without serialization overhead. This is how we share memory between JavaScript and Go in WebAssembly applications."
+
+---
+
 We use the `syscall/js` package.
 
 To pass data:
@@ -35,10 +54,27 @@ It strips out everything unnecessary. "Hello World" becomes 10KB.
 
 ---
 
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is TinyGo and what are its limitations?
+
+**Your Response:** "Standard Go Wasm binaries are huge (2MB+ 'Hello World') because they include the full Runtime and GC. **TinyGo** is a separate compiler based on LLVM. It strips out everything unnecessary. 'Hello World' becomes 10KB. **Limitation**: It has a simplified Garbage Collector, slower reflection, and doesn't support the full standard library (though coverage is growing). It is perfect for WASM and Microcontrollers (Arduino/ESP32), but maybe not for a massive backend server app."
+
+---
+
 ## 484. How do you write a smart contract simulator in Go?
 
 **Answer:**
-A Smart Contract is just a State Machine.
+A Smart Contract is just a State Machine. In Go, we define a struct `Account { Balance uint64 }`. We write strict logic: "Check balance >= amount. Atomic Decrement. Atomic Increment." We can simulate millions of transactions per second in pure Go to test economic game theory (e.g., "Can a whale generate infinite money?") before deploying to the slow, expensive real blockchain. This is how we implement smart contracts in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you write a smart contract simulator in Go?
+
+**Your Response:** "A Smart Contract is just a State Machine. In Go, we define a struct `Account { Balance uint64 }`. We write strict logic: \"Check balance >= amount. Atomic Decrement. Atomic Increment.\" We can simulate millions of transactions per second in pure Go to test economic game theory (e.g., \"Can a whale generate infinite money?\") before deploying to the slow, expensive real blockchain. This is how we implement smart contracts in Go."
+
+---
+
 `func (s *State) Transfer(from, to, amount)`.
 
 In Go, we define a struct `Account { Balance uint64 }`.

@@ -3,7 +3,16 @@
 ## 661. How do you cache database query results in Go?
 
 **Answer:**
-We use the **Cache-Aside Pattern**.
+We use the **Cache-Aside Pattern**. 1. Check Cache: `val, err := redis.Get(key)`. 2. If Hit: Return `val`. 3. If Miss: Query DB. `val = db.Query(...)`. 4. Set Cache: `redis.Set(key, val, 10*time.Minute)`. We usually marshal Go struct to JSON or Protobuf before storing it in the cache. This is how we cache database query results in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you cache database query results in Go?
+
+**Your Response:** "We use the **Cache-Aside Pattern**. 1. Check Cache: `val, err := redis.Get(key)`. 2. If Hit: Return `val`. 3. If Miss: Query DB. `val = db.Query(...)`. 4. Set Cache: `redis.Set(key, val, 10*time.Minute)`. We usually marshal Go struct to JSON or Protobuf before storing it in the cache. This is how we cache database query results in Go."
+
+---
 1.  Check Cache: `val, err := redis.Get(key)`.
 2.  If Hit: Return `val`.
 3.  If Miss: Query DB. `val = db.Query(...)`.
@@ -15,7 +24,16 @@ We usually marshal the Go struct to JSON or Protobuf before storing it in the ca
 ## 662. How do you use Redis with Go for distributed caching?
 
 **Answer:**
-We use `go-redis/redis`.
+We use `go-redis/redis`. Client setup: `rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})`. We use it in middleware or service layer. For High Availability, we use `FailoverClient` (Sentinel) or `ClusterClient` (Redis Cluster). Go's concurrency model pairs perfectly with Redis pipelining (`rdb.Pipeline()`) to send 100 commands in one round-trip. This is how we use Redis with Go for distributed caching.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you use Redis with Go for distributed caching?
+
+**Your Response:** "We use `go-redis/redis`. Client setup: `rdb := redis.NewClient(&redis.Options{Addr: \"localhost:6379\"})`. We use it in middleware or service layer. For High Availability, we use `FailoverClient` (Sentinel) or `ClusterClient` (Redis Cluster). Go's concurrency model pairs perfectly with Redis pipelining (`rdb.Pipeline()`) to send 100 commands in one round-trip. This is how we use Redis with Go for distributed caching."
+
+---
 Client setup:
 `rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})`.
 
@@ -27,7 +45,17 @@ For High Availability, we use `FailoverClient` (Sentinel) or `ClusterClient` (Re
 ## 663. How do you implement LRU cache in Go?
 
 **Answer:**
-LRU (Least Recently Used) requires a **Doubly Linked List** (for O(1) move-to-front) and a **Map** (for O(1) lookup).
+LRU (Least Recently Used) requires a **Doubly Linked List** (for O(1) move-to-front) and a **Map** (for O(1) lookup). We use `hashicorp/golang-lru`. `cache, _ := lru.New(128)`. `cache.Add("key", "val")`. `val, ok := cache.Get("key")`. When `Add` exceeds 128 items, it automatically evicts the tail (oldest accessed). We use this for in-process memory caching. This is how we implement LRU cache in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement LRU cache in Go?
+
+**Your Response:** "LRU (Least Recently Used) requires a **Doubly Linked List** (for O(1) move-to-front) and a **Map** (for O(1) lookup). We use `hashicorp/golang-lru`. `cache, _ := lru.New(128)`. `cache.Add(\"key\", \"val\")`. `val, ok := cache.Get(\"key\")`. When `Add` exceeds 128 items, it automatically evicts the tail (oldest accessed). We use this for in-process memory caching. This is how we implement LRU cache in Go."
+
+---
+(for O(1) move-to-front) and a **Map** (for O(1) lookup).
 We use `hashicorp/golang-lru`.
 
 `cache, _ := lru.New(128)`
@@ -41,7 +69,16 @@ When `Add` exceeds 128 items, it automatically evicts the tail (oldest accessed)
 
 **Answer:**
 There are two hard things in CS...
-Strategy: **Delete on Write**.
+Strategy: **Delete on Write**. When `UpdateUser(id)` succeeds in DB: We call `redis.Del("user:"+id)`. Next read will miss and fetch fresh data. We do *not* try to `Set` the new value immediately because of race conditions involved in concurrent writes. Deleting is safer (eventual consistency). This is how we ensure cache invalidation on data update in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you ensure cache invalidation on data update?
+
+**Your Response:** "Strategy: **Delete on Write**. When `UpdateUser(id)` succeeds in DB: We call `redis.Del(\"user:\"+id)`. Next read will miss and fetch fresh data. We do *not* try to `Set` the new value immediately because of race conditions involved in concurrent writes. Deleting is safer (eventual consistency). This is how we ensure cache invalidation on data update in Go."
+
+---
 When `UpdateUser(id)` succeeds in DB:
 We call `redis.Del("user:"+id)`.
 Next read will miss and fetch fresh data.

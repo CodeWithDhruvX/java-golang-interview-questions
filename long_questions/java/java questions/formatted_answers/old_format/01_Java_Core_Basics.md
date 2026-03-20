@@ -199,3 +199,6 @@
 >
 > **Scanning**: While functionally similar, using the correct annotation acts as self-documentation and allows for layer-specific processing in the future.
 
+### Explain the internal data structure change in a HashMap when a collision exceeds 8 elements in Java 8+.
+
+"Internal Working (HashMap): Keys are hashed to find a 'bucket' index. If multiple keys land in the same bucket (collision), they are stored as a linked list. Since Java 8, if a bucket gets too populated (threshold of 8), the list transforms into a Red-Black Tree, improving worst-case performance from O(n) to O(log n)."

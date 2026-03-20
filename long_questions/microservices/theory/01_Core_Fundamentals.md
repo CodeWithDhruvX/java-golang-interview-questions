@@ -254,3 +254,73 @@ I establish clear architectural principles: database-per-service, asynchronous c
 
 #### Indepth
 The critical mistake most teams make is jumping straight to microservices without understanding the domain boundaries. This leads to 'distributed monoliths' where services are tightly coupled. I always recommend starting with business capability mapping first, then technical implementation. The approach should be iterative - identify one clear bounded context, extract it successfully, learn from the experience, then repeat. This minimizes risk while building organizational microservices maturity.
+
+---
+
+### 21. Scenario: PNC Microservice - Custom Exception Handling for Business Rule Violations
+
+**Question:** You are building a microservice for PNC where a specific business rule is violated (e.g., an unauthorized transaction attempt). Explain how you would implement a Custom Manual Exception and ensure it is caught to return a meaningful error message and status code to the client.
+
+**Answer:** "For this PNC microservice scenario, I would implement a comprehensive custom exception handling strategy. First, I'd create a domain-specific custom exception called `UnauthorizedTransactionException` that extends a base `BankingException` class. This exception would include important context like the transaction amount, account number, and the specific business rule that was violated.
+
+In my service layer, I would validate the business rules before processing any transaction. For example, I'd check if the account has sufficient funds, if the transaction amount exceeds daily limits, or if there are any regulatory restrictions. When a rule is violated, I would manually throw my custom exception with a descriptive message and error code.
+
+To ensure consistent error handling across the entire microservice, I would implement a global exception handler using `@RestControllerAdvice`. This global handler would catch my `UnauthorizedTransactionException` specifically and map it to an appropriate HTTP status code - typically `403 Forbidden` for authorization issues or `400 Bad Request` for business rule violations. The handler would return a structured error response with the error code, message, and additional context that helps the client understand what went wrong.
+
+The key benefits of this approach are that my controllers stay clean and focused on business logic, I get consistent error responses across all endpoints, and I can easily add logging and monitoring for these specific business rule violations. This pattern also makes it easy to extend with additional business rules and exceptions as the PNC microservice evolves."
+
+**Code Example Structure:**
+```java
+// Base exception
+class BankingException extends Exception {
+    private String errorCode;
+    private LocalDateTime timestamp;
+    // constructors, getters
+}
+
+// Specific business rule violation
+class UnauthorizedTransactionException extends BankingException {
+    private String accountNumber;
+    private double transactionAmount;
+    private String violatedRule;
+    // constructor with context
+}
+
+// Service validation
+@Service
+public class TransactionService {
+    public void processTransaction(TransactionRequest request) 
+            throws UnauthorizedTransactionException {
+        if (!isAuthorized(request.getAccountNumber(), request.getAmount())) {
+            throw new UnauthorizedTransactionException(
+                request.getAccountNumber(), 
+                request.getAmount(),
+                "Daily transaction limit exceeded"
+            );
+        }
+        // process transaction
+    }
+}
+
+// Global exception handler
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(UnauthorizedTransactionException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedTransaction(
+            UnauthorizedTransactionException ex) {
+        ErrorResponse error = new ErrorResponse(
+            ex.getErrorCode(), 
+            ex.getMessage(),
+            LocalDateTime.now()
+        );
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(error);
+    }
+}
+```
+
+**Follow-up:** For different types of business rule violations, I would create a hierarchy of custom exceptions like `InsufficientFundsException`, `DailyLimitExceededException`, and `RegulatoryViolationException`, each with specific `@ExceptionHandler` methods to return appropriate HTTP status codes and error messages.
+
+#### Indepth
+This pattern aligns with the microservices principle of "smart endpoints, dumb pipes." Each microservice should handle its own business rule validation and error context locally, rather than relying on a centralized error handling system. The global exception handler within each service ensures consistency while maintaining service autonomy. This approach also supports observability - each business rule violation can be logged, monitored, and alerted on independently per service, which is crucial for financial services like PNC where compliance and audit trails are mandatory.

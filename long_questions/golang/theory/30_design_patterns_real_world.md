@@ -3,7 +3,16 @@
 ## 581. How do you implement the Factory pattern in Go?
 
 **Answer:**
-We use a simple **Function** that returns an interface.
+We use a simple **Function** that returns an interface. `func NewStore(type string) (Store, error)`. Inside: `switch type { case "postgres": return newPostgresStore(), nil; case "memory": return newMemoryStore(), nil }`. Go rarely uses "Factory Classes" (AbstractFactory). A simple function/constructor is the idiomatic way to encapsulate creation logic and return a concrete type behind an abstraction. This is how we implement the Factory pattern in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement a Factory pattern in Go?
+
+**Your Response:** "We use a simple **Function** that returns an interface. `func NewStore(type string) (Store, error)`. Inside: `switch type { case \"postgres\": return newPostgresStore(), nil; case \"memory\": return newMemoryStore(), nil }`. Go rarely uses \"Factory Classes\" (AbstractFactory). A simple function/constructor is the idiomatic way to encapsulate creation logic and return a concrete type behind an abstraction. This is how we implement the Factory pattern in Go."
+
+---
 
 `func NewStore(type string) (Store, error)`
 Inside:
@@ -20,7 +29,16 @@ Go rarely uses "Factory Classes" (AbstractFactory). A simple function/constructo
 ## 582. How do you use the Strategy pattern in Go?
 
 **Answer:**
-Strategy is about swapping algorithms at runtime.
+Strategy is about swapping algorithms at runtime. We define a function type or interface: `type EvictionAlgo func(key string)`. The Context struct holds this function: `type Cache struct { algo EvictionAlgo }`. To change behavior: `cache.algo = LOG` (Least Often Used) or `cache.algo = LRU` (Least Recently Used). This is powerful because functions are first-class citizens in Go. We don't need heavy class hierarchies; we just pass different functions. This is how we implement the Strategy pattern in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you use the Strategy pattern in Go?
+
+**Your Response:** "Strategy is about swapping algorithms at runtime. We define a function type or interface: `type EvictionAlgo func(key string)`. The Context struct holds this function: `type Cache struct { algo EvictionAlgo }`. To change behavior: `cache.algo = LOG` (Least Often Used) or `cache.algo = LRU` (Least Recently Used). This is powerful because functions are first-class citizens in Go. We don't need heavy class hierarchies; we just pass different functions. This is how we implement the Strategy pattern in Go."
+
+---
 We define a function type or interface: `type EvictionAlgo func(key string)`.
 
 The Context struct holds this function:
@@ -36,7 +54,16 @@ This is powerful because functions are first-class citizens in Go. We don't need
 ## 583. What is the Singleton pattern and how is it safely used in Go?
 
 **Answer:**
-A Singleton ensures only one instance exists.
+A Singleton ensures only one instance exists. In Go, we use `sync.Once`. `var instance *Config; var once sync.Once; func GetConfig() *Config { once.Do(func() { instance = loadConfig() }); return instance }`. This ensures thread-safe lazy initialization. This is how we safely implement the Singleton pattern in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you use the Singleton pattern in Go?
+
+**Your Response:** "A Singleton ensures only one instance exists. In Go, we use `sync.Once`. `var instance *Config; var once sync.Once; func GetConfig() *Config { once.Do(func() { instance = loadConfig() }); return instance }`. This ensures thread-safe lazy initialization. This is how we safely implement the Singleton pattern in Go."
+
+---
 In Go, we use `sync.Once`.
 
 ```go

@@ -3,7 +3,34 @@
 ## 561. How do you define a RESTful API in Go using Gin or Echo?
 
 **Answer:**
-We use a router library like **Gin**.
+We use a router library like **Gin**. We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you define a RESTful API in Go using Gin or Echo?
+
+**Your Response:** "We use a router library like **Gin**. We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go."
+
+--- We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you define a RESTful API in Go using Gin or Echo?
+
+**Your Response:** "We use a router library like **Gin**. We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you define a RESTful API in Go using Gin or Echo?
+
+**Your Response:** "We use a router library like **Gin**. We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go."
+
+--- We use: `r := gin.Default()`. `r.POST("/users", CreateUser)`. `r.GET("/users/:id", GetUser)`. The handler receives `c *gin.Context`. We bind input: `c.ShouldBindJSON(&user)`. We return output: `c.JSON(200, user)`. Gin handles the routing trie lookup, middleware chain, and standard error serialization efficiently. This is how we build RESTful APIs in Go."
+
+---
 
 ```go
 r := gin.Default()
@@ -20,7 +47,16 @@ Gin handles the routing trie lookup, middleware chain, and standard error serial
 ## 562. How do you version a REST API?
 
 **Answer:**
-**URL Versioning** is standard (`/v1/...`).
+**URL Versioning** is standard (`/v1/...`). In Go, we group routes: `v1 := r.Group("/v1")`. `v2 := r.Group("/v2")`. This physically separates the routing logic. If v2 requires breaking changes (different JSON structure), we create a new struct `UserV2` and a new handler. This allows us to maintain backward compatibility while evolving the API. This is how we version REST APIs in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you version a REST API?
+
+**Your Response:** "**URL Versioning** is standard (`/v1/...`). In Go, we group routes: `v1 := r.Group("/v1")`. `v2 := r.Group("/v2")`. This physically separates the routing logic. If v2 requires breaking changes (different JSON structure), we create a new struct `UserV2` and a new handler. This allows us to maintain backward compatibility while evolving the API. This is how we version REST APIs in Go."
+
+---
 
 In Go, we group routes:
 ```go
@@ -34,7 +70,16 @@ This physically separates the routing logic. If v2 requires breaking changes (di
 ## 563. How do you handle validation of API payloads?
 
 **Answer:**
-We use struct tags with `go-playground/validator` (builtin to Gin).
+We use struct tags with `go-playground/validator` (builtin to Gin). `type User struct { Email string \`json:"email" binding:"required,email"\` }`. If validation fails, Gin returns error. We write a custom Error Middleware to intercept this error and format it into a nice response: `{"code": "INVALID_EMAIL", "field": "email"}` instead of returning the raw developer error string. This is how we handle API payload validation in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you handle validation of API payloads?
+
+**Your Response:** "We use struct tags with `go-playground/validator` (builtin to Gin). `type User struct { Email string \`json:\"email\" binding:\"required,email\" }`. If validation fails, Gin returns error. We write a custom Error Middleware to intercept this error and format it into a nice response: `{\"code\": \"INVALID_EMAIL\", \"field\": \"email\"}` instead of returning the raw developer error string. This is how we handle API payload validation in Go."
+
+---
 
 `type User struct { Email string \`json:"email" binding:"required,email"\` }`
 If validation fails, Gin returns error.
@@ -45,7 +90,16 @@ We write a custom Error Middleware to intercept this error and format it into a 
 ## 564. How do you return proper status codes from handlers?
 
 **Answer:**
-We follow HTTP semantics strictly.
+We follow HTTP semantics strictly. * **200 OK**: Synchronous success. * **201 Created**: Resource created (POST). * **400 Bad Request**: Validation error. * **404 Not Found**: Resource doesn't exist. * **500 Internal Error**: Unexpected server error. This is how we return proper HTTP status codes from Go handlers.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you return proper status codes from handlers?
+
+**Your Response:** "We follow HTTP semantics strictly. * **200 OK**: Synchronous success. * **201 Created**: Resource created (POST). * **400 Bad Request**: Validation error. * **404 Not Found**: Resource doesn't exist. * **500 Internal Error**: Unexpected server error. This is how we return proper HTTP status codes from Go handlers."
+
+---
 *   **200 OK**: Synchronous success.
 *   **201 Created**: Resource created (POST).
 *   **202 Accepted**: Async processing started (Queued).

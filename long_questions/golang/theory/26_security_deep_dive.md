@@ -15,7 +15,16 @@ The database driver treats the input strictly as data, not executable code. This
 ## 502. How do you securely store user passwords in Go?
 
 **Answer:**
-We use **Argon2id** or **Bcrypt**.
+We use **Argon2id** or **Bcrypt**. We never store plain text or simple MD5/SHA256 hashes (which are vulnerable to Rainbow Tables). We use `golang.org/x/crypto/bcrypt`. `hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)`. To verify: `bcrypt.CompareHashAndPassword(hash, []byte(password))`. Argon2id is technically superior (memory-hard, resisting GPU cracking), but Bcrypt is industry standard and sufficiently secure for most web apps. This is how we securely store user passwords in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you securely store user passwords in Go?
+
+**Your Response:** "We use **Argon2id** or **Bcrypt**. We never store plain text or simple MD5/SHA256 hashes (which are vulnerable to Rainbow Tables). We use `golang.org/x/crypto/bcrypt`. `hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)`. To verify: `bcrypt.CompareHashAndPassword(hash, []byte(password))`. Argon2id is technically superior (memory-hard, resisting GPU cracking), but Bcrypt is industry standard and sufficiently secure for most web apps. This is how we securely store user passwords in Go."
+
+---
 
 We never store plain text or simple MD5/SHA256 hashes (which are vulnerable to Rainbow Tables).
 We use `golang.org/x/crypto/bcrypt`.
@@ -28,7 +37,16 @@ Argon2id is technically superior (memory-hard, resisting GPU cracking), but Bcry
 ## 503. How do you implement OAuth 2.0 in Go?
 
 **Answer:**
-We use `golang.org/x/oauth2`.
+We use `golang.org/x/oauth2`. It handles the **redirect dance**. We use: **Config**: ClientID, Secret, RedirectURL, Scopes. **AuthCodeURL**: Generates a link for the user to click ("Log in with Google"). **Exchange**: Swaps the returned `code` for an `AuthToken` (Access + Refresh Token). We verify the `state` parameter to prevent CSRF during the flow and typically use a strictly typed library like `markbates/goth` to normalize user profiles across providers (Google, GitHub, FB). This is how we implement OAuth 2.0 in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement OAuth 2.0 in Go?
+
+**Your Response:** "We use `golang.org/x/oauth2`. It handles the **redirect dance**. We use: **Config**: ClientID, Secret, RedirectURL, Scopes. **AuthCodeURL**: Generates a link for the user to click (\"Log in with Google\"). **Exchange**: Swaps the returned `code` for an `AuthToken` (Access + Refresh Token). We verify the `state` parameter to prevent CSRF during the flow and typically use a strictly typed library like `markbates/goth` to normalize user profiles across providers (Google, GitHub, FB). This is how we implement OAuth 2.0 in Go."
+
+---
 
 It handles the redirect dance.
 1.  **Config**: ClientID, Secret, RedirectURL, Scopes.
@@ -41,7 +59,16 @@ We verify the `state` parameter to prevent CSRF during the flow and typically us
 ## 504. What is CSRF and how do you prevent it in Go web apps?
 
 **Answer:**
-CSRF (Cross-Site Request Forgery) tricks a user's browser into sending a request to your server (with their cookies) without their consent.
+CSRF (Cross-Site Request Forgery) tricks a user's browser into sending a request to your server (with their cookies) without their consent. **Prevention**: **Synchronizer Token Pattern**. We use `gorilla/csrf`. It generates a random `csrf_token` and sets it in a secure cookie. It also inserts this token into every HTML form as a hidden field (`<input name="gorilla.csrf.Token" ...>`). On POST, the middleware verifies that cookie matches the form value. If they mismatch (or form token is missing), it rejects the request (403). This is how we prevent CSRF attacks in Go web applications.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you prevent CSRF in Go web apps?
+
+**Your Response:** "CSRF (Cross-Site Request Forgery) tricks a user's browser into sending a request to your server (with their cookies) without their consent. **Prevention**: **Synchronizer Token Pattern**. We use `gorilla/csrf`. It generates a random `csrf_token` and sets it in a secure cookie. It also inserts this token into every HTML form as a hidden field (`<input name="gorilla.csrf.Token" ...>`). On POST, the middleware verifies that cookie matches the form value. If they mismatch (or form token is missing), it rejects the request (403). This is how we prevent CSRF attacks in Go web applications."
+
+---
 
 Prevention: **Synchronizer Token Pattern**.
 We use `gorilla/csrf`.

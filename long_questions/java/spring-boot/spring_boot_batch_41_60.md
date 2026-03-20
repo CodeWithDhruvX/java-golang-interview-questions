@@ -69,7 +69,7 @@ Use specialized annotations:
 ---
 
 ### Question 46: How to handle form-data and JSON in Spring Boot controllers?
-
+### Question 46: which annotation maps a json request body directly into java object?
 **Answer:**
 *   **JSON:** Use `@RequestBody` to bind the request body to a Java Object.
 *   **Form Data:** Use `@ModelAttribute` or simply method arguments matching the form field names for `application/x-www-form-urlencoded`.
@@ -269,5 +269,72 @@ Use JWT or Basic Auth for stateless APIs.
 ### How to Explain in Interview (Spoken style format)
 **Interviewer:** What is the difference between `WebClient` and `RestTemplate`?
 **Your Response:** "The key difference is their programming model. `RestTemplate` is the traditional blocking, synchronous client - each HTTP call blocks the thread until the response arrives. It's now in maintenance mode. `WebClient` is the modern, non-blocking reactive client from Spring WebFlux. It can handle many concurrent requests with fewer threads, making it much more scalable. Even though it's reactive, I can use it in synchronous code by calling `.block()` when needed. For new applications, I always choose `WebClient` because it's more efficient, supports modern reactive patterns, and is the recommended approach going forward."
+
+---
+
+### Question 61: Scenario: PNC Bank Microservice - Custom Exception Handling for Business Rule Violations
+
+**Answer:**
+1. **Create Custom Exception Hierarchy:** Base `BankingException` with specific `UnauthorizedTransactionException`
+2. **Service Layer Validation:** Manual exception throwing when business rules are violated
+3. **Global Exception Handler:** `@RestControllerAdvice` with `@ExceptionHandler` for consistent error responses
+4. **HTTP Status Mapping:** Return appropriate status codes (403 Forbidden, 400 Bad Request)
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** You're building a microservice for PNC where a specific business rule is violated (e.g., an unauthorized transaction attempt). Explain how you would implement a Custom Manual Exception and ensure it is caught to return a meaningful error message and status code to the client.
+
+**Your Response:** "For this PNC microservice scenario, I would implement a comprehensive custom exception handling strategy. First, I'd create a domain-specific custom exception called `UnauthorizedTransactionException` that extends a base `BankingException` class. This exception would include important context like the transaction amount, account number, and the specific business rule that was violated.
+
+In my service layer, I would validate the business rules before processing any transaction. For example, I'd check if the account has sufficient funds, if the transaction amount exceeds daily limits, or if there are any regulatory restrictions. When a rule is violated, I would manually throw my custom exception with a descriptive message and error code.
+
+To ensure consistent error handling across the entire microservice, I would implement a global exception handler using `@RestControllerAdvice`. This global handler would catch my `UnauthorizedTransactionException` specifically and map it to an appropriate HTTP status code - typically `403 Forbidden` for authorization issues or `400 Bad Request` for business rule violations. The handler would return a structured error response with the error code, message, and additional context that helps the client understand what went wrong.
+
+The key benefits are that my controllers stay clean and focused on business logic, I get consistent error responses across all endpoints, and I can easily add logging and monitoring for these specific business rule violations."
+
+**Code Implementation:**
+```java
+// Base exception
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(UnauthorizedTransactionException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedTransaction(
+            UnauthorizedTransactionException ex) {
+        ErrorResponse error = new ErrorResponse(
+            "UNAUTHORIZED_TRANSACTION", 
+            ex.getMessage(),
+            LocalDateTime.now()
+        );
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(error);
+    }
+    
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientFunds(
+            InsufficientFundsException ex) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse("INSUFFICIENT_FUNDS", ex.getMessage()));
+    }
+}
+
+// Service layer
+@Service
+public class TransactionService {
+    public void processTransaction(TransactionRequest request) 
+            throws UnauthorizedTransactionException {
+        if (!isAuthorized(request.getAccountNumber(), request.getAmount())) {
+            throw new UnauthorizedTransactionException(
+                request.getAccountNumber(), 
+                request.getAmount(),
+                "Daily transaction limit exceeded"
+            );
+        }
+    }
+}
+```
+
+**Follow-up:** For different types of violations, I'd create a hierarchy: `InsufficientFundsException`, `DailyLimitExceededException`, `RegulatoryViolationException`, each with specific `@ExceptionHandler` methods returning appropriate HTTP status codes.
 
 ---

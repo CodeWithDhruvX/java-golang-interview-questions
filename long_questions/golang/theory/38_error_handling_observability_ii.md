@@ -1,10 +1,9 @@
-# 🟢 Go Theory Questions: 741–760 Error Handling & Observability
+# Go Theory Questions: 741–760 Error Handling & Observability
 
 ## 741. How do you implement a custom error type in Go?
 
 **Answer:**
 We define a struct that implements the `error` interface (`Error() string`).
-
 ```go
 type ValidationError struct {
     Field string
@@ -21,7 +20,16 @@ This allows us to add context (fields, retry-ability, error codes) that a simple
 ## 742. How do you wrap errors in Go?
 
 **Answer:**
-We use `%w` with `fmt.Errorf`.
+We use `%w` with `fmt.Errorf`. `return fmt.Errorf("query failed: %w", err)`. This wraps the original error inside a new one. It preserves the type hierarchy. We can later use `errors.Is(err, sql.ErrNoRows)` and it will return true even if `ErrNoRows` is wrapped 5 layers deep. Before Go 1.13, we used `github.com/pkg/errors` (`errors.Wrap`), but now the standard library handles it natively. This is how we wrap errors in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you wrap errors in Go?
+
+**Your Response:** "We use `%w` with `fmt.Errorf`. `return fmt.Errorf(\"query failed: %w\", err)`. This wraps the original error inside a new one. It preserves the type hierarchy. We can later use `errors.Is(err, sql.ErrNoRows)` and it will return true even if `ErrNoRows` is wrapped 5 layers deep. Before Go 1.13, we used `github.com/pkg/errors` (`errors.Wrap`), but now the standard library handles it natively. This is how we wrap errors in Go."
+
+---
 `return fmt.Errorf("query failed: %w", err)`.
 
 This wraps the original error inside the new one.
@@ -33,7 +41,16 @@ Before Go 1.13, we used `github.com/pkg/errors` (`errors.Wrap`), but now the sta
 ## 743. What is `errors.Is()` and `errors.As()` used for?
 
 **Answer:**
-**`errors.Is(err, target)`**: Checks if `err` wraps `target`. It replaces `err == target`.
+**`errors.Is(err, target)`**: Checks if `err` wraps `target`. It replaces `err == target`. **`errors.As(err, &target)`**: Checks if `err` wraps a specific **Type** and assigns it. It replaces type assertions (`err.(*MyError)`). Example: `var netErr net.Error`. `if errors.As(err, &netErr) && netErr.Temporary() { retry() }`. These functions unwrap the error chain automatically to find the match. This is how we use `errors.Is()` and `errors.As()` in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is `errors.Is()` and `errors.As()` used for?
+
+**Your Response:** "**`errors.Is(err, target)`**: Checks if `err` wraps `target`. It replaces `err == target`. **`errors.As(err, &target)`**: Checks if `err` wraps a specific **Type** and assigns it. It replaces type assertions (`err.(*MyError)`). Example: `var netErr net.Error`. `if errors.As(err, &netErr) && netErr.Temporary() { retry() }`. These functions unwrap the error chain automatically to find the match. This is how we use `errors.Is()` and `errors.As()` in Go."
+
+--- It replaces `err == target`.
 **`errors.As(err, &target)`**: Checks if `err` wraps a specific **Type** and assigns it. It replaces type assertions (`err.(*MyError)`).
 
 Example:
@@ -46,7 +63,16 @@ These functions unwrap the error chain automatically to find the match.
 ## 744. How do you categorize errors in large Go applications?
 
 **Answer:**
-We use **Sentinel Errors** or **Error Codes**.
+We use **Sentinel Errors** or **Error Codes**. 1. **Sentinels**: Global vars `var ErrNotFound = errors.New("...")`. Good for simple comparisons. 2. **Error Codes**: Structured errors with type, code, and message. `type APIError struct { Type string; Code int; Message string }`. This allows middleware to return HTTP status codes based on error type. This is how we categorize errors in large Go applications.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you categorize errors in large Go applications?
+
+**Your Response:** "We use **Sentinel Errors** or **Error Codes**. 1. **Sentinels**: Global vars `var ErrNotFound = errors.New(\"...\")`. Good for simple comparisons. 2. **Error Codes**: Structured errors with type, code, and message. `type APIError struct { Type string; Code int; Message string }`. This allows middleware to return HTTP status codes based on error type. This is how we categorize errors in large Go applications."
+
+---
 1.  **Sentinels**: Global vars `var ErrNotFound = errors.New("...")`. Good for simple comparisons.
 2.  **ErrorCode pattern**:
 ```go

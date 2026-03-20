@@ -3,7 +3,16 @@
 ## 981. How do you refactor legacy Go code?
 
 **Answer:**
-**Test-Driven Refactoring**.
+**Test-Driven Refactoring**. 1. **Pin it**: Write a high-level Integration Test (Golden File) capturing current output. 2. **Lint**: Fix `golint` / `staticcheck` issues first. 3. **Extract**: Move large functions to new packages (`internal/`). 4. **Rename**: `gopls` rename to make code readable. 5. **Verify**: Ensure Golden Test still passes. This is how we refactor legacy Go code.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you refactor legacy Go code?
+
+**Your Response:** "**Test-Driven Refactoring**. 1. **Pin it**: Write a high-level Integration Test (Golden File) capturing current output. 2. **Lint**: Fix `golint` / `staticcheck` issues first. 3. **Extract**: Move large functions to new packages (`internal/`). 4. **Rename**: `gopls` rename to make code readable. 5. **Verify**: Ensure Golden Test still passes. This is how we refactor legacy Go code."
+
+---
 1.  **Pin it**: Write a high-level Integration Test (Golden File) capturing current output.
 2.  **Lint**: Fix `golint` / `staticcheck` issues first.
 3.  **Extract**: Move large functions to new packages (`internal/`).
@@ -15,7 +24,16 @@
 ## 982. How do you organize large-scale Go monorepos?
 
 **Answer:**
-We use **Go Workspaces** (`go.work`).
+We use **Go Workspaces** (`go.work`). Structure: `go.work` file defines workspace modules. `go/` (Public Shared), `internal/` (Private Shared), `services/`, `payment/`, `auth/` (each with `go.mod`). This keeps services decoupled (different `go.mod` deps) but allows atomic commits across the repo. Users can rebuild from source and get the exact same byte-for-byte hash to verify no distinct backdoor was added by the compiler. This is how we organize large-scale Go monorepos.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you organize large-scale Go monorepos?
+
+**Your Response:** "We use **Go Workspaces** (`go.work`). Structure: `go.work` file defines workspace modules. `go/` (Public Shared), `internal/` (Private Shared), `services/`, `payment/`, `auth/` (each with `go.mod`). This keeps services decoupled (different `go.mod` deps) but allows atomic commits across the repo. Users can rebuild from source and get the exact same byte-for-byte hash to verify no distinct backdoor was added by the compiler. This is how we organize large-scale Go monorepos."
+
+---
 Structure:
 ```text
 /
@@ -37,6 +55,13 @@ This keeps services decoupled (different `go.mod` deps) but allows atomic commit
 2.  **Signatures**: Sign binary with GPG or **Cosign** (Sigstore).
 3.  **HTTPS**: Serve only over TLS.
 4.  **Reproducible Builds**: `go build -trimpath`. Users can rebuild from source and get the exact same byte-for-byte hash to verify no distinct backdoor was added by the compiler.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you distribute Go binaries securely?
+
+**Your Response:** "**CheckSums**: Provide `SHA256SUMS.txt`. **Signatures**: Sign binary with GPG or **Cosign** (Sigstore). **HTTPS**: Serve only over TLS. **Reproducible Builds**: `go build -trimpath`. Users can rebuild from source and get the exact same byte-for-byte hash to verify no distinct backdoor was added by the compiler. This is how we distribute Go binaries securely."
 
 ---
 

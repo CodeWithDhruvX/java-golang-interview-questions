@@ -3,7 +3,16 @@
 ## 601. How do you implement a fan-in pattern in Go?
 
 **Answer:**
-Fan-In merges multiple input channels into one output channel.
+Fan-In merges multiple input channels into one output channel. `func FanIn(inputs ...<-chan int) <-chan int { out := make(chan int); var wg sync.WaitGroup; for _, ch := range inputs { wg.Add(1); go func(c <-chan int) { defer wg.Done(); for n := range c { out <- n } }(ch) }; go func() { wg.Wait(); close(out) }(); return out }`. This is useful when you have sharded workers (e.g., 3 downloaders) and want to process their results in a single aggregator. This is how we implement the fan-in pattern in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement a fan-in pattern in Go?
+
+**Your Response:** "Fan-In merges multiple input channels into one output channel. `func FanIn(inputs ...<-chan int) <-chan int { out := make(chan int); var wg sync.WaitGroup; for _, ch := range inputs { wg.Add(1); go func(c <-chan int) { defer wg.Done(); for n := range c { out <- n } }(ch) }; go func() { wg.Wait(); close(out) }(); return out }`. This is useful when you have sharded workers (e.g., 3 downloaders) and want to process their results in a single aggregator. This is how we implement the fan-in pattern in Go."
+
+---
 
 ```go
 func FanIn(inputs ...<-chan int) <-chan int {
@@ -27,7 +36,16 @@ This is useful when you have sharded workers (e.g., 3 downloaders) and want to p
 ## 602. How do you implement a fan-out pattern in Go?
 
 **Answer:**
-Fan-Out distributes work from one channel to multiple workers.
+Fan-Out distributes work from one channel to multiple workers. `jobs := make(chan Job, 100); for i := 0; i < NumWorkers; i++ { go worker(jobs) }`. The key is that all workers range over the **same** channel. The runtime automatically load-balances items. If Worker 1 is busy, Worker 2 picks up the next item. This is how we implement the fan-out pattern in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement a fan-out pattern in Go?
+
+**Your Response:** "Fan-Out distributes work from one channel to multiple workers. `jobs := make(chan Job, 100); for i := 0; i < NumWorkers; i++ { go worker(jobs) }`. The key is that all workers range over the **same** channel. The runtime automatically load-balances items. If Worker 1 is busy, Worker 2 picks up the next item. This is how we implement the fan-out pattern in Go."
+
+---
 
 ```go
 jobs := make(chan Job, 100)
@@ -42,7 +60,16 @@ The key is that all workers range over the **same** channel. The runtime automat
 ## 603. How do you prevent goroutine leaks in producer-consumer patterns?
 
 **Answer:**
-Leaks happen if the receiver stops, but the producer keeps sending (blocks forever), or vice-versa.
+Leaks happen if the receiver stops, but the producer keeps sending (blocks forever), or vice-versa. Prevention: 1. **Cancellation**: Pass `context.Context` to the producer. If `ctx.Done()` is closed, return immediately. 2. **Close**: The Producer must close the channel when done, signaling consumers to exit. 3. **Select**: Use `select { case ch <- item: ... case <-done: return }` to ensure that the send operation is interruptible. This is how we prevent goroutine leaks in producer-consumer patterns.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you prevent goroutine leaks in producer-consumer patterns?
+
+**Your Response:** "Leaks happen if the receiver stops, but the producer keeps sending (blocks forever), or vice-versa. Prevention: 1. **Cancellation**: Pass `context.Context` to the producer. If `ctx.Done()` is closed, return immediately. 2. **Close**: The Producer must close the channel when done, signaling consumers to exit. 3. **Select**: Use `select { case ch <- item: ... case <-done: return }` to ensure that the send operation is interruptible. This is how we prevent goroutine leaks in producer-consumer patterns."
+
+---
 
 1.  **Cancellation**: Pass `context.Context` to the producer. If `ctx.Done()` is closed, return immediately.
 2.  **Close**: The Producer must close the channel when done, signaling consumers to exit.
@@ -53,7 +80,16 @@ Leaks happen if the receiver stops, but the producer keeps sending (blocks forev
 ## 604. How would you create a semaphore in Go?
 
 **Answer:**
-We use a **Buffered Channel**.
+We use a **Buffered Channel**. `sem := make(chan struct{}, MaxConcurrency)`. Acquire: `sem <- struct{}{}` (Blocks if full). Release: `<-sem`. We wrap the critical section: `sem <- struct{}{}`; go func() { defer func() { <-sem }(); process() }()`. For advanced features (weighted semaphore, try-acquire), we use `golang.org/x/sync/semaphore`. This is how we implement semaphores in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How would you create a semaphore in Go?
+
+**Your Response:** "We use a **Buffered Channel**. `sem := make(chan struct{}, MaxConcurrency)`. Acquire: `sem <- struct{}{}` (Blocks if full). Release: `<-sem`. We wrap the critical section: `sem <- struct{}{}`; go func() { defer func() { <-sem }(); process() }()`. For advanced features (weighted semaphore, try-acquire), we use `golang.org/x/sync/semaphore`. This is how we implement semaphores in Go."
+
+---
 
 `sem := make(chan struct{}, MaxConcurrency)`
 Acquire: `sem <- struct{}{}` (Blocks if full).
@@ -74,7 +110,16 @@ For advanced features (weighted semaphore, try-acquire), use `golang.org/x/sync/
 ## 605. What’s the difference between sync.WaitGroup and sync.Cond?
 
 **Answer:**
-**WaitGroup**: Waits for a group of goroutines to *finish*. (Count down to zero). Use for Batch Processing.
+**WaitGroup**: Waits for a group of goroutines to *finish*. (Count down to zero). Use for Batch Processing. **Cond**: Waits for an *event* or *state change*. (Signal/Broadcast). Use `Cond` when many goroutines are waiting for a condition (e.g., "Buffer is not empty") and you want to wake them up efficiently without busy spinning. This is how we use sync.WaitGroup and sync.Cond in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you use sync.WaitGroup and sync.Cond?
+
+**Your Response:** "**WaitGroup**: Waits for a group of goroutines to *finish*. (Count down to zero). Use for Batch Processing. **Cond**: Waits for an *event* or *state change*. (Signal/Broadcast). Use `Cond` when many goroutines are waiting for a condition (e.g., \"Buffer is not empty\") and you want to wake them up efficiently without busy spinning. This is how we use sync.WaitGroup and sync.Cond in Go."
+
+--- (Count down to zero). Use for Batch Processing.
 
 **Cond**: Waits for an *event* or *state change*. (Signal/Broadcast).
 Use `Cond` when many goroutines are waiting for a condition (e.g., "Buffer is not empty") and you want to wake them up efficiently without busy spinning.
@@ -135,7 +180,16 @@ Token Bucket is more flexible (allows bursts), but Ticker is the simplest "Leaky
 ## 609. What is a worker pool, and how do you implement it?
 
 **Answer:**
-A Worker Pool restricts concurrency.
+A Worker Pool restricts concurrency. Structure: 1. **Job Channel**: `chan Job`. 2. **Result Channel**: `chan Result`. 3. **Dispatcher**: Spawns N workers. 4. **Worker**: Loop `range jobs`. This decoupling allows Producer to push 1M jobs instantly (buffered), while consumers process them at a steady, safe rate (e.g., 50 concurrent DB connections). This is how we implement a worker pool in Go.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you implement a worker pool, and how do you implement it?
+
+**Your Response:** "A Worker Pool restricts concurrency. Structure: 1. **Job Channel**: `chan Job`. 2. **Result Channel**: `chan Result`. 3. **Dispatcher**: Spawns N workers. 4. **Worker**: Loop `range jobs`. This decoupling allows Producer to push 1M jobs instantly (buffered), while consumers process them at a steady, safe rate (e.g., 50 concurrent DB connections). This is how we implement a worker pool in Go."
+
+---
 
 Structure:
 1.  **Job Channel**: `chan Job`.
@@ -150,7 +204,25 @@ This decoupling allows the Producer to push 1M jobs instantly (buffered), while 
 ## 610. How do you handle backpressure in channel-based designs?
 
 **Answer:**
-Backpressure means "Stop sending, I'm full."
+Backpressure means "Stop sending, I'm full." Unbuffered channels provide **Natural Backpressure**. The sender blocks until the receiver is ready. If using buffered channels, monitoring `len(ch)` vs `cap(ch)` can act as a signal. If `len(ch) > 0.9 * cap(ch)`, we can reject new API requests (503 Service Unavailable) or tell the producer to sleep. This prevents the system from crashing under load (Load Shedding). This is how we handle backpressure in channel-based designs.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you handle backpressure in channel-based designs?
+
+**Your Response:** "Backpressure means \"Stop sending, I'm full.\" Unbuffered channels provide **Natural Backpressure**. The sender blocks until the receiver is ready. If using buffered channels, monitoring `len(ch)` vs `cap(ch)` can act as a signal. If `len(ch) > 0.9 * cap(ch)`, we can reject new API requests (503 Service Unavailable) or tell the producer to sleep. This prevents the system from crashing under load (Load Shedding). This is how we handle backpressure in channel-based designs."
+
+--- Unbuffered channels provide **Natural Backpressure**. The sender blocks until the receiver is ready. If using buffered channels, monitoring `len(ch)` vs `cap(ch)` can act as a signal. If `len(ch) > 0.9 * cap(ch)`, we can reject new API requests (503 Service Unavailable) or tell the producer to sleep. This prevents the system from crashing under load (Load Shedding). This is how we handle backpressure in channel-based designs.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you handle backpressure in channel-based designs?
+
+**Your Response:** "Backpressure means \"Stop sending, I'm full.\" Unbuffered channels provide **Natural Backpressure**. The sender blocks until the receiver is ready. If using buffered channels, monitoring `len(ch)` vs `cap(ch)` can act as a signal. If `len(ch) > 0.9 * cap(ch)`, we can reject new API requests (503 Service Unavailable) or tell the producer to sleep. This prevents the system from crashing under load (Load Shedding). This is how we handle backpressure in channel-based designs."
+
+---
 Unbuffered channels provide **Natural Backpressure**. The sender blocks until the receiver is ready.
 
 If using buffered channels, monitoring `len(ch)` vs `cap(ch)` can act as a signal.
@@ -216,7 +288,16 @@ default:
 ## 614. How do you avoid starvation in goroutines?
 
 **Answer:**
-Starvation happens when a high-priority process hogs the CPU/Lock, and low-priority ones never run.
+Starvation happens when a high-priority process hogs the CPU/Lock, and low-priority ones never run. In Go, the scheduler includes a "time slice" mechanism to prevent CPU starvation. For resource starvation (Locks), use `sync.Mutex` (which is vaguely FIFO for waiters). Avoid spin-locks. In Priority Queue designs (see Q 613), ensure you service `lowCh` occasionally even if `highCh` is full (e.g., process 1 low for every 10 high). This is how we avoid starvation in goroutines.
+
+---
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How do you avoid starvation in goroutines?
+
+**Your Response:** "Starvation happens when a high-priority process hogs the CPU/Lock, and low-priority ones never run. In Go, the scheduler includes a \"time slice\" mechanism to prevent CPU starvation. For resource starvation (Locks), use `sync.Mutex` (which is vaguely FIFO for waiters). Avoid spin-locks. In Priority Queue designs (see Q 613), ensure you service `lowCh` occasionally even if `highCh` is full (e.g., process 1 low for every 10 high). This is how we avoid starvation in goroutines."
+
+---
 
 In Go, the scheduler includes a "time slice" mechanism to prevent CPU starvation.
 For resource starvation (Locks), use `sync.Mutex` (which is vaguely FIFO for waiters).
