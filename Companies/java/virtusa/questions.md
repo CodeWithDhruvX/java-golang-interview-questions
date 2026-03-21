@@ -254,3 +254,55 @@ Some generic questions
 - How will you fix the issues when multiple instances are failing to serve the incoming requests?
 - What was the reason for choosing SingleStore database in your project?
 - Have you ever used cache in your project? Where did you use it?
+
+Based on the provided documents, here is the organized list of Java scenario-based interview questions, categorized by topic:
+
+### **Spring Boot & Microservices**
+***Endpoint Compatibility**: Why does an endpoint work with `@RequestMapping(method=POST)` but fail with `@PostMapping`? [cite: 9, 10]
+***RestTemplate Retries**: Why doesn't `RestTemplate` retry on a socket timeout even after configuring retries? [cite: 46, 47]
+***Actuator Health**: Why does `Actuator/health` sometimes report a `DOWN` status for a database or service when everything appears fine? [cite: 67]
+***Spring Kafka Rebalance**: Why might a Spring Kafka consumer stop consuming messages after a partition rebalance? [cite: 74]
+***Spring Scheduling**: Why does a scheduled job work under normal load but miss executions during heavy traffic? [cite: 149]
+***API Optimization**: How would you optimize a REST API that processes 10K requests/second but has response times spiking over 3 seconds? [cite: 466, 468, 469]
+***Resilience**: How do you handle a dependency on an unreliable third-party API that frequently experiences timeouts or 502 errors? [cite: 485, 488]
+
+### **Java Core & Syntax**
+***Optional NPE**: Why does using `Optional.of(null)` still throw a `NullPointerException`? [cite: 197]
+***Optional Logic Error**: Why would code throw a `NoSuchElementException` even after calling `optional.isPresent()` before `optional.get()`? [cite: 56, 57]
+***Integer Comparison**: Why does `a == b` return `false` when both `a` and `b` are `Integer` objects assigned the value 128? [cite: 205, 210, 211, 212]
+***Final References**: Can the contents of a `final` reference object (like an `ArrayList`) be mutated? [cite: 218]
+***Static Variables**: Why might a static variable appear as `null` even though it has been initialized? [cite: 242]
+***Static Overriding**: Why doesn't a static method in a child class override the version in the parent class? [cite: 279, 280]
+***Interface Logic**: Can you write logic/implementation code within interface methods? [cite: 292]
+***Array Type Safety**: Why does a code snippet involving an `Object[]` assigned to a `String[]` compile but throw an `ArrayStoreException` at runtime? [cite: 304]
+***Enum Capabilities**: Are enums limited to being constants, or can they have fields, constructors, and methods? [cite: 261]
+***Switch Statements**: What happens if you accidentally "fall through" multiple cases in a switch block? [cite: 229]
+
+### **Multithreading & Concurrency**
+***Atomic Operations**: Why might `computeIfAbsent()` execute twice for the same key? [cite: 17, 18, 35, 36]
+***Thread Pool Failure**: Why would a thread pool hang for all tasks after a single task throws an exception? [cite: 25, 26]
+***Thread Pool Sizing**: Why does the thread count exceed 50 when the `maxPoolSize` is set to 10? [cite: 85, 86]
+***Collection Crashes**: Why does an application crash when one thread loops over a collection while another modifies it? [cite: 140, 141]
+***Singleton Issues**: Why might a Singleton implemented with double-checked locking still experience threading issues? [cite: 315, 316]
+***Deadlocks**: How do you handle a scenario where two threads are stuck waiting for each other's locks (Thread-1 has A, wants B; Thread-2 has B, wants A)? [cite: 456, 458, 459]
+
+### **Data Handling & Serialization**
+***JSON Deserialization**: Why does Spring return an HTTP 400 error when you send a valid JSON payload? [cite: 94, 95]
+***Empty JSON Responses**: Why does an endpoint return an empty object `{}` even when the backend object is populated? [cite: 163, 164]
+***Extra JSON Fields**: Why are extra JSON fields sent by a REST client silently dropped by the receiver? [cite: 172, 173]
+***HTTP Headers**: Why is a custom header fetched via `@RequestHeader` always returning `null`? [cite: 114, 115]
+***Media Types**: Why does a Spring REST client throw a 415 Unsupported Media Type error? [cite: 126, 127]
+***Large File Processing**: How do you process a 10GB CSV file for filtering and aggregation without running out of memory? [cite: 477, 479]
+***Object Cloning**: Why do changes in a cloned object sometimes reflect in the original object? [cite: 252, 253]
+
+### **Security & Operations**
+***SQL Injection**: How do you prevent SQL injection when a developer is manually concatenating user input into a SQL query? [cite: 495, 497]
+
+### **Coding Logic (Output Questions)**
+***Boolean Logic**: What is the output of `System.out.println(true && false || true);`? [cite: 354, 356]
+***Increment Operators**: What is the output of `i++` vs `++i` when `i` starts at 0? [cite: 364, 367, 368, 369]
+***Char Math**: What is the output of `++ch` where `ch = 'A'`? [cite: 376, 379]
+* **String Concatenation**: 
+    *What is the output of `1+2+"Java"+(3+4)`? [cite: 395, 398]
+    *What is the output of `5+5+"5"+5+5`? [cite: 417, 420]
+***Type Promotion**: What is the result of `10 == 10.0`? [cite: 404, 407]

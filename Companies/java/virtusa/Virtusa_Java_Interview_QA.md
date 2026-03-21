@@ -2194,4 +2194,925 @@ public class KafkaConsumerService {
 
 ---
 
+## Additional Missing Questions & Answers
+
+### Q25: What is the purpose of annotations in Spring Boot / Java?
+
+**Answer:** Annotations provide metadata about code and enable declarative programming. In Java and Spring Boot, they serve several purposes:
+
+**In Java:**
+- **Compile-time checking**: `@Override`, `@Deprecated`
+- **Runtime processing**: `@Entity`, `@RestController`
+- **Documentation**: `@param`, `@return`
+
+**In Spring Boot:**
+- **Dependency Injection**: `@Autowired`, `@Component`, `@Service`, `@Repository`
+- **Configuration**: `@Configuration`, `@Bean`, `@Value`
+- **Web Mapping**: `@RestController`, `@GetMapping`, `@PostMapping`
+- **Validation**: `@Valid`, `@NotNull`, `@Size`
+- **Transaction Management**: `@Transactional`
+
+**Example:**
+```java
+@RestController
+public class UserController {
+    
+    @Autowired
+    private UserService userService;
+    
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable @Min(1) Long id) {
+        User user = userService.findById(id);
+        return ResponseEntity.ok(user);
+    }
+}
+```
+
+### Q26: What is blue/green deployment?
+
+**Answer:** Blue/Green deployment is a deployment strategy that minimizes downtime by running two identical production environments:
+
+**Key Concepts:**
+- **Blue Environment**: Current production version
+- **Green Environment**: New version with updates
+- **Router**: Switches traffic between environments
+
+**Deployment Process:**
+1. Deploy new version to Green environment
+2. Run smoke tests and integration tests
+3. Switch traffic from Blue to Green
+4. Monitor for issues
+5. Keep Blue as rollback backup
+
+**AWS Implementation:**
+```yaml
+# Using AWS CodeDeploy with Blue/Green
+Resources:
+  Application:
+    Type: AWS::CodeDeploy::Application
+    
+  DeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref Application
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      DeploymentStyle:
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      AutoRollbackConfiguration:
+        Enabled: true
+        Events:
+          - DEPLOYMENT_FAILURE
+          - DEPLOYMENT_STOP_ON_ALARM
+          - DEPLOYMENT_STOP_ON_REQUEST
+```
+
+### Q27: What is SSL?
+
+**Answer:** SSL (Secure Sockets Layer) is a cryptographic protocol that provides secure communication over computer networks. SSL has been succeeded by TLS (Transport Layer Security), but the term SSL is still commonly used.
+
+**Key Features:**
+- **Encryption**: Data is encrypted during transmission
+- **Authentication**: Server identity verification
+- **Integrity**: Data integrity verification
+
+**SSL/TLS Handshake Process:**
+1. Client sends Hello message
+2. Server responds with certificate
+3. Client verifies certificate
+4. Key exchange for symmetric encryption
+5. Secure communication begins
+
+**Spring Boot SSL Configuration:**
+```yaml
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: tomcat
+    trust-store: classpath:truststore.p12
+    trust-store-password: password
+```
+
+### Q28: HTTP vs HTTPS?
+
+**Answer:**
+
+| Aspect | HTTP | HTTPS |
+|--------|------|-------|
+| **Security** | Unencrypted, plain text | Encrypted with SSL/TLS |
+| **Port** | Port 80 | Port 443 |
+| **Certificate** | Not required | SSL certificate required |
+| **Performance** | Faster | Slightly slower due to encryption |
+| **SEO** | Lower ranking | Better SEO ranking |
+| **Data Integrity** | Vulnerable to tampering | Protected against tampering |
+
+**Key Differences:**
+- **HTTP**: Data travels in plain text, vulnerable to eavesdropping
+- **HTTPS**: Data encrypted, secure authentication and integrity
+
+**Spring Boot HTTPS Redirect:**
+```java
+@Configuration
+public class HttpsConfig {
+    
+    @Bean
+    public ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
+            @Override
+            protected void postProcessContext(Context context) {
+                SecurityConstraint securityConstraint = new SecurityConstraint();
+                securityConstraint.setUserConstraint("CONFIDENTIAL");
+                SecurityCollection collection = new SecurityCollection();
+                collection.addPattern("/*");
+                securityConstraint.addCollection(collection);
+                context.addConstraint(securityConstraint);
+            }
+        };
+        tomcat.addAdditionalTomcatConnectors(redirectConnector());
+        return tomcat;
+    }
+    
+    private Connector redirectConnector() {
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setScheme("http");
+        connector.setPort(8080);
+        connector.setSecure(false);
+        connector.setRedirectPort(8443);
+        return connector;
+    }
+}
+```
+
+### Q29: How did you implement circuit breaking?
+
+**Answer:** Circuit breaking prevents cascading failures by stopping requests to failing services:
+
+**Implementation using Resilience4j:**
+```java
+@Service
+public class PaymentService {
+    
+    @Autowired
+    private PaymentClient paymentClient;
+    
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "fallbackPayment")
+    public PaymentResponse processPayment(PaymentRequest request) {
+        return paymentClient.processPayment(request);
+    }
+    
+    public PaymentResponse fallbackPayment(PaymentRequest request, Exception ex) {
+        log.error("Payment service failed, using fallback: {}", ex.getMessage());
+        return PaymentResponse.builder()
+            .status("PENDING")
+            .message("Payment service temporarily unavailable")
+            .retryAfter(Duration.ofMinutes(5))
+            .build();
+    }
+}
+```
+
+**Configuration:**
+```yaml
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentService:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+```
+
+### Q30: When did you use the retry mechanism?
+
+**Answer:** Retry mechanism is used for transient failures:
+
+**Implementation:**
+```java
+@Service
+public class EmailService {
+    
+    @Retryable(
+        value = {SMTPException.class, ConnectException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void sendEmail(EmailRequest request) {
+        emailClient.send(request);
+    }
+    
+    @Recover
+    public void recoverEmail(EmailRequest request, Exception ex) {
+        log.error("Failed to send email after 3 attempts: {}", ex.getMessage());
+        // Add to dead letter queue for manual retry
+        deadLetterQueue.add(request);
+    }
+}
+```
+
+### Q31: What was the purpose of using Kafka in your project?
+
+**Answer:** Kafka was used for several key purposes:
+
+**1. Event-Driven Architecture:**
+```java
+// User registration event
+@KafkaListener(topics = "user-events", groupId = "user-service")
+public void handleUserRegistration(UserEvent event) {
+    // Process user registration
+    userService.createUser(event);
+    
+    // Publish to other services
+    kafkaTemplate.send("notification-events", 
+        new NotificationEvent("welcome", event.getUserId()));
+}
+```
+
+**2. Asynchronous Processing:**
+- Order processing without blocking user requests
+- Data synchronization between microservices
+- Real-time analytics and monitoring
+
+**3. Decoupling Services:**
+```java
+@Service
+public class OrderService {
+    
+    public Order createOrder(OrderRequest request) {
+        Order order = orderRepository.save(request);
+        
+        // Async processing
+        OrderEvent event = new OrderEvent(order.getId(), "CREATED");
+        kafkaTemplate.send("order-events", event);
+        
+        return order;
+    }
+}
+```
+
+### Q32: What was the reason for choosing SingleStore database in your project?
+
+**Answer:** SingleStore was chosen for its high-performance capabilities:
+
+**Key Benefits:**
+- **Real-time Analytics**: Fast aggregations on large datasets
+- **Hybrid Architecture**: Combines OLTP and OLAP workloads
+- **Memory-Optimized**: In-memory processing for speed
+- **Distributed**: Horizontal scaling capabilities
+
+**Use Cases:**
+```java
+// Fast aggregations for real-time dashboards
+@Repository
+public interface AnalyticsRepository extends JpaRepository<Analytics, Long> {
+    
+    @Query("SELECT category, COUNT(*), AVG(price) FROM Product " +
+           "WHERE created_at > :date GROUP BY category")
+    List<Object[]> getRealTimeAnalytics(@Param("date") LocalDateTime date);
+}
+```
+
+### Q33: How will you fix the issues when multiple instances are failing to serve the incoming requests?
+
+**Answer:** Multi-step approach to handle service failures:
+
+**1. Auto-scaling:**
+```yaml
+# Kubernetes HPA
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+**2. Load Balancing:**
+```java
+@Configuration
+public class LoadBalancerConfig {
+    
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+**3. Circuit Breaker:**
+```java
+@CircuitBreaker(name = "service", fallbackMethod = "fallback")
+public Response callService(Request request) {
+    return serviceClient.call(request);
+}
+```
+
+**4. Health Monitoring:**
+```java
+@Component
+public class HealthMonitor {
+    
+    @Scheduled(fixedRate = 30000)
+    public void checkServiceHealth() {
+        List<ServiceInstance> instances = discoveryClient.getInstances("service");
+        instances.forEach(this::checkInstance);
+    }
+}
+```
+
+---
+
+## Advanced Scenario-Based Questions & Answers
+
+### Q34: Why does an endpoint work with `@RequestMapping(method=POST)` but fail with `@PostMapping`?
+
+**Answer:** This issue typically occurs due to missing or conflicting import statements:
+
+**Root Cause:**
+```java
+// Wrong import - causes @PostMapping to not work
+import org.springframework.web.bind.annotation.RequestMapping;
+
+// Correct import for @PostMapping
+import org.springframework.web.bind.annotation.PostMapping;
+```
+
+**Solution:**
+```java
+@RestController
+public class UserController {
+    
+    // Both work when proper imports are used
+    @RequestMapping(method = RequestMethod.POST, value = "/users")
+    public ResponseEntity<User> createUserWithRequestMapping(@RequestBody User user) {
+        return ResponseEntity.ok(userService.save(user));
+    }
+    
+    @PostMapping("/users")
+    public ResponseEntity<User> createUserWithPostMapping(@RequestBody User user) {
+        return ResponseEntity.ok(userService.save(user));
+    }
+}
+```
+
+**Key Points:**
+- Ensure `@PostMapping` is imported from `org.springframework.web.bind.annotation.PostMapping`
+- `@RequestMapping` is more generic, `@PostMapping` is a specialized annotation
+- Both annotations function identically when properly imported
+
+### Q35: Why doesn't `RestTemplate` retry on a socket timeout even after configuring retries?
+
+**Answer:** Socket timeouts are not retryable by default in Spring Retry:
+
+**Root Cause:**
+```java
+// Socket timeout is not considered a transient exception
+@Retryable(value = {ConnectException.class}, maxAttempts = 3)
+public ResponseEntity<String> callExternalService() {
+    // This won't retry on SocketTimeoutException
+    return restTemplate.getForEntity(url, String.class);
+}
+```
+
+**Solution:**
+```java
+@Configuration
+public class RetryConfig {
+    
+    @Bean
+    public RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        
+        // Configure retry with custom retry policy
+        HttpComponentsClientHttpRequestFactory factory = 
+            new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(5000);
+        
+        restTemplate.setRequestFactory(factory);
+        return restTemplate;
+    }
+}
+
+@Service
+public class ExternalService {
+    
+    @Retryable(
+        value = {
+            ConnectException.class, 
+            SocketTimeoutException.class,
+            ResourceAccessException.class
+        },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public ResponseEntity<String> callExternalService() {
+        return restTemplate.getForEntity(url, String.class);
+    }
+}
+```
+
+**Alternative - Using RetryTemplate:**
+```java
+@Service
+public class ExternalService {
+    
+    @Autowired
+    private RetryTemplate retryTemplate;
+    
+    public ResponseEntity<String> callExternalService() {
+        return retryTemplate.execute(context -> {
+            return restTemplate.getForEntity(url, String.class);
+        });
+    }
+    
+    @Bean
+    public RetryTemplate retryTemplate() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+        
+        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
+        backOffPolicy.setBackOffPeriod(1000);
+        
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(3);
+        
+        retryTemplate.setBackOffPolicy(backOffPolicy);
+        retryTemplate.setRetryPolicy(retryPolicy);
+        
+        return retryTemplate;
+    }
+}
+```
+
+### Q36: Why does `Actuator/health` sometimes report a `DOWN` status for a database or service when everything appears fine?
+
+**Answer:** Health check indicators may have timeout or configuration issues:
+
+**Common Causes:**
+1. **Connection Pool Exhaustion**
+2. **Network Latency**
+3. **Query Timeout**
+4. **Authentication Issues**
+
+**Solution:**
+```java
+@Configuration
+public class HealthConfig {
+    
+    @Bean
+    public HealthIndicator customHealthIndicator() {
+        return new AbstractHealthIndicator() {
+            @Override
+            protected void doHealthCheck(Health.Builder builder) throws Exception {
+                try {
+                    // Custom health check logic
+                    boolean isHealthy = checkServiceHealth();
+                    
+                    if (isHealthy) {
+                        builder.up()
+                               .withDetail("status", "All services operational")
+                               .withDetail("timestamp", Instant.now());
+                    } else {
+                        builder.down()
+                               .withDetail("error", "Service unavailable")
+                               .withDetail("timestamp", Instant.now());
+                    }
+                } catch (Exception e) {
+                    builder.down()
+                           .withDetail("error", e.getMessage())
+                           .withDetail("timestamp", Instant.now());
+                }
+            }
+        };
+    }
+    
+    private boolean checkServiceHealth() {
+        try {
+            // Quick health check with timeout
+            return restTemplate.getForObject(
+                "http://service/health", 
+                String.class
+            ).contains("UP");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}
+```
+
+**Database Health Check Configuration:**
+```yaml
+# application.yml
+management:
+  health:
+    db:
+      enabled: true
+    defaults:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+```
+
+### Q37: Why might a Spring Kafka consumer stop consuming messages after a partition rebalance?
+
+**Answer:** Common causes include consumer group issues and offset management:
+
+**Root Causes:**
+1. **Consumer Group Mismatch**
+2. **Offset Commit Issues**
+3. **Serialization Problems**
+4. **Listener Container Configuration**
+
+**Solution:**
+```java
+@Configuration
+@EnableKafka
+public class KafkaConfig {
+    
+    @Bean
+    public ConsumerFactory<String, String> consumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "user-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false); // Manual offset management
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
+        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000);
+        
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+    
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = 
+            new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        factory.getContainerProperties().setAckMode(AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setPollTimeout(3000);
+        factory.setConcurrency(3);
+        return factory;
+    }
+}
+
+@Service
+public class KafkaConsumerService {
+    
+    @KafkaListener(topics = "user-events", groupId = "user-group")
+    public void consumeMessage(
+            @Payload String message,
+            @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment acknowledgment) {
+        
+        try {
+            // Process message
+            processMessage(message);
+            
+            // Manually acknowledge
+            acknowledgment.acknowledge();
+            
+            log.info("Processed message from topic: {}, partition: {}, offset: {}", 
+                    topic, partition, offset);
+                    
+        } catch (Exception e) {
+            log.error("Error processing message: {}", e.getMessage());
+            // Don't acknowledge - message will be redelivered
+        }
+    }
+}
+```
+
+### Q38: Why does a scheduled job work under normal load but miss executions during heavy traffic?
+
+**Answer:** Thread pool exhaustion and scheduling conflicts:
+
+**Root Cause:**
+```java
+// Default single-threaded scheduler
+@Scheduled(fixedRate = 5000)
+public void processScheduledTask() {
+    // Long-running task blocks scheduler thread
+    heavyProcessing();
+}
+```
+
+**Solution:**
+```java
+@Configuration
+@EnableScheduling
+public class SchedulerConfig {
+    
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(10); // Multiple threads
+        scheduler.setThreadNamePrefix("scheduled-task-");
+        scheduler.setWaitForTasksToCompleteOnShutdown(true);
+        scheduler.setAwaitTerminationSeconds(60);
+        scheduler.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        return scheduler;
+    }
+}
+
+@Service
+public class ScheduledService {
+    
+    @Scheduled(fixedRate = 5000)
+    @Async("taskExecutor")
+    public CompletableFuture<Void> processScheduledTask() {
+        try {
+            // Process asynchronously
+            heavyProcessing();
+            log.info("Scheduled task completed");
+        } catch (Exception e) {
+            log.error("Scheduled task failed: {}", e.getMessage());
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+    
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("async-task-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+}
+```
+
+### Q39: How would you optimize a REST API that processes 10K requests/second but has response times spiking over 3 seconds?
+
+**Answer:** Multi-layered optimization approach:
+
+**1. Caching Strategy:**
+```java
+@Service
+public class UserService {
+    
+    @Cacheable(value = "users", key = "#id", unless = "#result == null")
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+    
+    @CacheEvict(value = "users", key = "#user.id")
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+}
+
+@Configuration
+@EnableCaching
+public class CacheConfig {
+    
+    @Bean
+    public CacheManager cacheManager() {
+        RedisCacheManager.Builder builder = RedisCacheManager
+            .RedisCacheManagerBuilder
+            .fromConnectionFactory(redisConnectionFactory())
+            .cacheDefaults(cacheConfiguration());
+        return builder.build();
+    }
+    
+    private RedisCacheConfiguration cacheConfiguration() {
+        return RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(10))
+            .disableCachingNullValues()
+            .serializeKeysWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(new StringRedisSerializer()))
+            .serializeValuesWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+    }
+}
+```
+
+**2. Database Optimization:**
+```java
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    
+    @QueryHints(value = @QueryHint(name = "org.hibernate.fetchSize", value = "100"))
+    @Query("SELECT u FROM User u WHERE u.status = :status")
+    Stream<User> findByStatusStream(@Param("status") String status);
+    
+    // Batch operations
+    @Modifying
+    @Query("UPDATE User u SET u.lastLogin = :timestamp WHERE u.id IN :ids")
+    int updateLastLogin(@Param("timestamp") LocalDateTime timestamp, 
+                        @Param("ids") List<Long> ids);
+}
+```
+
+**3. Async Processing:**
+```java
+@RestController
+public class UserController {
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private TaskExecutor taskExecutor;
+    
+    @GetMapping("/users/{id}")
+    public CompletableFuture<ResponseEntity<User>> getUser(@PathVariable Long id) {
+        return CompletableFuture
+            .supplyAsync(() -> userService.findById(id), taskExecutor)
+            .thenApply(user -> ResponseEntity.ok(user))
+            .exceptionally(throwable -> ResponseEntity.status(500).build());
+    }
+}
+```
+
+**4. Connection Pooling:**
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+
+  redis:
+    lettuce:
+      pool:
+        max-active: 50
+        max-idle: 10
+        min-idle: 5
+        max-wait: 5000ms
+```
+
+### Q40: How do you handle a dependency on an unreliable third-party API that frequently experiences timeouts or 502 errors?
+
+**Answer:** Implement resilience patterns:
+
+**1. Circuit Breaker with Fallback:**
+```java
+@Service
+public class ExternalApiService {
+    
+    @Autowired
+    private RestTemplate restTemplate;
+    
+    @CircuitBreaker(name = "externalApi", fallbackMethod = "fallbackResponse")
+    @Retryable(value = {ResourceAccessException.class}, maxAttempts = 2)
+    public ExternalResponse callExternalApi(Request request) {
+        try {
+            ResponseEntity<ExternalResponse> response = restTemplate.postForEntity(
+                "https://external-api.com/endpoint", 
+                request, 
+                ExternalResponse.class
+            );
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            } else {
+                throw new ExternalApiException("API returned status: " + response.getStatusCode());
+            }
+        } catch (ResourceAccessException e) {
+            throw new ExternalApiException("Connection timeout: " + e.getMessage());
+        }
+    }
+    
+    public ExternalResponse fallbackResponse(Request request, Exception ex) {
+        log.warn("External API failed, using fallback: {}", ex.getMessage());
+        
+        // Return cached or default response
+        return ExternalResponse.builder()
+            .status("FALLBACK")
+            .message("Service temporarily unavailable")
+            .timestamp(Instant.now())
+            .build();
+    }
+}
+```
+
+**2. Configuration:**
+```yaml
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalApi:
+        failureRateThreshold: 50
+        waitDurationInOpenState: 60s
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  retry:
+    instances:
+      externalApi:
+        maxAttempts: 3
+        waitDuration: 1s
+        retryExceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+  timelimiter:
+    instances:
+      externalApi:
+        timeoutDuration: 3s
+```
+
+**3. Timeout Configuration:**
+```java
+@Configuration
+public class RestTemplateConfig {
+    
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        
+        HttpComponentsClientHttpRequestFactory factory = 
+            new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(2000); // 2 seconds connect timeout
+        factory.setReadTimeout(3000);    // 3 seconds read timeout
+        
+        restTemplate.setRequestFactory(factory);
+        
+        // Add retry interceptor
+        restTemplate.setInterceptors(List.of(new RetryInterceptor()));
+        
+        return restTemplate;
+    }
+}
+
+@Component
+public class RetryInterceptor implements ClientHttpRequestInterceptor {
+    
+    @Override
+    public ClientHttpResponse intercept(
+            HttpRequest request, 
+            byte[] body, 
+            ClientHttpRequestExecution execution) throws IOException {
+        
+        int retryCount = 0;
+        int maxRetries = 2;
+        
+        while (retryCount <= maxRetries) {
+            try {
+                return execution.execute(request, body);
+            } catch (IOException e) {
+                if (retryCount == maxRetries) {
+                    throw e;
+                }
+                retryCount++;
+                try {
+                    Thread.sleep(1000 * retryCount); // Exponential backoff
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+            }
+        }
+        return execution.execute(request, body);
+    }
+}
+```
+
+---
+
 **This comprehensive guide covers all the major topics asked in Virtusa Java Developer interviews. Practice these concepts and scenarios to excel in your interview!**
