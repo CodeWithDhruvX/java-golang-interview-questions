@@ -167,3 +167,90 @@ Here are some of the advanced topics and scenarios discussed:
  • How would you design monitoring and alerting for microservices?
  • Difference between reactive vs proactive reliability engineering?
 Overall, it was a strong reminder that:
+
+
+
+
+Level : 1
+
+About project
+- Explain about your project and tech stack you are using
+- What are your roles and responsibilities in your team
+
+Core java
+- Method overriding example, what should be the access specifier of the overriding method?
+- What are access specifiers in java? Name a few you are familiar with
+- Example of what happens when you insert different objects with the same data into HashSet?
+
+Database
+- Write a query to fetch the student who has scored top third highest marks
+
+Spring framework
+- Exception handling in spring boot?
+- How do you secure a spring app?
+- How to generalize a common response object for all end points in the project?
+- How can you create spring beans of two different implementations of a single interface without any issues? (using qualifier and primary annotations)
+
+Microservices
+- What are the challenges you faced while switching to microservices architecture?
+
+AWS
+- What was the use case in your previous project for using AWS S3? How did you do it?
+
+Some generic questions
+- Have you ever worked on UI?
+
+Level : 2
+
+About project
+- Explain about your project and tech stack you are using
+- What are your roles and responsibilities in your team
+
+Core java
+- Tell me about your project
+- Which version of java are you using?
+- What are the functional interfaces and how do you use them?
+- How do you read huge amounts of data from a file with limited cpu and memory?
+- How do you assign a task to a thread? You can use thread frameworks
+
+Database
+- Write a query to join emp and dept table to fetch max salary in each dept
+- Use streams to filter records having age greater than 30 and salary greater than 1 lakh and concat their names
+
+Spring framework
+- How did you implement the spring scheduler?
+
+Microservices
+- What are the challenges you faced while switching to microservices architecture?
+
+AWS
+- What do you know about AWS S3?
+
+Some generic questions
+- What do you know about CI CD pipelines?
+- What is blue/green deployment?
+- What is SSL?
+- Http vs https?
+
+
+Level : 3 (client round)
+
+About project
+- Explain about your project and tech stack you are using
+- What are your roles and responsibilities in your team
+
+Core java
+- Explain the latest features that you have used in java
+- Where did you use text blocks, sealed classes in your project?
+
+Circuit Breaker
+- How did you implement circuit breaking?
+- When did you use the retry mechanism?
+
+Kafka
+- What was the purpose of using Kafka in your project?
+
+Some generic questions
+- How will you fix the issues when multiple instances are failing to serve the incoming requests?
+- What was the reason for choosing SingleStore database in your project?
+- Have you ever used cache in your project? Where did you use it?
