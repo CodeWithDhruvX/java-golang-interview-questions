@@ -701,10 +701,10 @@ public class Main {
 import java.util.*;
 public class Main {
     public static void main(String[] args) {
-        Set<Integer> set = new TreeSet<>(List.of(5, 3, 1, 4, 2));
-        System.out.println(set);
-        System.out.println(((TreeSet<Integer>)set).first());
-        System.out.println(((TreeSet<Integer>)set).last());
+            Set<Integer> set = new TreeSet<>(List.of(5, 3, 1, 4, 2));
+            System.out.println(set);
+            System.out.println(((TreeSet<Integer>)set).first());
+            System.out.println(((TreeSet<Integer>)set).last());
     }
 }
 ```
@@ -852,6 +852,15 @@ public class Main {
 ```
 **A:** `[3, 4]`
 
+**Interview Explanation:**
+"Let me walk through this: Set `a` starts with `{1, 2, 3, 4}` and set `b` contains `{3, 4, 5, 6}`. When we call `a.retainAll(b)`, it keeps only the elements that exist in both sets - this is the intersection operation. So elements `1` and `2` are removed from set `a` because they're not in set `b`, while `3` and `4` are retained since they appear in both. The final result is `{3, 4}`, which the `TreeSet` displays as `[3, 4]`.
+
+The key concept here is that `retainAll()` performs set intersection. Internally, it uses an iterator to traverse set `a` and removes any element that's not found in set `b`. This iterator-based approach prevents `ConcurrentModificationException` that would occur with direct modification during iteration.
+
+For time complexity, it's O(n × m) in general, but with `HashSet` the `contains()` check is O(1), making it effectively O(n). The method returns `true` if the set changed (elements were removed), or `false` if all elements were already present in both sets.
+
+This is commonly used in data processing for finding common elements between datasets, like shared users between two systems or overlapping inventory items."
+
 **Code Snippet Internal Behavior:**
 - `retainAll()` uses iterator to remove elements not in specified collection
 - Implementation: `Iterator<E> it = iterator(); while (it.hasNext()) if (!c.contains(it.next())) it.remove();`
@@ -878,6 +887,15 @@ public class Main {
 }
 ```
 **A:** `[1, 2]`
+
+**Interview Explanation:**
+"First, let me explain what happens: Set `a` starts with `{1, 2, 3, 4}` and set `b` contains `{3, 4, 5, 6}`. When we call `a.removeAll(b)`, it removes all elements from `a` that also exist in `b`. So elements `3` and `4` get removed, leaving us with `{1, 2}`. Finally, the `TreeSet` constructor sorts this for display, giving us `[1, 2]`.
+
+The key thing here is that `removeAll()` performs a set difference operation. Internally, it uses an iterator to safely traverse the set while removing elements - this prevents `ConcurrentModificationException` that would occur if we tried to remove elements directly during iteration.
+
+For time complexity, it's O(n × m) in general, but since we're using `HashSet`, each `contains()` check is O(1), making it effectively O(n) for this case.
+
+In real applications, this is commonly used for finding unique items between datasets or filtering out unwanted elements. While you could achieve the same with Java 8 streams, `removeAll()` is more concise and efficient for this operation."
 
 **Code Snippet Internal Behavior:**
 - `removeAll()` removes all elements that are also in specified collection
@@ -906,6 +924,17 @@ public class Main {
 }
 ```
 **A:** `[fig, kiwi, plum, apple, banana]`
+
+**Interview Explanation:**
+"Let me explain how this custom sorting works: We're creating a `TreeSet` with a custom comparator that first sorts by string length, then alphabetically as a tie-breaker. The comparator is built using `Comparator.comparingInt(String::length)` for the primary sort by length, followed by `.thenComparing(Comparator.naturalOrder())` for secondary alphabetical sorting.
+
+When we add the strings - 'banana' (6 chars), 'fig' (3 chars), 'apple' (5 chars), 'kiwi' (4 chars), and 'plum' (4 chars) - here's how they get ordered:
+
+First by length: 'fig' (3), then 'kiwi' and 'plum' (both 4), then 'apple' (5), then 'banana' (6). For the tie between 'kiwi' and 'plum' (both length 4), the alphabetical comparator kicks in, putting 'kiwi' before 'plum'.
+
+The key concept here is that `TreeSet` uses this comparator for all its internal operations - insertion, searching, and maintaining the red-black tree structure. This ensures the set is always sorted according to our custom rules.
+
+This approach is really useful when you need custom ordering that the natural ordering doesn't provide, like sorting objects by multiple criteria or business-specific sorting rules."
 
 **Code Snippet Internal Behavior:**
 - `TreeSet` constructor accepts custom `Comparator<String>`
@@ -939,6 +968,15 @@ public class Main {
 [SAT, SUN]
 5
 ```
+
+**Interview Explanation:**
+"Let me explain what's happening here with `EnumSet`: We have an enum `Day` with all seven days of the week. First, we create a weekend set using `EnumSet.of(Day.SAT, Day.SUN)` which gives us `[SAT, SUN]`. 
+
+Then we use `EnumSet.complementOf(weekend)` to create a workweek set that contains all enum values NOT in the weekend set. This automatically includes MON, TUE, WED, THU, FRI - which is 5 days, hence the output `5`.
+
+The key advantage of `EnumSet` is its efficiency. Internally, it uses bit vectors - each enum value corresponds to a single bit. This makes operations like complement, union, and intersection extremely fast O(1) bit operations instead of O(n) operations used by regular sets.
+
+`EnumSet` is specifically designed for enums and provides much better performance and memory efficiency compared to `HashSet` when working with enum constants. It's the go-to choice when you need to work with subsets of enum values in your applications."
 
 **Code Snippet Internal Behavior:**
 - `EnumSet` is specialized Set implementation for enum types
@@ -1003,6 +1041,19 @@ public class Main {
 [3, 4, 5, 6]
 ```
 
+**Interview Explanation:**
+"Let me break down these TreeSet range operations: We start with a TreeSet containing numbers 1 through 10. The three methods give us different views of this sorted data:
+
+`headSet(5)` returns all elements less than 5, so we get `[1, 2, 3, 4]`. The upper bound is exclusive, meaning 5 itself is not included.
+
+`tailSet(7)` returns all elements greater than or equal to 7, giving us `[7, 8, 9, 10]`. The lower bound is inclusive, so 7 is included.
+
+`subSet(3, 7)` returns elements from 3 (inclusive) up to but not including 7 (exclusive), resulting in `[3, 4, 5, 6]`.
+
+The key concept here is that these return **views**, not copies. They share the underlying red-black tree structure, so any changes to the original set are immediately reflected in these sub-sets, and vice versa. This makes them extremely memory-efficient since no data is duplicated.
+
+These range operations are O(log n) due to the balanced tree structure, making them very efficient for pagination, data partitioning, and range queries. This is a major advantage of TreeSet over other Set implementations when you need sorted range operations."
+
 **Code Snippet Internal Behavior:**
 - `TreeSet` extends `SortedSet` and provides range view operations
 - `headSet(5)` returns view of elements < 5 (exclusive upper bound)
@@ -1064,6 +1115,15 @@ public class Main {
 }
 ```
 **A:** **UnsupportedOperationException.** `Set.copyOf()` returns an immutable set.
+
+**Interview Explanation:**
+"Let me explain what happens here: We start with a mutable `HashSet` containing 'x' and 'y', then we create a copy using `Set.copyOf()`. The key point is that `Set.copyOf()` returns an **immutable** set - it's designed to be a defensive copy that cannot be modified.
+
+When we try to call `copy.add("z")`, it throws `UnsupportedOperationException` because all modification methods on immutable collections are disabled.
+
+The purpose of `Set.copyOf()` is to create a safe, unmodifiable snapshot of a collection. This is really useful when you need to pass data to other parts of your code but want to ensure it can't be changed accidentally. It's more efficient than the old approach of copying to a `HashSet` and then wrapping with `Collections.unmodifiableSet()`.
+
+The copy is completely independent - if someone modifies the original mutable set later, the immutable copy won't be affected. This makes it perfect for creating defensive copies in APIs or when working with concurrent code where you need thread-safe, unmodifiable collections."
 
 **Code Snippet Internal Behavior:**
 - `Set.copyOf()` returns `ImmutableCollections.SetN` or optimized variants
@@ -1164,6 +1224,17 @@ public class Main {
 }
 ```
 **A:** `[2, 4]`. `computeIfAbsent()` creates the value only if the key is missing, then returns it. Perfect for grouping/multimaps.
+
+**Interview Explanation:**
+"Let me walk through this step by step: We have a map that should hold lists of integers, and we're using `computeIfAbsent()` to handle the lazy initialization.
+
+On the first call `computeIfAbsent("evens", k -> new ArrayList<>())`, the key "evens" doesn't exist in the map, so the lambda function executes and creates a new `ArrayList`. This list gets stored in the map under the key "evens", and the method returns a reference to this newly created list. We then call `.add(2)` on this returned list, so now the map contains `"evens" -> [2]`.
+
+On the second call, the key "evens" already exists in the map, so `computeIfAbsent()` skips the lambda function entirely and just returns the existing list. We call `.add(4)` on this same list instance, giving us `[2, 4]`.
+
+The key concept here is **lazy initialization** - the expensive object creation (the ArrayList) only happens when needed. This is extremely efficient and is the standard pattern for implementing multimaps in Java. It's much cleaner than the old approach of checking `if (!map.containsKey(key))` then creating and putting the value.
+
+This method is also thread-safe in the sense that the function is guaranteed to be called at most once per key, which prevents duplicate initialization in concurrent scenarios."
 
 **Code Snippet Internal Behavior:**
 - `computeIfAbsent(key, function)` lazily computes value only when key absent
@@ -1592,6 +1663,29 @@ public class Main {
 - Perfect foundation for LRU Cache with size-based eviction
 - `iteration()` follows access order, not insertion order
 
+**💡 How to Explain in Interviews:**
+
+**High-Level Approach:**
+"LinkedHashMap with accessOrder=true is the foundation for implementing LRU Caches. Unlike regular HashMaps that maintain insertion order, this mode tracks access patterns - moving recently used entries to the end. This creates a natural ordering from least-recently-used to most-recently-used."
+
+**Key Technical Points:**
+1. **Dual Data Structure**: Combines HashMap for O(1) lookup with doubly-linked list for ordering
+2. **Access Tracking**: Every `get()` operation triggers `afterNodeAccess()` to reorder entries
+3. **LRU Foundation**: Head = least recent, Tail = most recent - perfect for cache eviction
+4. **Performance**: Maintains O(1) operations while adding ordering overhead
+
+**Real-World Application:**
+"This is exactly how caching systems work. When cache is full, we evict the least-recently-used items. LinkedIn uses this pattern for profile caching, browsers for web cache, databases for query result caching."
+
+**Extension Question Ready:**
+"To implement a complete LRU Cache, I'd override `removeEldestEntry()` to return true when size exceeds capacity, automatically evicting the oldest entry."
+
+**Why Interviewers Love This:**
+- Tests understanding of data structure internals
+- Shows practical application knowledge
+- Demonstrates algorithmic thinking (caching strategies)
+- Covers time-space tradeoffs in system design
+
 ---
 
 ### 49. EnumMap — Efficient Map for Enum Keys
@@ -1722,6 +1816,35 @@ public class Main {
 - Memory leak prevention: automatically removes entries with dead keys
 - Performance overhead due to reference queue processing and cleanup
 
+**💡 How to Explain in Interviews:**
+
+**High-Level Approach:**
+"WeakHashMap is a specialized Map implementation designed for memory-efficient caching. Unlike regular HashMaps that prevent garbage collection of keys, WeakHashMap uses weak references - allowing keys to be automatically removed when no longer needed elsewhere in the application."
+
+**Key Technical Points:**
+1. **Weak References**: Keys wrapped in `WeakReference` - GC can collect them when no strong references exist
+2. **Automatic Cleanup**: Uses `ReferenceQueue` to track and remove entries with dead keys
+3. **Memory Management**: Prevents memory leaks in cache scenarios
+4. **Timing Considerations**: Cleanup happens during map operations, not immediately after GC
+
+**Real-World Application:**
+"This is crucial for metadata caches. For example, in a web application, you might cache user session data keyed by User objects. When users log out and their objects become eligible for GC, WeakHashMap automatically removes those cache entries - preventing memory leaks."
+
+**Extension Question Ready:**
+"For production use, I'd combine this with `ConcurrentHashMap` for thread safety or use Guava's `CacheBuilder` which provides more sophisticated eviction policies including size-based, time-based, and weak reference strategies."
+
+**Why Interviewers Love This:**
+- Tests understanding of Java memory management and garbage collection
+- Shows knowledge of reference types (strong, weak, soft, phantom)
+- Demonstrates practical cache design patterns
+- Covers memory leak prevention strategies
+- Reveals understanding of when NOT to use regular HashMaps
+
+**Common Follow-up Questions:**
+- "What's the difference between WeakHashMap and SoftHashMap?"
+- "When would you choose this over LinkedHashMap with removeEldestEntry?"
+- "How does this compare with Caffeine or Guava caches?"
+
 ---
 
 ## Section 4: Queue, Deque & PriorityQueue (Q53–Q62)
@@ -1748,6 +1871,40 @@ public class Main {
 2
 [3]
 ```
+
+**Code Snippet Internal Behavior:**
+- `LinkedList` implements `Queue` interface with FIFO ordering
+- `offer(E e)` adds element to tail, returns boolean (true for LinkedList)
+- `peek()` retrieves head element without removing, returns null if empty
+- `poll()` removes and returns head element, returns null if empty
+- Queue maintains insertion order: first in = first out
+- `LinkedList` provides O(1) operations for queue methods
+- Internal structure: doubly-linked list with head/tail pointers
+- `toString()` displays remaining elements in order
+
+**💡 How to Explain in Interviews:**
+
+**High-Level Approach:**
+"Queue is the fundamental FIFO data structure - First In, First Out. Think of it like a line at a grocery store: the first person to join the line is the first to be served. In programming, this is essential for task scheduling, message processing, and breadth-first search algorithms."
+
+**Key Technical Points:**
+1. **FIFO Ordering**: Elements processed in insertion order
+2. **Interface vs Implementation**: `Queue` is interface, `LinkedList` provides concrete implementation
+3. **Null-Safe Operations**: `poll()` returns null vs `remove()` throws exception
+4. **Performance**: `LinkedList` offers O(1) for queue operations
+
+**Real-World Application:**
+"This pattern is everywhere - message queues in microservices (RabbitMQ, Kafka), task schedulers in operating systems, print job queues, and BFS graph traversal. In web applications, we use queues for handling incoming requests asynchronously."
+
+**Extension Question Ready:**
+"For high-throughput systems, I'd use `ArrayDeque` instead of `LinkedList` for better performance, or `ConcurrentLinkedQueue` for thread-safe scenarios. For bounded queues, `ArrayBlockingQueue` with capacity limits prevents memory issues."
+
+**Why Interviewers Love This:**
+- Tests understanding of fundamental data structures
+- Shows knowledge of interface-based programming
+- Demonstrates practical application knowledge
+- Covers exception handling vs null returns
+- Foundation for more complex queue implementations
 
 ---
 
@@ -1790,6 +1947,47 @@ public class Main {
 }
 ```
 **A:** `1 2 3 4 5 `. PriorityQueue by default is a min-heap — `poll()` always removes the smallest element.
+
+**Code Snippet Internal Behavior:**
+- `PriorityQueue` implements heap data structure (min-heap by default)
+- Uses `Comparable` natural ordering for elements (Integer implements Comparable)
+- `offer(E e)` adds element and maintains heap property through `siftUp()`
+- `poll()` removes and returns smallest element (root), then reorganizes heap via `siftDown()`
+- Heap property: parent ≤ children for all nodes
+- Internal array representation: `Object[] queue` with `size` tracking
+- No guaranteed ordering for `iterator()` - only `poll()` respects priority
+- Time complexity: O(log n) for offer/poll, O(1) for peek
+- Automatically resizes when capacity exceeded (similar to ArrayList)
+
+**💡 How to Explain in Interviews:**
+
+**High-Level Approach:**
+"PriorityQueue is a specialized queue that doesn't follow FIFO ordering. Instead, it always returns the highest priority element - smallest by default. Think of it like an emergency room where patients are treated by severity, not arrival order. Internally, it uses a heap data structure for efficient priority management."
+
+**Key Technical Points:**
+1. **Heap Structure**: Binary heap with min-heap property (parent ≤ children)
+2. **Priority Ordering**: Uses natural ordering or custom Comparator
+3. **Performance**: O(log n) insert/remove, O(1) peek at highest priority
+4. **No Random Access**: Iterator doesn't reflect priority order
+
+**Real-World Application:**
+"This is crucial for algorithms and systems. Dijkstra's shortest path uses it for selecting the next node to explore. Task schedulers use it for prioritizing jobs by urgency. Event-driven systems use it for processing events by timestamp. Load balancers use it for selecting servers with least load."
+
+**Extension Question Ready:**
+"For max-heap behavior, I'd use `new PriorityQueue<>(Collections.reverseOrder())`. For custom objects, I'd implement `Comparable` or provide a `Comparator`. For thread-safe scenarios, `PriorityBlockingQueue` provides concurrent access."
+
+**Why Interviewers Love This:**
+- Tests understanding of heap data structures
+- Shows knowledge of priority-based algorithms
+- Demonstrates performance analysis (O(log n) vs O(1))
+- Reveals understanding of natural ordering vs custom comparators
+- Foundation for many algorithmic problems
+
+**Common Follow-up Questions:**
+- "How would you implement a max-heap?"
+- "What's the time complexity of finding the k-th smallest element?"
+- "How does this compare to TreeSet for priority operations?"
+- "When would you use this over a regular Queue?"
 
 ---
 
@@ -1856,6 +2054,47 @@ public class Main {
 2
 1
 ```
+
+**Code Snippet Internal Behavior:**
+- `ArrayDeque` implements `Deque` interface, supports both stack and queue operations
+- `push(E e)` = `addFirst(E e)` - adds element to head of deque
+- `pop()` = `removeFirst()` - removes and returns head element (LIFO for stack)
+- `offer(E e)` = `addLast(E e)` - adds element to tail of deque
+- `poll()` = `removeFirst()` - removes and returns head element (FIFO for queue)
+- `peek()` = `getFirst()` - returns head element without removing
+- Internal circular array with head/tail pointers for efficient operations
+- All operations O(1) amortized time complexity
+- Automatically resizes when capacity exceeded
+
+**💡 How to Explain in Interviews:**
+
+**High-Level Approach:**
+"ArrayDeque is Java's versatile data structure that can function as both a stack and a queue. It's like having a Swiss Army knife - one tool that can handle both LIFO (Last In, First Out) and FIFO (First In, First Out) operations efficiently. This makes it the preferred choice over legacy Stack class."
+
+**Key Technical Points:**
+1. **Dual Nature**: Same structure supports both stack (push/pop) and queue (offer/poll) operations
+2. **Efficiency**: O(1) operations using circular array, better than LinkedList's node overhead
+3. **Interface Design**: Implements `Deque` interface, providing consistent API
+4. **Memory Layout**: Contiguous memory storage vs LinkedList's scattered nodes
+
+**Real-World Application:**
+"For stack behavior, we use it in expression evaluation, undo/redo systems, and browser history. For queue behavior, it's perfect for task scheduling, message processing, and breadth-first search. The same data structure can handle both use cases in the same application - like a web server handling incoming requests (queue) and maintaining request history (stack)."
+
+**Extension Question Ready:**
+"For thread-safe scenarios, I'd use `ConcurrentLinkedDeque` or wrap with `Collections.synchronizedDeque()`. For bounded capacity, `LinkedBlockingDeque` provides blocking operations. The key is choosing based on concurrency needs vs performance requirements."
+
+**Why Interviewers Love This:**
+- Tests understanding of data structure versatility
+- Shows knowledge of modern vs legacy Java collections
+- Demonstrates performance considerations (ArrayDeque vs Stack vs LinkedList)
+- Reveals understanding of interface-based design
+- Covers both stack and queue concepts in one discussion
+
+**Common Follow-up Questions:**
+- "Why is ArrayDeque preferred over Stack class?"
+- "What's the difference between ArrayDeque and LinkedList for stack operations?"
+- "How does the circular array implementation work?"
+- "When would you choose this over ArrayList for stack operations?"
 
 ---
 

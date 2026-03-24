@@ -11,6 +11,293 @@ For sub-millisecond redirect performance, I cache the top 20% most frequently ac
 #### Indepth
 If a user requests a custom alias (`myapp.com/mycustomname`), the Base62 integer mechanism is bypassed. The system attempts a direct database insert. If it violates a unique index constraint, it rejects the request. The database acts as the ultimate transactional source of truth against race conditions.
 
+**Spoken Interview:**
+"Let me walk you through how I would design a URL shortener like Bitly. This is a classic system design problem that tests understanding of scaling, caching, and unique ID generation.
+
+**The core requirements**:
+- Generate short, unique URLs from long URLs
+- Redirect users to original URLs quickly
+- Handle millions of URLs and billions of redirects
+- Support custom aliases
+- Track analytics (click counts, etc.)
+
+**My architecture approach**:
+
+**1. API Design**:
+```java
+// Create short URL
+POST /api/v1/shorten
+{
+  "url": "https://www.example.com/very/long/path/article?id=12345",
+  "customAlias": "my-article"  // Optional
+}
+
+// Response
+{
+  "shortUrl": "bit.ly/aB3dE",
+  "originalUrl": "https://www.example.com/...",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+
+// Redirect
+GET /aB3dE
+// Returns 301 redirect to original URL
+```
+
+**2. Unique ID Generation**:
+
+**The challenge**: Need unique, non-guessable IDs
+
+**Solution 1: Base62 encoding**:
+```java
+public class UrlShortener {
+    private static final String BASE62_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final AtomicInteger counter = new AtomicInteger(0);
+    
+    public String generateShortUrl() {
+        int id = counter.incrementAndGet();
+        return encodeBase62(id);
+    }
+    
+    private String encodeBase62(int num) {
+        StringBuilder sb = new StringBuilder();
+        while (num > 0) {
+            sb.append(BASE62_CHARS.charAt(num % 62));
+            num /= 62;
+        }
+        return sb.reverse().toString();
+    }
+}
+```
+
+**Why Base62?**:
+- **62 characters**: a-z, A-Z, 0-9
+- **7 characters**: 62^7 = 3.5 trillion combinations
+- **URL-safe**: No special characters
+- **Compact**: Shorter than Base10
+
+**Solution 2: Distributed unique IDs**:
+```java
+// Using Zookeeper for distributed sequence
+public class DistributedIdGenerator {
+    private final CuratorFramework zkClient;
+    
+    public long getNextId() throws Exception {
+        return zkClient.getData()
+            .forPath("/url-sequence")
+            .incrementAndGet();
+    }
+}
+```
+
+**3. Database Design**:
+
+**Schema for PostgreSQL**:
+```sql
+CREATE TABLE url_mappings (
+    id BIGSERIAL PRIMARY KEY,
+    short_code VARCHAR(10) UNIQUE NOT NULL,
+    original_url TEXT NOT NULL,
+    custom_alias VARCHAR(50) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    click_count INTEGER DEFAULT 0,
+    last_accessed TIMESTAMP,
+    user_id BIGINT REFERENCES users(id)
+);
+
+CREATE INDEX idx_short_code ON url_mappings(short_code);
+CREATE INDEX idx_custom_alias ON url_mappings(custom_alias);
+CREATE INDEX idx_created_at ON url_mappings(created_at);
+```
+
+**4. Caching Strategy**:
+
+**Multi-layer caching**:
+```java
+@Service
+public class UrlService {
+    private final RedisTemplate<String, String> redisTemplate;
+    private final UrlRepository urlRepository;
+    
+    public String getOriginalUrl(String shortCode) {
+        // L1: Check Redis cache
+        String cached = redisTemplate.opsForValue()
+            .get("url:" + shortCode);
+        if (cached != null) {
+            // Update click count asynchronously
+            incrementClickCount(shortCode);
+            return cached;
+        }
+        
+        // L2: Check database
+        UrlMapping mapping = urlRepository.findByShortCode(shortCode);
+        if (mapping != null) {
+            // Cache for future requests
+            redisTemplate.opsForValue()
+                .set("url:" + shortCode, mapping.getOriginalUrl(), 
+                Duration.ofHours(24));
+            
+            // Update click count
+            incrementClickCount(shortCode);
+            return mapping.getOriginalUrl();
+        }
+        
+        return null;
+    }
+    
+    @Async
+    public void incrementClickCount(String shortCode) {
+        urlRepository.incrementClickCount(shortCode);
+        redisTemplate.opsForValue()
+            .increment("clicks:" + shortCode);
+    }
+}
+```
+
+**5. Handling Custom Aliases**:
+
+**Race condition prevention**:
+```java
+@Service
+public class CustomAliasService {
+    
+    public String createCustomUrl(String originalUrl, String customAlias) {
+        try {
+            // Try to insert with unique constraint
+            UrlMapping mapping = new UrlMapping();
+            mapping.setShortCode(generateShortCode());
+            mapping.setOriginalUrl(originalUrl);
+            mapping.setCustomAlias(customAlias);
+            
+            return urlRepository.save(mapping).getShortUrl();
+        } catch (DuplicateKeyException e) {
+            throw new AliasAlreadyExistsException(customAlias);
+        }
+    }
+}
+```
+
+**6. Performance Optimization**:
+
+**Redirect endpoint**:
+```java
+@RestController
+public class RedirectController {
+    
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<Void> redirect(@PathVariable String shortCode) {
+        String originalUrl = urlService.getOriginalUrl(shortCode);
+        
+        if (originalUrl == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        // Return 301 for permanent redirect
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+            .location(URI.create(originalUrl))
+            .build();
+    }
+}
+```
+
+**7. Scaling Considerations**:
+
+**Database sharding**:
+```yaml
+# Shard by short code hash
+shard_key: hash(short_code) % number_of_shards
+
+# Each shard handles subset of URLs
+shard_0: short_codes starting with a-f
+shard_1: short_codes starting with g-m
+shard_2: short_codes starting with n-s
+shard_3: short_codes starting with t-z
+```
+
+**CDN for redirects**:
+```javascript
+// Edge workers can handle redirects
+// without hitting origin servers
+addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+    const shortCode = url.pathname.substring(1);
+    
+    // Check edge cache first
+    const cached = cache.get(shortCode);
+    if (cached) {
+        return Response.redirect(cached, 301);
+    }
+    
+    // Fallback to origin
+    return fetch(event.request);
+});
+```
+
+**8. Analytics and Monitoring**:
+
+**Click tracking**:
+```java
+@EventHandler
+public class AnalyticsService {
+    
+    @KafkaListener(topics = "url-clicks")
+    public void processClick(ClickEvent event) {
+        // Store in time-series database
+        analyticsRepository.recordClick(event);
+        
+        // Update real-time metrics
+        meterRegistry.counter("url.clicks",
+            Tags.of("short_code", event.getShortCode()))
+            .increment();
+    }
+}
+```
+
+**9. Security Considerations**:
+
+**URL validation**:
+```java
+public class UrlValidator {
+    private static final Pattern URL_PATTERN = Pattern.compile(
+        "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
+    );
+    
+    public boolean isValidUrl(String url) {
+        return URL_PATTERN.matcher(url).matches();
+    }
+}
+```
+
+**Rate limiting**:
+```java
+@RateLimiter(name = "url-creation", fallbackMethod = "createUrlFallback")
+public String createShortUrl(@RequestBody String originalUrl) {
+    // Implementation
+}
+```
+
+**10. Capacity Planning**:
+
+**Traffic estimates**:
+- **URL creation**: 1000/second
+- **Redirects**: 100,000/second
+- **Storage**: 10 million URLs
+- **Cache hit ratio**: 80%
+
+**Infrastructure needs**:
+- **Application servers**: 10 instances
+- **Redis cluster**: 3 nodes, 64GB RAM each
+- **Database**: 3 nodes (primary + 2 replicas)
+- **CDN**: Global distribution
+
+In my experience, the key challenges in URL shorteners are:
+1. **Generating collision-free IDs at scale**
+2. **Handling massive read traffic (redirects)**
+3. **Preventing abuse and malicious URLs**
+4. **Maintaining high availability for redirects**
+
+The solution combines clever ID generation, aggressive caching, and careful database design to achieve millisecond redirect times even under heavy load."
+
 ---
 
 ### 167. Design a chat application.
@@ -35,6 +322,512 @@ When a user clicks 'Buy', the 'Order Processing' pipeline begins. Crucially, I u
 
 #### Indepth
 The absolute worst bottleneck is Flash Sales (e.g., limited edition sneakers). The Inventory database will crash if 50,000 users click 'Buy' on 10 available shirts simultaneously. A pre-calculated token bucket in Redis is required to aggressively shed 49,990 requests at the edge API Gateway instantly, allowing only 10 lucky requests to ever touch the fragile relational database.
+
+**Spoken Interview:**
+"Let me walk you through designing a complete e-commerce platform like Amazon. This is a complex system that combines high-volume traffic, inventory management, payment processing, and real-time user interactions.
+
+**The core requirements**:
+- Product catalog with search and filtering
+- Shopping cart management
+- Inventory tracking and reservation
+- Order processing and payment
+- User accounts and authentication
+- Recommendations and personalization
+- Handle flash sales and high traffic events
+- Scale to millions of products and users
+
+**My microservices architecture**:
+
+**1. Service Decomposition**:
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   User Service │  │ Product Service │  │  Cart Service   │
+│                 │  │                 │  │                 │
+│ - Auth          │  │ - Catalog       │  │ - Session Mgmt  │
+│ - Profiles      │  │ - Search        │  │ - Persistence   │
+│ - Preferences   │  │ - Recommendations│  │ - Checkout      │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+         │                     │                     │
+         └─────────────────────┼─────────────────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         │                     │                     │
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ Inventory Svc   │  │  Order Service  │  │ Payment Service │
+│                 │  │                 │  │                 │
+│ - Stock Tracking│  │ - Order Mgmt    │  │ - Processing    │
+│ - Reservation   │  │ - Saga Pattern  │  │ - Gateways      │
+│ - Replenishment  │  │ - Notifications │  │ - Compliance    │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+**2. Product Catalog Service**:
+
+**Database design (PostgreSQL + Elasticsearch)**:
+```sql
+-- Products table (PostgreSQL)
+CREATE TABLE products (
+    id BIGSERIAL PRIMARY KEY,
+    sku VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    category_id BIGINT REFERENCES categories(id),
+    brand_id BIGINT REFERENCES brands(id),
+    weight DECIMAL(8,2),
+    dimensions JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true
+);
+
+-- Product variants (sizes, colors)
+CREATE TABLE product_variants (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT REFERENCES products(id),
+    sku VARCHAR(50) UNIQUE NOT NULL,
+    size VARCHAR(20),
+    color VARCHAR(50),
+    price DECIMAL(10,2),
+    inventory_count INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_brand ON products(brand_id);
+CREATE INDEX idx_products_price ON products(price);
+CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = true;
+```
+
+**Elasticsearch mapping for search**:
+```json
+{
+  "mappings": {
+    "properties": {
+      "product_id": {"type": "long"},
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {"type": "keyword"},
+          "suggest": {"type": "completion"}
+        }
+      },
+      "description": {"type": "text"},
+      "price": {"type": "float"},
+      "category": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "long"},
+          "name": {"type": "keyword"}
+        }
+      },
+      "brand": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "long"},
+          "name": {"type": "keyword"}
+        }
+      },
+      "attributes": {"type": "nested"},
+      "variants": {"type": "nested"},
+      "rating": {"type": "float"},
+      "review_count": {"type": "integer"}
+    }
+  }
+}
+```
+
+**Product service implementation**:
+```java
+@Service
+public class ProductService {
+    private final ProductRepository productRepository;
+    private final ElasticsearchTemplate elasticsearchTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    
+    public ProductPage searchProducts(SearchRequest request) {
+        // Build Elasticsearch query
+        BoolQueryBuilder query = QueryBuilders.boolQuery();
+        
+        // Text search
+        if (request.getQuery() != null) {
+            query.must(QueryBuilders.multiMatchQuery(request.getQuery())
+                .field("name", 2.0f)
+                .field("description", 1.0f)
+                .field("brand.name", 1.5f));
+        }
+        
+        // Filters
+        if (request.getCategoryIds() != null) {
+            query.filter(QueryBuilders.termsQuery("category.id", request.getCategoryIds()));
+        }
+        
+        if (request.getPriceRange() != null) {
+            query.filter(QueryBuilders.rangeQuery("price")
+                .gte(request.getPriceRange().getMin())
+                .lte(request.getPriceRange().getMax()));
+        }
+        
+        // Execute search
+        SearchRequest searchRequest = new SearchRequest("products")
+            .source(new SearchSourceBuilder()
+                .query(query)
+                .from(request.getOffset())
+                .size(request.getLimit())
+                .sort("rating", SortOrder.DESC)
+                .sort("review_count", SortOrder.DESC));
+        
+        SearchResponse response = elasticsearchTemplate.search(searchRequest);
+        
+        return ProductPage.fromSearchResponse(response);
+    }
+    
+    @Cacheable(value = "products", key = "#productId")
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId)
+            .orElseThrow(() -> new ProductNotFoundException(productId));
+    }
+}
+```
+
+**3. Shopping Cart Service**:
+
+**Redis-based cart storage**:
+```java
+@Service
+public class CartService {
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ProductService productService;
+    private static final Duration CART_TTL = Duration.ofDays(7);
+    
+    public Cart getCart(String userId) {
+        String cartKey = "cart:" + userId;
+        
+        // Get cart from Redis
+        Cart cart = (Cart) redisTemplate.opsForValue().get(cartKey);
+        
+        if (cart == null) {
+            cart = new Cart(userId);
+            redisTemplate.opsForValue().set(cartKey, cart, CART_TTL);
+        }
+        
+        return cart;
+    }
+    
+    public Cart addItem(String userId, AddItemRequest request) {
+        Cart cart = getCart(userId);
+        
+        // Validate product
+        Product product = productService.getProductById(request.getProductId());
+        
+        // Check inventory
+        if (!inventoryService.isAvailable(request.getProductId(), 
+                                        request.getVariantId(), 
+                                        request.getQuantity())) {
+            throw new InsufficientInventoryException();
+        }
+        
+        // Add to cart
+        CartItem item = CartItem.builder()
+            .productId(request.getProductId())
+            .variantId(request.getVariantId())
+            .quantity(request.getQuantity())
+            .unitPrice(product.getPrice())
+            .addedAt(Instant.now())
+            .build();
+        
+        cart.addItem(item);
+        
+        // Save to Redis
+        redisTemplate.opsForValue().set("cart:" + userId, cart, CART_TTL);
+        
+        return cart;
+    }
+    
+    public void removeItem(String userId, Long productId, Long variantId) {
+        Cart cart = getCart(userId);
+        cart.removeItem(productId, variantId);
+        redisTemplate.opsForValue().set("cart:" + userId, cart, CART_TTL);
+    }
+}
+```
+
+**4. Inventory Service with Flash Sale Support**:
+
+**Redis-based inventory tracking**:
+```java
+@Service
+public class InventoryService {
+    private final RedisTemplate<String, String> redisTemplate;
+    private final InventoryRepository inventoryRepository;
+    
+    public boolean reserveInventory(Long productId, Long variantId, int quantity) {
+        String inventoryKey = "inventory:" + productId + ":" + variantId;
+        String reservationKey = "reservation:" + productId + ":" + variantId;
+        
+        // Check available inventory
+        String availableStr = redisTemplate.opsForValue().get(inventoryKey);
+        int available = Integer.parseInt(availableStr != null ? availableStr : "0");
+        
+        if (available < quantity) {
+            return false;
+        }
+        
+        // Atomically decrement inventory
+        Long remaining = redisTemplate.opsForValue()
+            .decrement(inventoryKey, quantity);
+        
+        if (remaining < 0) {
+            // Rollback
+            redisTemplate.opsForValue().increment(inventoryKey, quantity);
+            return false;
+        }
+        
+        // Create reservation with TTL
+        String reservationId = UUID.randomUUID().toString();
+        redisTemplate.opsForValue()
+            .set(reservationKey + ":" + reservationId, 
+                String.valueOf(quantity), Duration.ofMinutes(15));
+        
+        return true;
+    }
+    
+    public void confirmReservation(Long productId, Long variantId, String reservationId) {
+        String reservationKey = "reservation:" + productId + ":" + variantId + ":" + reservationId;
+        
+        // Get reservation quantity
+        String quantityStr = redisTemplate.opsForValue().get(reservationKey);
+        if (quantityStr == null) {
+            throw new ReservationExpiredException();
+        }
+        
+        // Update database asynchronously
+        inventoryRepository.updateInventory(productId, variantId, 
+            -Integer.parseInt(quantityStr));
+        
+        // Remove reservation
+        redisTemplate.delete(reservationKey);
+    }
+}
+```
+
+**Flash sale rate limiting**:
+```java
+@Component
+public class FlashSaleRateLimiter {
+    private final RedisTemplate<String, String> redisTemplate;
+    
+    public boolean allowPurchase(Long productId, String userId) {
+        String rateLimitKey = "flashsale:" + productId + ":" + userId;
+        String globalLimitKey = "flashsale:" + productId + ":global";
+        
+        // User-specific limit (1 purchase per flash sale)
+        Boolean userFirstPurchase = redisTemplate.opsForValue()
+            .setIfAbsent(rateLimitKey, "1", Duration.ofHours(1));
+        
+        if (!userFirstPurchase) {
+            return false; // User already purchased
+        }
+        
+        // Global limit (only allow X purchases)
+        Long globalCount = redisTemplate.opsForValue()
+            .increment(globalLimitKey);
+        
+        if (globalCount > getFlashSaleLimit(productId)) {
+            // Rollback user limit
+            redisTemplate.delete(rateLimitKey);
+            return false;
+        }
+        
+        return true;
+    }
+}
+```
+
+**5. Order Processing with Saga Pattern**:
+
+**Order service with saga orchestration**:
+```java
+@Service
+public class OrderService {
+    private final OrderRepository orderRepository;
+    private final SagaOrchestrator sagaOrchestrator;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    
+    @Transactional
+    public Order createOrder(CreateOrderRequest request) {
+        // Create order
+        Order order = Order.builder()
+            .id(UUID.randomUUID())
+            .userId(request.getUserId())
+            .status(OrderStatus.PENDING)
+            .createdAt(Instant.now())
+            .items(request.getItems())
+            .totalAmount(calculateTotal(request.getItems()))
+            .build();
+        
+        order = orderRepository.save(order);
+        
+        // Start saga
+        Saga saga = Saga.builder()
+            .sagaId(order.getId().toString())
+            .orderData(order)
+            .steps(Arrays.asList(
+                new ReserveInventoryStep(),
+                new ProcessPaymentStep(),
+                new ConfirmOrderStep(),
+                new SendNotificationStep()
+            ))
+            .compensation(Arrays.asList(
+                new ReleaseInventoryStep(),
+                new RefundPaymentStep(),
+                new CancelOrderStep()
+            ))
+            .build();
+        
+        sagaOrchestrator.startSaga(saga);
+        
+        return order;
+    }
+}
+
+// Saga step for inventory reservation
+@Component
+public class ReserveInventoryStep implements SagaStep {
+    
+    @Override
+    public SagaStepResult execute(SagaData data) {
+        Order order = data.getOrderData();
+        
+        for (OrderItem item : order.getItems()) {
+            boolean reserved = inventoryService.reserveInventory(
+                item.getProductId(), 
+                item.getVariantId(), 
+                item.getQuantity()
+            );
+            
+            if (!reserved) {
+                return SagaStepResult.failure("Insufficient inventory for product " + 
+                    item.getProductId());
+            }
+        }
+        
+        return SagaStepResult.success();
+    }
+    
+    @Override
+    public void compensate(SagaData data) {
+        Order order = data.getOrderData();
+        
+        // Release all reservations
+        for (OrderItem item : order.getItems()) {
+            inventoryService.releaseReservation(
+                item.getProductId(), 
+                item.getVariantId(), 
+                item.getQuantity()
+            );
+        }
+    }
+}
+```
+
+**6. Payment Service Integration**:
+
+**Payment gateway abstraction**:
+```java
+@Service
+public class PaymentService {
+    private final Map<PaymentProvider, PaymentGateway> gateways;
+    private final PaymentRepository paymentRepository;
+    
+    public PaymentResult processPayment(PaymentRequest request) {
+        // Select best gateway based on amount and currency
+        PaymentGateway gateway = selectGateway(request);
+        
+        try {
+            // Process payment
+            PaymentResult result = gateway.charge(request);
+            
+            // Save payment record
+            Payment payment = Payment.builder()
+                .id(UUID.randomUUID())
+                .orderId(request.getOrderId())
+                .amount(request.getAmount())
+                .currency(request.getCurrency())
+                .provider(gateway.getProvider())
+                .status(result.getStatus())
+                .transactionId(result.getTransactionId())
+                .createdAt(Instant.now())
+                .build();
+            
+            paymentRepository.save(payment);
+            
+            return result;
+        } catch (PaymentException e) {
+            log.error("Payment failed", e);
+            throw e;
+        }
+    }
+    
+    private PaymentGateway selectGateway(PaymentRequest request) {
+        // Smart routing based on:
+        // - Amount size
+        // - Currency
+        // - Card type
+        // - Success rates
+        
+        if (request.getAmount().compareTo(new BigDecimal("1000")) > 0) {
+            return gateways.get(PaymentProvider.STRIPE);
+        } else {
+            return gateways.get(PaymentProvider.BRAINTREE);
+        }
+    }
+}
+```
+
+**7. Performance Optimization**:
+
+**CDN configuration for product images**:
+```yaml
+# CloudFront distribution
+Resources:
+  ProductImagesCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt ProductImagesBucket.DomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${OriginAccessIdentity}
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingOptimized
+          Compress: true
+        Enabled: true
+        HttpVersion: http2
+```
+
+**Database connection pooling**:
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 2000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+```
+
+In my experience, the key challenges in e-commerce platforms are:
+1. **Handling flash sales and traffic spikes**
+2. **Maintaining inventory accuracy under high concurrency**
+3. **Ensuring payment processing reliability**
+4. **Providing fast product search and recommendations**
+5. **Managing distributed transactions across services**
+
+The solution combines microservices architecture, Redis for high-speed operations, Elasticsearch for search, and the Saga pattern for reliable order processing."
 
 ---
 
