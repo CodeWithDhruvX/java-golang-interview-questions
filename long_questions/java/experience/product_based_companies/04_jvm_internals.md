@@ -32,7 +32,7 @@ JVM MEMORY LAYOUT:
 │  Class metadata, static fields, method code              │
 ├──────────────────────────────────────────────────────────┤
 │ THREAD STACKS (one per thread)                           │
-│  Stack frames, local variables, operand stack            │
+│  Stack frames,local variables,operand stack, method calls           │
 ├──────────────────────────────────────────────────────────┤
 │ CODE CACHE — compiled JIT native code                    │
 │ DIRECT MEMORY — NIO ByteBuffer.allocateDirect()          │
@@ -59,7 +59,7 @@ System.out.printf("Heap: %dMB used / %dMB total / %dMB max%n",
 
 ### 🎯 How to Explain in Interview
 
-"The JVM memory structure is organized into several key areas. The Heap stores objects and is divided into Young Generation for new objects and Old Generation for long-lived objects. The Young Generation has Eden space where objects are born, and two Survivor spaces where objects age before moving to Old Generation. Metaspace replaced PermGen in Java 8 and stores class metadata. Each thread has its own Stack for method calls and local variables. The Code Cache holds compiled native code from the JIT compiler, and Direct Memory is used by NIO operations. I configure these areas with flags like -Xms for initial heap size and -Xmx for maximum. Understanding this layout helps me diagnose memory issues and tune the JVM for specific workloads."
+"The JVM memory structure is organized into several key areas. The Heap stores objects and is divided into Young Generation for new objects and Old Generation for long-lived objects. The Young Generation has Eden space where objects are born, and two Survivor spaces where objects age before moving to Old Generation. Metaspace replaced PermGen in Java 8 and stores class metadata. Each thread has its own Stack for method calls and local variables. The Code Cache holds compiled native code from the JIT compiler, and Direct Memory is used by NIO(Non-blocking I/O or New I/O) operations. I configure these areas with flags like -Xms for initial heap size and -Xmx for maximum. Understanding this layout helps me diagnose memory issues and tune the JVM for specific workloads."
 
 ---
 

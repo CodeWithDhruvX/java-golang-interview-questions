@@ -4,21 +4,19 @@
     "type": "split",
     "children": [
       {
-        "id": "75561b7dc3e73c1b",
+        "id": "e679c9b2b69f7434",
         "type": "tabs",
         "children": [
           {
-            "id": "eeae12710d4f65e7",
+            "id": "3ff0318c2083fe30",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "release-notes",
               "state": {
-                "file": "long_questions/golang/cheatsheet/go_cheatsheet.md",
-                "mode": "source",
-                "source": false
+                "currentVersion": "1.12.7"
               },
-              "icon": "lucide-file",
-              "title": "go_cheatsheet"
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.12.7"
             }
           }
         ]
@@ -88,8 +86,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
@@ -203,7 +200,7 @@
       "edge-tts:Read note aloud": false
     }
   },
-  "active": "eeae12710d4f65e7",
+  "active": "3ff0318c2083fe30",
   "lastOpenFiles": [
     "long_questions/architecture/service_based_companies/01_architecture_fundamentals_qa.md",
     "long_questions/architecture/theory/01_Architecture_Fundamentals.md",
