@@ -1,6 +1,28 @@
 package main
 
 // 1. Maximum Product Subarray
+
+// Brute Force Approach: Check all possible subarrays
+// Time: O(N^2), Space: O(1)
+func MaxProductSubarrayBruteForce(nums []int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+	maxProduct := nums[0]
+	n := len(nums)
+	for i := 0; i < n; i++ {
+		currentProduct := 1
+		for j := i; j < n; j++ {
+			currentProduct *= nums[j]
+			if currentProduct > maxProduct {
+				maxProduct = currentProduct
+			}
+		}
+	}
+	return maxProduct
+}
+
+// Optimized Approach: Dynamic programming with max/min tracking
 // Time: O(N), Space: O(1)
 func MaxProductSubarray(nums []int) int {
 	if len(nums) == 0 {

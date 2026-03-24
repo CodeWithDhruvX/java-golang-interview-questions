@@ -42,6 +42,16 @@ SOAP (Simple Object Access Protocol) is an older XML-based protocol for web serv
 
 Modern API development almost exclusively uses REST. SOAP is found in enterprise/banking systems from the 2000s that haven't been migrated, and in some government and BFSI integrations where its WS-Security (XML-level signing and encryption) is mandated."
 
+#### 💬 **How to Explain in Interviews (Spoken Format)**
+
+*"RESTful services are lightweight APIs that use standard HTTP methods like GET, POST, PUT, DELETE to work with resources. Think of it like browsing the web - you use URLs to access resources and HTTP verbs to tell the server what you want to do with them. The responses are usually in JSON format, which is easy for both humans and machines to read."*
+
+*"SOAP, on the other hand, is more formal and heavyweight. It uses XML for everything - the request, the response, even the envelope that wraps it all. It comes with a strict contract called WSDL that defines exactly what the service can do. SOAP has built-in security features at the message level, which is why banks and government systems still use it."*
+
+*"In my experience, when building modern applications for web and mobile, we almost always choose REST because it's simpler, faster, and easier to work with. But when I had to integrate with a banking client's legacy system, we had to use SOAP because that's what their mainframe exposed - we had to generate client code from their WSDL and handle SOAP faults."*
+
+*"The key differences I've noticed: REST is stateless and cacheable, SOAP can maintain state and isn't easily cached. REST uses HTTP status codes for errors, SOAP has its own fault elements. For most new projects, REST is the way to go, but in enterprise environments, you'll still encounter SOAP systems that you need to integrate with."*
+
 #### 🏢 Company Context
 **Level:** 🟢 Junior | **Asked at:** TCS, Infosys as standard theory, enterprise Java projects
 
