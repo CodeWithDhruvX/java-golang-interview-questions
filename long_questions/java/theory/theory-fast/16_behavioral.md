@@ -11,19 +11,65 @@ I realized their API was slow, causing backpressure on us. I hot-patched a chang
 
 Latency recovered immediately. Later, I refactored the fraud check to be asynchronous so it wouldn't block the main checkout flow."
 
+**Spoken Format:**
+"Handling production issues is like being a detective who solves crimes in progress.
+
+When a critical issue happens during a major sale, you need to work systematically:
+
+**1. Immediate Response** - Like securing the crime scene first to prevent further damage.
+
+**2. Investigation** - Like gathering evidence from multiple sources:
+- Metrics dashboard shows you where the problem is (CPU spikes, thread issues)
+- Thread dump reveals who the suspects are (blocked threads)
+- Logs tell you what actually happened (error messages, timeouts)
+
+**3. Root Cause Analysis** - Like connecting all the evidence to understand the real story.
+
+**4. Solution Implementation** - Like implementing the fix based on your findings.
+
+**5. Prevention** - Like improving security to prevent similar crimes.
+
+The key is to be methodical - gather evidence, analyze patterns, implement solutions, and prevent recurrences. Don't just fix symptoms, solve the underlying crime!"
+
 ### 162. How do you prioritize bug fixes vs new features?
 "It’s a balancing act.
 
-If it's a **P0 critical bug** (data loss, security, widespread outage), I drop everything and fix it.
+If it's a **P0 critical bug** (data loss, security, widespread outage), I drop everything and fix it. If it's a **P2/P3 bug** (minor UI glitch), I weigh it against the value of the new feature. I usually reserve 20% of my sprint capacity for 'tech debt & bugs'. If we ignore bugs for too long, we lose customer trust. If we ignore features, we lose market share. I try to group small bugs into a 'Bug Bash' day to clear them out efficiently."
 
-If it's a **P2/P3 bug** (minor UI glitch), I weigh it against the value of the new feature. I usually reserve 20% of my sprint capacity for 'tech debt & bugs'.
+**Spoken Format:**
+"Prioritizing work is like being a smart project manager who balances urgent fixes with long-term progress.
 
-If we ignore bugs for too long, we lose customer trust. If we ignore features, we lose market share. I try to group small bugs into a 'Bug Bash' day to clear them out efficiently."
+**P0 Critical Issues** are like the building being on fire - you drop everything and fight the fire immediately. Customer safety and company survival come first.
+
+**P2/P3 Minor Issues** are like having a leaky faucet - it's annoying but won't destroy the building. You can fix it during regular maintenance.
+
+**The Strategy**:
+- Allocate capacity for both types of issues
+- For critical issues: Use emergency resources immediately
+- For minor issues: Schedule regular maintenance time
+- Track both types to ensure neither gets neglected
+- Communicate priorities clearly to stakeholders
+
+The key insight: Ignoring small issues leads to big problems later. Addressing both types ensures your system stays reliable and your customers stay happy!"
 
 ### 163. How do you handle technical debt?
-"I treat tech debt like financial debt. A mortgage is fine; credit card debt is bad.
+"I treat tech debt like financial debt. A mortgage is fine; credit card debt is bad. Taking on debt (quick & dirty code) to meet a critical deadline is okay, *if* we have a plan to pay it back."
 
-Taking on debt (quick & dirty code) to meet a critical deadline is okay, *if* we have a plan to pay it back.
+**Spoken Format:**
+"Technical debt is like borrowing against your future productivity.
+
+**Good Debt** (mortgage) - Taking a loan to buy a house that will generate value. It's a strategic investment with a clear repayment plan.
+
+**Bad Debt** (credit card) - Using a credit card for daily expenses with high interest. It provides temporary relief but creates long-term problems.
+
+**The Strategy**:
+- Track debt with interest (how much it's costing you in maintenance)
+- Have a repayment plan (refactoring roadmap)
+- Don't take on new debt without understanding the cost
+- Sometimes it's okay to take on strategic debt for critical deadlines
+- But make sure the 'interest payments' (refactoring effort) don't exceed the value generated
+
+The key is to treat technical debt as a business decision, not just a technical problem. Every quick fix should include a plan to pay back the borrowed time!"
 
 I document debt with `// TODO` comments and Jira tickets immediately. Then, during sprint planning, I advocate for picking up at least one 'debt payoff' task. If we don't, the interest (development slowness) eventually compounds and kills our velocity."
 
