@@ -44,6 +44,9 @@ func main() {
 	
 
 }
+
+
+
 how to fix these program in golang
 
 

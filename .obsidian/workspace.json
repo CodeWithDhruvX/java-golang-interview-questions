@@ -4,19 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "e679c9b2b69f7434",
+        "id": "da1af2cfbe1a0d46",
         "type": "tabs",
         "children": [
           {
-            "id": "3ff0318c2083fe30",
+            "id": "46e980bb377c6e3c",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.12.7"
+                "file": "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.12.7"
+              "icon": "lucide-file",
+              "title": "golang_concurrency_cheatsheet"
             }
           }
         ]
@@ -200,14 +202,15 @@
       "edge-tts:Read note aloud": false
     }
   },
-  "active": "3ff0318c2083fe30",
+  "active": "46e980bb377c6e3c",
   "lastOpenFiles": [
+    "long_questions/golang/cheatsheet/go_cheatsheet.md",
+    "long_questions/golang/cheatsheet/ChatGPT-Golang Interview Questions India.md",
+    "long_questions/golang/cheatsheet/ChatGPT_Golang-Sum of Elements Questions.md",
     "long_questions/architecture/service_based_companies/01_architecture_fundamentals_qa.md",
     "long_questions/architecture/theory/01_Architecture_Fundamentals.md",
     "long_questions/golang/golang questions/formatted_answers/old_format/13_Microservices_gRPC.md",
     "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
-    "long_questions/golang/cheatsheet/ChatGPT-Golang Interview Questions India.md",
-    "long_questions/golang/cheatsheet/ChatGPT_Golang-Sum of Elements Questions.md",
     "long_questions/java/practical/Intermediate/java_intermediate_concurrency.md",
     "long_questions/java/java questions/formatted_answers/01_Basics.md",
     "long_questions/java/java questions/formatted_answers/02_Intermediate.md",
@@ -216,7 +219,6 @@
     "long_questions/java/theory/theory-focused/02_data_structures.md",
     "long_questions/java/theory/theory-focused/01_core_basics.md",
     "long_questions/Kafka/00_Generic_Kafka_Java_Golang_QnA.md",
-    "long_questions/golang/cheatsheet/go_cheatsheet.md",
     "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
     "long_questions/java/practical/Intermediate/java_intermediate_databases_jpa.md",
     "long_questions/golang/golang questions/formatted_answers/old_format/30_DesignPatterns_Part2.md",

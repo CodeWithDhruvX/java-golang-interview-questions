@@ -258,3 +258,44 @@ default:
 }
 ```
 This is essential for Metrics or Logging systems where we prefer dropping cancel data over blocking the main application flow.
+
+
+
+### what are the concurrency pattern in golang? where it's located this questions?
+
+I'll search for concurrency pattern questions in Go within your workspace.
+
+Based on the search results, I can see several key files that contain Go concurrency pattern questions. Let me examine the most relevant ones:
+
+Let me also check for more specific concurrency patterns:
+
+Based on my search, I found the Go concurrency pattern questions in your workspace. Here are the main locations and patterns covered:
+
+## **Primary Locations for Go Concurrency Patterns:**
+
+## **Key Concurrency Patterns Covered:**
+
+### **Core Patterns:**
+- **Worker Pool Pattern** - Fixed number of workers consuming from shared channel
+- **Fan-In Pattern** - Multiple input channels merged to single output
+- **Fan-Out Pattern** - Single producer distributing to multiple workers
+- **Pipeline Pattern** - Series of stages connected by channels
+- **Semaphore Pattern** - Using buffered channels for concurrency control
+
+### **Advanced Patterns:**
+- **Pub/Sub Pattern** - Topic-based message distribution
+- **Circuit Breaker Pattern** - Failure protection for external services
+- **Actor Model** - Sequential processing via message loops
+- **Saga Pattern** - Distributed transaction coordination
+- **Token Bucket Pattern** - Rate limiting with burst capacity
+
+### **Error Handling Patterns:**
+- **ErrGroup Pattern** - Coordinated error handling across goroutines
+- **Context Cancellation** - Graceful shutdown propagation
+- **Timeout with Select** - Preventing indefinite blocking
+
+### **Monitoring Patterns:**
+- **Heartbeat Pattern** - Health monitoring of long-running goroutines
+- **Distributed Tracing** - Request flow visualization across goroutines
+
+The questions are organized by difficulty level, starting from basic concepts and progressing to advanced architectural patterns used in production systems.
