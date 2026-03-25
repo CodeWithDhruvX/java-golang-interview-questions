@@ -261,8 +261,23 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: payment-api
+spec:
+  selector:
+    matchLabels:
+      app: payment-api
+  endpoints:
+    - port: metrics          # port name on the Service
+      path: /metrics
+      interval: 30s
+```
+- **`PodMonitor`:** Scrapes Pods directly without needing a Service.
+- **`PrometheusRule`:** Defines alert rules (e.g., `KubePodCrashLooping`, `TargetDown`).
 
----
+The Prometheus Operator watches these CRDs and automatically reloads Prometheus config—no manual `prometheus.yml` editing required.
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How does Prometheus scrape metrics from Pods inside Kubernetes without static configuration?
+**Your Response:** "I use the Prometheus Operator with custom CRDs to make scraping dynamic. Instead of manually editing prometheus.yml files, I create ServiceMonitor and PodMonitor CRDs that tell Prometheus exactly what to scrape. The ServiceMonitor targets all pods behind a specific service, while PodMonitor can scrape pods directly. The Prometheus Operator watches these CRDs and automatically updates the configuration. This means developers can add new services and Prometheus starts scraping them without any manual config changes. It's like having a smart directory assistant that automatically updates the phone book when you add new contacts."
 
 ### Question 55: What Kubernetes-specific metrics are most important to monitor? Name the "four golden signals" adapted for K8s.
 
@@ -282,7 +297,9 @@ Adapted from Google SRE's "four golden signals":
 - `KubePersistentVolumeFillingUp` — PVC > 85% full
 - `KubeDeploymentReplicasMismatch` — desired ≠ ready replicas
 
----
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What Kubernetes-specific metrics are most important to monitor? Name the "four golden signals" adapted for K8s.
+**Your Response:** "I monitor the four golden signals adapted for Kubernetes: latency through API server request duration, traffic via requests per second to services, errors through pod restart rates, and saturation through node memory/CPU pressure. I also track essential cluster alerts like pods crashlooping, nodes not ready, persistent volumes filling up, and deployment replica mismatches. These metrics give me a complete picture of cluster health - from individual service performance to overall resource utilization. It's like having a dashboard that shows both the engine temperature and fuel level of every car in my fleet."
 
 ### Question 56: How does Cilium's Hubble provide deep observability without application code changes?
 
@@ -302,7 +319,9 @@ Hubble processes these kernel-level events and exposes them via:
 - Works even for pods that don't support sidecar injection (Windows nodes, HostNetwork pods).
 - Sub-microsecond latency overhead vs. Envoy's ~1ms-per-hop overhead.
 
----
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** How does Cilium's Hubble provide deep observability without application code changes?
+**Your Response:** "Hubble uses eBPF programs running inside the kernel to observe all network traffic without touching application code or injecting sidecars. Because Cilium's eBPF runs on every packet path, it can see TCP flows, HTTP requests, DNS queries, and gRPC calls automatically. Hubble provides a real-time service dependency graph, CLI for live flow streaming, and Prometheus-compatible metrics. The big advantage is no per-pod overhead and sub-microsecond latency compared to Istio's 1ms per hop. It's like having security cameras in the building's wiring rather than hiring guards for every apartment - much more efficient and comprehensive."
 
 ### Question 57: What is Pixie and how does it enable no-instrumentation Kubernetes debugging?
 
@@ -321,7 +340,9 @@ It attaches eBPF probes to:
 
 **Key interview point:** Pixie ≠ Prometheus. Prometheus requires apps to expose `/metrics`. Pixie captures everything passively at the kernel level.
 
----
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** What is Pixie and how does it enable no-instrumentation Kubernetes debugging?
+**Your Response:** "Pixie uses eBPF to auto-instrument applications without any code changes or agents. It attaches probes to system calls and language runtimes to capture HTTP/gRPC/SQL spans automatically. It can generate flame graphs, capture golden signals, replay HTTP request/response bodies for failed requests, and lets me write custom queries. The key difference from Prometheus is that Pixie captures everything passively at the kernel level, while Prometheus requires apps to expose metrics endpoints. It's like having X-ray vision that sees through walls into how applications actually work, without needing to install cameras in every room."
 
 ### Question 58: Canary deployments on Kubernetes — how do you implement them without a service mesh?
 
@@ -372,3 +393,7 @@ spec:
           - templateName: error-rate-check
 ```
 Argo Rollouts integrates with Prometheus to **automatically abort** if the canary's error rate exceeds a threshold.
+
+### How to Explain in Interview (Spoken style format)
+**Interviewer:** Canary deployments on Kubernetes — how do you implement them without a service mesh?
+**Your Response:** "Without a service mesh, I implement canaries using two deployments and one service. I create a stable deployment with 9 replicas and a canary deployment with 1 replica, both using the same app label so the service selects both. Traffic splits roughly 90/10 based on replica count - it's coarse-grained but works. For production, I use Argo Rollouts which provides fine-grained traffic control with steps like 10% canary, pause, 50% canary, pause, then 100%. Argo Rollouts integrates with Prometheus to automatically abort if the canary's error rate exceeds a threshold. It's like having a test kitchen where I try a new recipe on a small group before serving it to everyone."
