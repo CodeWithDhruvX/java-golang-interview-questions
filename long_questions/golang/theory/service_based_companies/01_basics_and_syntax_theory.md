@@ -60,3 +60,7 @@
 ## Q: "What is `init()` and when does it run?"
 
 > *"The `init()` function is a special function in Go that runs automatically before `main()`. Its job is package initialization — setting up global variables, registering things, loading config, that kind of thing. Every package can have one or more `init()` functions, and they all run in the order the files are processed. The `_` import — `import _ 'github.com/lib/pq'` — is specifically to trigger a package's `init()` for side effects like registering a database driver, without actually using the package's exported symbols."*
+
+---
+
+

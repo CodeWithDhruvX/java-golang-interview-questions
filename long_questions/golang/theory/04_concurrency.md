@@ -372,3 +372,22 @@ You then expose only public methods (`Get`, `Set`) that handle the locking inter
 **Your Response:** "The Golden Rule is Encapsulation. You hide the mutable data like a map as a private field inside a struct. You protect it with a `sync.RWMutex`. You then expose only public methods like `Get` and `Set` that handle the locking internally.
 
 This prevents the caller from ever accessing the map without a lock. If you rely on the caller to 'remember to lock', they will eventually forget, and your program will crash. The encapsulated struct with its public methods is the only safe way to share mutable state in concurrent Go programs."
+
+
+## Q: "What happens on the receiver side when channel A is full and blocked? How does this differ between buffered and unbuffered channels?"
+
+> *"This is a great concurrency question that tests your understanding of Go's channel mechanics. For an **unbuffered channel**, the sender blocks immediately until there's a receiver ready to accept the value — it's like a hand-to-hand pass, both sides must be ready simultaneously. So if channel A is unbuffered and the sender tries to send, it blocks right there waiting for a receiver.
+
+For a **buffered channel**, the behavior depends on the buffer capacity. If the buffer has space, the sender doesn't block — it just puts the value in the buffer and continues. But if the buffer is full, then the sender blocks just like with an unbuffered channel, waiting for a receiver to read from the buffer and make space.
+
+The key difference is that with buffered channels, you can have some 'asynchronous' behavior up to the buffer limit, while unbuffered channels are always synchronous. The receiver side in both cases will block if there's nothing to receive, but the sender's blocking behavior is what changes based on the buffer state."*
+
+---
+
+## Q: "What happens on the receiver side if the sender is not visible or doesn't exist? How does this differ between buffered and unbuffered channels?"
+
+> *"This is a classic deadlock scenario in Go concurrency. For an **unbuffered channel**, if there's no sender and the receiver tries to receive, it blocks forever waiting for a sender that will never come. This causes a deadlock because the goroutine can't proceed — it's stuck waiting indefinitely.
+
+For a **buffered channel**, the behavior depends on whether the buffer has data. If the buffer is empty and there's no sender, the receiver blocks just like with an unbuffered channel — deadlock scenario. But if the buffer already contains data from previous sends, the receiver can successfully read that data even if the sender is no longer running.
+
+The critical point is that receivers always block when there's nothing to receive, regardless of channel type. The difference is that buffered channels can have 'leftover' data in the buffer that receivers can consume asynchronously, while unbuffered channels require a sender to be present at the exact moment of receive. In practice, this is why you often use `select` statements with timeouts or close channels to signal 'no more data coming' to avoid deadlocks."*
