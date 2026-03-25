@@ -53,6 +53,23 @@ func main() {
         fmt.Printf("%c=%d\n", ch, count)
     }
 }
+
+// func main() {
+//     str := "programming"
+//     freq := make(map[rune]int)
+//     order := []rune{}
+
+//     for _, ch := range str {
+//         if freq[ch] == 0 {
+//             order = append(order, ch) // track first appearance
+//         }
+//         freq[ch]++
+//     }
+
+//     for _, ch := range order {
+//         fmt.Printf("%c=%d\n", ch, freq[ch])
+//     }
+// }
 ```
 
 ### 2. Find Length Without len()
