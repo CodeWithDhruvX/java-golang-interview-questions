@@ -212,6 +212,19 @@
       "ctime": 1774374370565,
       "items": [],
       "title": "Java Interviews"
+    },
+    {
+      "type": "group",
+      "ctime": 1774507433048,
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1774507455684,
+          "path": "long_questions/sql/mysql/service_based_companies/theory/03_mysql_stored_procedures_triggers_theory.md",
+          "subpath": "#Q \"What is a stored procedure and why would you use one?\""
+        }
+      ],
+      "title": "MySql Interviews Questions"
     }
   ]
 }

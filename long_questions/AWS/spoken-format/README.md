@@ -26,7 +26,11 @@ spoken-format/
 ├── 17-architectural-scenario-advanced.md # Architectural & Scenario Advanced (10 questions)
 ├── 18-developer-tools.md               # Developer Tools (10 questions)
 ├── 19-global-multi-region.md           # Global & Multi-Region Architectures (10 questions)
-└── 20-containers-orchestration.md      # Containers & Orchestration (10 questions)
+├── 20-containers-orchestration.md      # Containers & Orchestration (10 questions)
+├── 21-storage-services.md               # Storage Services (10 questions)
+├── 22-automation-devops.md             # Automation & DevOps (10 questions)
+├── 23-machine-learning-ai.md           # Machine Learning & AI (10 questions)
+└── 24-iot-edge-computing.md            # IoT & Edge Computing (10 questions)
 ```
 
 ## 🎯 How to Use These Files
@@ -211,6 +215,54 @@ Each question includes a "### How to Explain in Interview (Spoken style format)"
 - Container metrics monitoring
 - Container log management
 
+### Storage Services (21-storage-services.md)
+- S3 vs Glacier storage comparison
+- EFS vs S3 use case differences
+- FSx for Windows File Server
+- S3 versioning for data protection
+- S3 event notifications and Lambda triggers
+- S3 lifecycle policies for cost optimization
+- EBS snapshots for backup and recovery
+- DataSync for hybrid data transfer
+- Storage Gateway for cloud integration
+- FSx for Lustre high-performance computing
+
+### Automation & DevOps (22-automation-devops.md)
+- Systems Manager for EC2 automation
+- CloudFormation infrastructure provisioning
+- CodeDeploy automated deployments
+- CodePipeline CI/CD workflows
+- CodeBuild vs Jenkins comparison
+- Elastic Beanstalk deployment automation
+- OpsWorks vs Beanstalk differences
+- CloudWatch log monitoring and troubleshooting
+- Lambda workflow automation
+- EKS Kubernetes advantages
+
+### Machine Learning & AI (23-machine-learning-ai.md)
+- SageMaker ML workflows
+- Comprehend NLP processing
+- Rekognition vs Textract comparison
+- Polly text-to-speech applications
+- Lex conversational interfaces
+- Forecast time-series predictions
+- Personalize recommendation systems
+- Translate language translation
+- Fraud Detector security
+- Kendra enterprise search
+
+### IoT & Edge Computing (24-iot-edge-computing.md)
+- IoT Core device connectivity
+- Greengrass edge computing
+- Device Defender security
+- IoT Analytics data processing
+- Things Graph visual development
+- IoT Events real-time detection
+- FreeRTOS microcontroller support
+- Secure device provisioning
+- SiteWise industrial IoT
+- TwinMaker digital twins
+
 ## 🚀 Interview Preparation Tips
 
 1. **Practice Out Loud**: Read the responses aloud to sound natural in interviews
@@ -225,7 +277,7 @@ Each question includes a "### How to Explain in Interview (Spoken style format)"
 - **Progressive Difficulty**: From basic to advanced topics
 - **Real-World Focus**: Practical scenarios and implementations
 - **Best Practices**: Security, cost optimization, and scalability considerations
-- **Comprehensive Coverage**: 220+ questions across all major AWS services
+- **Comprehensive Coverage**: 260+ questions across all major AWS services
 
 ## 🎓 Preparation Strategy
 
@@ -233,9 +285,9 @@ Each question includes a "### How to Explain in Interview (Spoken style format)"
 2. **Service Depth**: Move to **Intermediate Questions** for service-specific expertise
 3. **Advanced Topics**: Master **Advanced Questions** for senior roles
 4. **Practical Application**: Practice **Scenario-Based Questions** for real-world problems
-5. **Specialization**: Focus on **Developer Tools**, **Global Architectures**, **Containers**, and other areas based on role requirements
+5. **Specialization**: Focus on **Developer Tools**, **Global Architectures**, **Containers**, **Storage**, **ML/AI**, **IoT**, and other areas based on role requirements
 
-## 📊 Total Questions: 220+
+## 📊 Total Questions: 260+
 
 - **Basic**: 20 questions
 - **Intermediate**: 20 questions  
@@ -257,6 +309,10 @@ Each question includes a "### How to Explain in Interview (Spoken style format)"
 - **Developer Tools**: 10 questions
 - **Global & Multi-Region**: 10 questions
 - **Containers & Orchestration**: 10 questions
+- **Storage Services**: 10 questions
+- **Automation & DevOps**: 10 questions
+- **Machine Learning & AI**: 10 questions
+- **IoT & Edge Computing**: 10 questions
 
 Each file is self-contained, so you can focus on specific areas based on your current role level or interview requirements.
 
