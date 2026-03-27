@@ -81,10 +81,6 @@ This document provides a deep dive into potential interview questions, ranging f
 ## 5. Frontend Integration (Angular/React)
 *Context: "Integrated PowerBI", "React and Redux", "Lazy loading", "Angular Material".*
 
-### **React & Redux**
-13. **State Management:**
-    *   In your CRM console, how did you structure your Redux store? Did you use **Redux Thunk** or **Saga** for async side effects?
-    *   How did you prevent unnecessary re-renders in React? (e.g., `useMemo`, `useCallback`).
 
 ### **Angular & Integration**
 14. **Performance:**

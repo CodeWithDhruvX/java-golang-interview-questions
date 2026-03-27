@@ -11,6 +11,17 @@ import java.util.function.Supplier;
 
 public class SingleStringOperations {
     public static void main(String[] args) {
+
+        String str="programming";
+
+        Map<Character,Long> mp=str.chars().mapToObj(c->(char) c)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.counting()
+                ));
+
+        System.out.println(mp);
+
         String text = "Hello Java Programming";
         
         // 1. String length with Optional

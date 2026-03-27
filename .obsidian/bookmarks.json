@@ -210,7 +210,32 @@
     {
       "type": "group",
       "ctime": 1774374370565,
-      "items": [],
+      "items": [
+        {
+          "type": "file",
+          "ctime": 1774511555610,
+          "path": "resume_experience/java/interview_solutions.md",
+          "subpath": "#**Q2 Circuit Breaker Implementation**"
+        },
+        {
+          "type": "file",
+          "ctime": 1774511893096,
+          "path": "long_questions/microservices/theory/02_Communication.md",
+          "subpath": "#35. What is circuit breaker pattern?"
+        },
+        {
+          "type": "file",
+          "ctime": 1774512763763,
+          "path": "long_questions/java/theory/theory-fast/02_jvm_memory_gc.md",
+          "subpath": "#26. What are the JVM memory areas?"
+        },
+        {
+          "type": "file",
+          "ctime": 1774512773086,
+          "path": "long_questions/java/theory/theory-fast/02_jvm_memory_gc.md",
+          "subpath": "#27. Difference between Heap and Stack?"
+        }
+      ],
       "title": "Java Interviews"
     },
     {
