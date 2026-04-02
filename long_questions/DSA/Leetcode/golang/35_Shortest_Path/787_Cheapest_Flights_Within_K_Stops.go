@@ -1,0 +1,339 @@
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+// 787. Cheapest Flights Within K Stops - Bellman-Ford with K stops constraint
+// Time: O(K*E), Space: O(V)
+func findCheapestPrice(n int, flights [][]int, src int, dst int, k int) int {
+	// Initialize distances
+	dist := make([]int, n)
+	for i := 0; i < n; i++ {
+		dist[i] = math.MaxInt32
+	}
+	dist[src] = 0
+	
+	// Relax edges up to K+1 times (K stops = K+1 edges)
+	for i := 0; i <= k; i++ {
+		// Copy current distances to avoid using updated distances in same iteration
+		tempDist := make([]int, n)
+		copy(tempDist, dist)
+		
+		updated := false
+		for _, flight := range flights {
+			from, to, price := flight[0], flight[1], flight[2]
+			
+			if dist[from] != math.MaxInt32 && dist[from]+price < tempDist[to] {
+				tempDist[to] = dist[from] + price
+				updated = true
+			}
+		}
+		
+		dist = tempDist
+		
+		if !updated {
+			break // No more updates needed
+		}
+	}
+	
+	if dist[dst] == math.MaxInt32 {
+		return -1
+	}
+	
+	return dist[dst]
+}
+
+// Modified Bellman-Ford with early termination
+func findCheapestPriceOptimized(n int, flights [][]int, src int, dst int, k int) int {
+	// Initialize distances
+	dist := make([]int, n)
+	for i := 0; i < n; i++ {
+		dist[i] = math.MaxInt32
+	}
+	dist[src] = 0
+	
+	// Relax edges exactly K+1 times
+	for i := 0; i <= k; i++ {
+		updated := false
+		
+		// Use previous iteration's distances
+		prevDist := make([]int, n)
+		copy(prevDist, dist)
+		
+		for _, flight := range flights {
+			from, to, price := flight[0], flight[1], flight[2]
+			
+			if prevDist[from] != math.MaxInt32 && prevDist[from]+price < dist[to] {
+				dist[to] = prevDist[from] + price
+				updated = true
+			}
+		}
+		
+		if !updated {
+			break
+		}
+	}
+	
+	if dist[dst] == math.MaxInt32 {
+		return -1
+	}
+	
+	return dist[dst]
+}
+
+// BFS approach with priority queue (Dijkstra-like)
+func findCheapestPriceBFS(n int, flights [][]int, src int, dst int, k int) int {
+	// Build adjacency list
+	adj := make(map[int][]Flight)
+	for _, flight := range flights {
+		from, to, price := flight[0], flight[1], flight[2]
+		adj[from] = append(adj[from], Flight{to, price})
+	}
+	
+	// Priority queue: {price, node, stops}
+	type State struct {
+		price int
+		node  int
+		stops int
+	}
+	
+	// Use a simple priority queue implementation
+	pq := []State{{0, src, 0}}
+	
+	// Track minimum price to reach each node with given stops
+	minPrice := make(map[[2]int]int) // {node, stops} -> price
+	
+	for len(pq) > 0 {
+		// Find minimum price state
+		minIdx := 0
+		for i := 1; i < len(pq); i++ {
+			if pq[i].price < pq[minIdx].price {
+				minIdx = i
+			}
+		}
+		
+		current := pq[minIdx]
+		pq = append(pq[:minIdx], pq[minIdx+1:]...)
+		
+		price, node, stops := current.price, current.node, current.stops
+		
+		// Early exit
+		if node == dst {
+			return price
+		}
+		
+		// Check if we've exceeded stops
+		if stops > k {
+			continue
+		}
+		
+		// Skip if we've found a better path to this node with fewer stops
+		if prevPrice, exists := minPrice[[2]int{node, stops}]; exists && prevPrice <= price {
+			continue
+		}
+		minPrice[[2]int{node, stops}] = price
+		
+		// Explore neighbors
+		for _, flight := range adj[node] {
+			newPrice := price + flight.price
+			newStops := stops + 1
+			
+			// Check if this path is promising
+			if prevPrice, exists := minPrice[[2]int{flight.to, newStops}]; !exists || newPrice < prevPrice {
+				pq = append(pq, State{newPrice, flight.to, newStops})
+			}
+		}
+	}
+	
+	return -1
+}
+
+// Dynamic Programming approach
+func findCheapestPriceDP(n int, flights [][]int, src int, dst int, k int) int {
+	// dp[i][j] = minimum cost to reach node j using exactly i flights
+	dp := make([][]int, k+2)
+	for i := range dp {
+		dp[i] = make([]int, n)
+		for j := range dp[i] {
+			dp[i][j] = math.MaxInt32
+		}
+	}
+	dp[0][src] = 0
+	
+	for i := 1; i <= k+1; i++ {
+		// Copy previous row
+		for j := range dp[i] {
+			dp[i][j] = dp[i-1][j]
+		}
+		
+		// Try all flights
+		for _, flight := range flights {
+			from, to, price := flight[0], flight[1], flight[2]
+			
+			if dp[i-1][from] != math.MaxInt32 {
+				if dp[i-1][from]+price < dp[i][to] {
+					dp[i][to] = dp[i-1][from] + price
+				}
+			}
+		}
+	}
+	
+	// Find minimum cost across all flights up to K+1
+	minCost := math.MaxInt32
+	for i := 0; i <= k+1; i++ {
+		if dp[i][dst] < minCost {
+			minCost = dp[i][dst]
+		}
+	}
+	
+	if minCost == math.MaxInt32 {
+		return -1
+	}
+	
+	return minCost
+}
+
+// Flight represents a flight edge
+type Flight struct {
+	to    int
+	price int
+}
+
+// Floyd-Warshall with K stops constraint
+func findCheapestPriceFloydWarshall(n int, flights [][]int, src int, dst int, k int) int {
+	// Initialize distance matrix
+	dist := make([][]int, n)
+	for i := 0; i < n; i++ {
+		dist[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			if i == j {
+				dist[i][j] = 0
+			} else {
+				dist[i][j] = math.MaxInt32
+			}
+		}
+	}
+	
+	// Set direct flights
+	for _, flight := range flights {
+		from, to, price := flight[0], flight[1], flight[2]
+		dist[from][to] = price
+	}
+	
+	// Floyd-Warshall with intermediate nodes limited to K+1
+	for mid := 0; mid < n; mid++ {
+		for from := 0; from < n; from++ {
+			for to := 0; to < n; to++ {
+				if dist[from][mid] != math.MaxInt32 && dist[mid][to] != math.MaxInt32 {
+					if dist[from][mid]+dist[mid][to] < dist[from][to] {
+						dist[from][to] = dist[from][mid] + dist[mid][to]
+					}
+				}
+			}
+		}
+		
+		// Check if we've used K+1 intermediate nodes
+		if mid == k {
+			break
+		}
+	}
+	
+	if dist[src][dst] == math.MaxInt32 {
+		return -1
+	}
+	
+	return dist[src][dst]
+}
+
+func main() {
+	// Test cases
+	testCases := []struct {
+		n          int
+		flights    [][]int
+		src        int
+		dst        int
+		k          int
+		description string
+	}{
+		{
+			3,
+			[][]int{{0, 1, 100}, {1, 2, 100}, {0, 2, 500}},
+			0, 2, 1,
+			"Standard case",
+		},
+		{
+			3,
+			[][]int{{0, 1, 100}, {1, 2, 100}, {0, 2, 500}},
+			0, 2, 0,
+			"Direct flight only",
+		},
+		{
+			4,
+			[][]int{{0, 1, 100}, {1, 2, 100}, {2, 3, 100}, {0, 3, 500}},
+			0, 3, 1,
+			"Within K stops",
+		},
+		{
+			4,
+			[][]int{{0, 1, 100}, {1, 2, 100}, {2, 3, 100}, {0, 3, 500}},
+			0, 3, 0,
+			"Direct flight expensive",
+		},
+		{
+			5,
+			[][]int{{0, 1, 100}, {1, 2, 100}, {2, 3, 100}, {3, 4, 100}, {0, 4, 500}},
+			0, 4, 2,
+			"Multiple stops",
+		},
+		{
+			2,
+			[][]int{{0, 1, 100}},
+			0, 1, 0,
+			"Simple case",
+		},
+		{
+			2,
+			[][]int{{0, 1, 100}},
+			0, 1, 1,
+			"Extra stops allowed",
+		},
+		{
+			3,
+			[][]int{{0, 1, 100}, {1, 2, 200}, {0, 2, 500}},
+			0, 2, 1,
+			"Indirect cheaper",
+		},
+		{
+			3,
+			[][]int{{0, 1, 100}, {1, 2, 200}, {0, 2, 50}},
+			0, 2, 1,
+			"Direct cheaper",
+		},
+		{
+			5,
+			[][]int{{0, 1, 1}, {1, 2, 1}, {2, 3, 1}, {3, 4, 1}, {0, 4, 10}},
+			0, 4, 3,
+			"Long chain vs direct",
+		},
+	}
+	
+	for i, tc := range testCases {
+		fmt.Printf("Test Case %d: %s\n", i+1, tc.description)
+		fmt.Printf("  n=%d, src=%d, dst=%d, k=%d\n", tc.n, tc.src, tc.dst, tc.k)
+		fmt.Printf("  Flights: %v\n", tc.flights)
+		
+		result1 := findCheapestPrice(tc.n, tc.flights, tc.src, tc.dst, tc.k)
+		result2 := findCheapestPriceOptimized(tc.n, tc.flights, tc.src, tc.dst, tc.k)
+		result3 := findCheapestPriceBFS(tc.n, tc.flights, tc.src, tc.dst, tc.k)
+		result4 := findCheapestPriceDP(tc.n, tc.flights, tc.src, tc.dst, tc.k)
+		result5 := findCheapestPriceFloydWarshall(tc.n, tc.flights, tc.src, tc.dst, tc.k)
+		
+		fmt.Printf("  Bellman-Ford: %d\n", result1)
+		fmt.Printf("  Optimized BF: %d\n", result2)
+		fmt.Printf("  BFS Approach: %d\n", result3)
+		fmt.Printf("  DP Approach: %d\n", result4)
+		fmt.Printf("  Floyd-Warshall: %d\n\n", result5)
+	}
+}

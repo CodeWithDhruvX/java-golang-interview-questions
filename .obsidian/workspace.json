@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "resume_experience/java/interview_solutions.md",
+                "file": "long_questions/kubernetes/theory/01_Basics_And_Architecture.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "interview_solutions"
+              "title": "01_Basics_And_Architecture"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "how jvm",
+                "query": "worker group",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -88,8 +88,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
@@ -203,8 +202,27 @@
       "obsidian-tts:Text to Speech": false
     }
   },
-  "active": "128c61db99f288ee",
+  "active": "8c0ba7082c7e79a1",
   "lastOpenFiles": [
+    "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/230_Kth_Smallest_Element_in_a_BST.go",
+    "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/450_Delete_Node_in_a_BST.go",
+    "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/701_Insert_into_a_Binary_Search_Tree.go",
+    "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/098_Validate_Binary_Search_Tree.go",
+    "long_questions/DSA/Leetcode/golang/36_Segment_Tree/715_Range_Module.go",
+    "long_questions/DSA/Leetcode/golang/36_Segment_Tree/218_The_Skyline_Problem.go",
+    "long_questions/DSA/Leetcode/golang/36_Segment_Tree/307_Range_Sum_Query_Mutable.go",
+    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/787_Cheapest_Flights_Within_K_Stops.go",
+    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/1514_Path_with_Maximum_Probability.go",
+    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/743_Network_Delay_Time.go",
+    "long_questions/DSA/Leetcode/golang/26_Data_Structure_Design/622_Design_Circular_Queue.go",
+    "long_questions/DSA/Leetcode/golang/README.md",
+    "Companies/java/virtusa/behavior_interview_answers_spoken.md",
+    "Companies/java/virtusa/behavior_interview_questions_only.md",
+    "Companies/java/virtusa/behavior_interview_questions.md",
+    "long_questions/Javascript/theory/01_Basics.md",
+    "long_questions/Kafka/00_Generic_Kafka_Java_Golang_QnA.md",
+    "Failed Interviews/Orange Bits Digital Solution/Gemini-Go Concurrency_ Deadlocks and Fixes.md",
+    "resume_experience/java/interview_solutions.md",
     "resume_experience/java/interview_answers_spoken_format.md",
     "long_questions/java/theory/theory-fast/02_jvm_memory_gc.md",
     "long_questions/sql/mysql/service_based_companies/theory/03_mysql_stored_procedures_triggers_theory.md",
@@ -212,10 +230,7 @@
     "long_questions/java/java questions/formatted_answers/05_Expert.md",
     "long_questions/java/java questions/formatted_answers/03_Advanced.md",
     "long_questions/java/java questions/formatted_answers/04_Senior.md",
-    "long_questions/golang/theory/formatted_answers",
-    "resume_experience/java/interview_solutions.md",
     "long_questions/Design Pattern/product_based_companies/01_advanced_creational_patterns.md",
-    "long_questions/Kafka/00_Generic_Kafka_Java_Golang_QnA.md",
     "long_questions/microservices/theory/02_Communication.md",
     "long_questions/architecture/theory/01_Architecture_Fundamentals.md",
     "long_questions/java/theory/theory-focused/05_jvm_performance.md",
@@ -225,22 +240,6 @@
     "short_questions/java/spring_boot_all_questions_formatted.md",
     "long_questions/java/experience/product_based_companies/README.md",
     "long_questions/java/practical/README.md",
-    "long_questions/java/java questions/questions.md",
-    "long_questions/java/core-java/internals/jvm_architecture_gc.md",
-    "long_questions/java/practical/Advanced/java_advanced_jvm_design_patterns.md",
-    "long_questions/java/all_extracted_questions.md",
-    "long_questions/java/java questions/formatted_answers/old_format/32_Spring_Core_Monitoring_WebFlux.md",
-    "long_questions/microservices/theory/10_Real_Production_Scenarios.md",
-    "long_questions/java/core-java/coding-practice/basics/07_java_advanced_concurrency_jvm_practice.md",
-    "long_questions/golang/theory/service_based_companies",
-    "long_questions/golang/theory/product_based_companies",
-    "long_questions/java/cheatsheet/demo.class",
-    "long_questions/java/cheatsheet/demo.java",
-    "long_questions/system_design/theory",
-    "long_questions/Javascript/theory",
-    "long_questions/kubernetes/theory",
-    "long_questions/docker/theory",
-    "long_questions/Angular/theory",
     "Untitled.canvas"
   ]
 }
