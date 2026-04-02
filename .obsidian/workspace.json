@@ -204,6 +204,8 @@
   },
   "active": "8c0ba7082c7e79a1",
   "lastOpenFiles": [
+    "long_questions/AI/road-map/AI-roadmap.md",
+    "long_questions/AI/road-map",
     "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/230_Kth_Smallest_Element_in_a_BST.go",
     "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/450_Delete_Node_in_a_BST.go",
     "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/701_Insert_into_a_Binary_Search_Tree.go",
@@ -213,8 +215,6 @@
     "long_questions/DSA/Leetcode/golang/36_Segment_Tree/307_Range_Sum_Query_Mutable.go",
     "long_questions/DSA/Leetcode/golang/35_Shortest_Path/787_Cheapest_Flights_Within_K_Stops.go",
     "long_questions/DSA/Leetcode/golang/35_Shortest_Path/1514_Path_with_Maximum_Probability.go",
-    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/743_Network_Delay_Time.go",
-    "long_questions/DSA/Leetcode/golang/26_Data_Structure_Design/622_Design_Circular_Queue.go",
     "long_questions/DSA/Leetcode/golang/README.md",
     "Companies/java/virtusa/behavior_interview_answers_spoken.md",
     "Companies/java/virtusa/behavior_interview_questions_only.md",
