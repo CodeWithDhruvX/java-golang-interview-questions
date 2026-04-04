@@ -247,6 +247,285 @@ func findCheapestPriceFloydWarshall(n int, flights [][]int, src int, dst int, k 
 	return dist[src][dst]
 }
 
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Constrained Shortest Path with K Stops
+- **Bellman-Ford Modification**: Limit edge relaxations to K+1 iterations
+- **State Tracking**: Track (cost, node, stops) in priority queue
+- **Dynamic Programming**: DP[i][j] = min cost to reach node j with i flights
+- **Early Termination**: Stop when no more improvements possible
+
+## 2. PROBLEM CHARACTERISTICS
+- **Weighted Directed Graph**: Flight routes with costs
+- **Path Constraint**: Maximum K intermediate stops allowed
+- **Cost Minimization**: Find cheapest path within constraint
+- **Edge Relaxation**: Standard shortest path with additional constraint
+
+## 3. SIMILAR PROBLEMS
+- Network Delay Time (LeetCode 743) - Unconstrained shortest path
+- Path with Maximum Probability (LeetCode 1514) - Max probability path
+- Find the Cheapest Flight (LeetCode 787) - Same problem
+- Minimum Cost to Connect All Points (LeetCode 1584) - MST problem
+
+## 4. KEY OBSERVATIONS
+- **Bellman-Ford Natural**: K stops = K+1 edges = K+1 relaxations
+- **State Complexity**: Need to track both cost and stops used
+- **DP Formulation**: Each iteration allows one more flight
+- **Priority Queue**: Can use modified Dijkstra with stops constraint
+
+## 5. VARIATIONS & EXTENSIONS
+- **Priority Queue Approach**: Modified Dijkstra with stops tracking
+- **Dynamic Programming**: 2D DP table for flights and destinations
+- **Floyd-Warshall**: Limited intermediate nodes
+- **Bidirectional Search**: Search from both ends with constraints
+
+## 6. INTERVIEW INSIGHTS
+- Always clarify: "Flight constraints? Negative costs? Multiple queries?"
+- Edge cases: no path within K stops, direct flight, K=0
+- Time complexity: O(K*E) for Bellman-Ford, O((V+E) log V) for PQ
+- Space complexity: O(V) for distances, O(V*E) for DP
+- Key insight: K stops = exactly K+1 edge relaxations
+
+## 7. COMMON MISTAKES
+- Wrong number of iterations (K vs K+1)
+- Not copying distances properly between iterations
+- Using updated distances in same iteration
+- Missing early termination optimization
+- Not handling unreachable destinations
+
+## 8. OPTIMIZATION STRATEGIES
+- **Bellman-Ford**: O(K*E) time, O(V) space - standard approach
+- **Priority Queue**: O((V+E) log V) time, O(V) space - faster in practice
+- **Dynamic Programming**: O(K*E) time, O(V*K) space - clear formulation
+- **Floyd-Warshall**: O(V³) time, O(V²) space - all pairs
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like planning a multi-leg flight trip with budget constraints:**
+- Each flight has a cost and connects two cities
+- You can make at most K+1 flights (K stops means K+1 legs)
+- You want the cheapest way to reach your destination
+- You can't use more flights than allowed
+- Like finding the cheapest multi-city itinerary within flight limits
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Flight routes (from, to, price), source, destination, max stops K
+2. **Goal**: Find cheapest price from source to destination with ≤K stops
+3. **Rules**: K stops = at most K+1 flights, can't exceed limit
+4. **Output**: Minimum price or -1 if impossible
+
+#### Phase 2: Key Insight Recognition
+- **"Bellman-Ford natural"** → K stops = K+1 edge relaxations
+- **"State complexity"** → Need to track both cost and number of flights
+- **"DP formulation"** → Each iteration allows one more flight
+- **"Priority queue possible"** → Modified Dijkstra with stops constraint
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I need cheapest flight with at most K stops.
+Standard shortest path doesn't consider stops constraint.
+
+Bellman-Ford Approach:
+1. Initialize distances: src=0, others=∞
+2. For each iteration i from 0 to K:
+   - Copy current distances (don't use updates in same iteration)
+   - Relax all flights using previous iteration distances
+   - This represents paths with exactly i+1 flights
+3. After K+1 iterations, we have paths with ≤K+1 flights
+4. Return distance to destination
+
+This handles the K stops constraint naturally!"
+```
+
+#### Phase 4: Edge Case Handling
+- **No path**: Return -1 if destination unreachable within K stops
+- **Direct flight**: K=0 means only direct flights allowed
+- **Large K**: If K ≥ V-1, becomes standard shortest path
+- **Same source/destination**: Return 0
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Example: n=3, flights=[[0,1,100],[1,2,100],[0,2,500]], src=0, dst=2, k=1
+
+Human thinking:
+"Bellman-Ford Approach:
+Iteration 0 (0 flights, only source reachable):
+dist = [0, ∞, ∞]
+
+Iteration 1 (1 flight, direct flights only):
+- Flight 0→1: dist[1] = min(∞, 0+100) = 100
+- Flight 1→2: dist[2] = min(∞, ∞+100) = ∞ (dist[1] was ∞ in this iteration)
+- Flight 0→2: dist[2] = min(∞, 0+500) = 500
+dist = [0, 100, 500]
+
+Iteration 2 (2 flights, one stop allowed):
+Copy prevDist = [0, 100, 500]
+- Flight 0→1: dist[1] = min(100, 0+100) = 100 (no change)
+- Flight 1→2: dist[2] = min(500, 100+100) = 200 (improvement!)
+- Flight 0→2: dist[2] = min(200, 0+500) = 200 (no change)
+dist = [0, 100, 200]
+
+Result: 200 (path 0→1→2) ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why Bellman-Ford works**: Each iteration adds one more flight to paths
+- **Why copy distances**: Prevent using same iteration updates
+- **Why K+1 iterations**: K stops = K+1 flights maximum
+- **Why O(K*E)**: K+1 iterations, each processes all E edges
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not standard Dijkstra?"** → Doesn't handle stops constraint
+2. **"Should I use K or K+1 iterations?"** → K stops = K+1 flights
+3. **"What about copying distances?"** → Must prevent same-iteration updates
+4. **"Can I use DP?"** → Yes, 2D DP formulation works well
+5. **"What about priority queue?"** → Modified Dijkstra with stops tracking
+
+### Real-World Analogy
+**Like booking a multi-city flight itinerary:**
+- Each flight leg has a price and connects two cities
+- You have a budget and want to minimize total cost
+- You can only make a limited number of stops (layovers)
+- You want the cheapest way to reach your final destination
+- Like planning a business trip with stopover limits
+
+### Human-Readable Pseudocode
+```
+function findCheapestPrice(n, flights, src, dst, k):
+    # Initialize distances
+    dist = array of size n, initialized to infinity
+    dist[src] = 0
+    
+    # Bellman-Ford with K stops constraint
+    for i from 0 to k:
+        # Copy previous distances
+        tempDist = copy(dist)
+        updated = false
+        
+        # Relax all flights
+        for each flight (from, to, price):
+            if dist[from] != infinity and dist[from] + price < tempDist[to]:
+                tempDist[to] = dist[from] + price
+                updated = true
+        
+        dist = tempDist
+        
+        if not updated:
+            break  # No more improvements
+    
+    return dist[dst] if dist[dst] != infinity else -1
+```
+
+### Execution Visualization
+
+### Example: n=3, flights=[[0,1,100],[1,2,100],[0,2,500]], src=0, dst=2, k=1
+```
+Bellman-Ford Process:
+
+Initial: dist = [0, ∞, ∞]
+
+Iteration 0 (0 flights):
+- No flights processed (only source reachable)
+dist = [0, ∞, ∞]
+
+Iteration 1 (1 flight allowed):
+Copy tempDist = [0, ∞, ∞]
+- Flight 0→1: tempDist[1] = 0 + 100 = 100
+- Flight 1→2: tempDist[2] = ∞ (dist[1] was ∞)
+- Flight 0→2: tempDist[2] = 0 + 500 = 500
+dist = [0, 100, 500]
+
+Iteration 2 (2 flights allowed, 1 stop):
+Copy tempDist = [0, 100, 500]
+- Flight 0→1: tempDist[1] = min(100, 0+100) = 100
+- Flight 1→2: tempDist[2] = min(500, 100+100) = 200 ✓
+- Flight 0→2: tempDist[2] = min(200, 0+500) = 200
+dist = [0, 100, 200]
+
+Result: 200 (path 0→1→2 with 1 stop) ✓
+```
+
+### Key Visualization Points:
+- **Iteration Control**: Each iteration allows one more flight
+- **Distance Copying**: Prevent using same-iteration updates
+- **Path Building**: Build paths incrementally by flight count
+- **Constraint Enforcement**: K stops = K+1 iterations maximum
+
+### Flight Path Visualization:
+```
+Flight Network:
+    100      100
+0 -------> 1 -------> 2
+ \                ^
+  \500           /
+   \            /
+    ----------> (direct)
+
+Path Options:
+- Direct: 0→2, cost=500, 0 stops
+- One stop: 0→1→2, cost=200, 1 stop
+- Constraint: k=1 (allow 1 stop)
+Cheapest: 200 via 0→1→2 ✓
+```
+
+### Time Complexity Breakdown:
+- **Bellman-Ford**: O(K*E) time, O(V) space - standard approach
+- **Priority Queue**: O((V+E) log V) time, O(V) space - modified Dijkstra
+- **Dynamic Programming**: O(K*E) time, O(V*K) space - 2D DP
+- **Floyd-Warshall**: O(V³) time, O(V²) space - all pairs
+
+### Alternative Approaches:
+
+#### 1. Priority Queue with Stops (O((V+E) log V) time, O(V) space)
+```go
+func findCheapestPricePQ(n int, flights [][]int, src int, dst int, k int) int {
+    // Modified Dijkstra with stops tracking
+    // State: {cost, node, stops}
+    // Priority queue by cost
+    // ... implementation details omitted
+}
+```
+- **Pros**: Often faster in practice, early termination
+- **Cons**: More complex state management
+
+#### 2. Dynamic Programming (O(K*E) time, O(V*K) space)
+```go
+func findCheapestPriceDP(n int, flights [][]int, src int, dst int, k int) int {
+    // dp[i][j] = min cost to reach node j with exactly i flights
+    // Build solution incrementally
+    // ... implementation details omitted
+}
+```
+- **Pros**: Clear formulation, easy to understand
+- **Cons**: Higher space complexity
+
+#### 3. Floyd-Warshall with Constraints (O(V³) time, O(V²) space)
+```go
+func findCheapestPriceFW(n int, flights [][]int, src int, dst int, k int) int {
+    // Limited intermediate nodes
+    // Not optimal for single-source queries
+    // ... implementation details omitted
+}
+```
+- **Pros**: Gives all pairs shortest paths
+- **Cons**: Overkill for single-source problem
+
+### Extensions for Interviews:
+- **Path Reconstruction**: Track actual flight route
+- **Multiple Queries**: Handle multiple (src,dst,k) queries efficiently
+- **Negative Costs**: Handle potential negative flight costs
+- **Time Constraints**: Add time dimension to flights
+- **Real-world Variations**: Flight schedules, layover times
+*/
 func main() {
 	// Test cases
 	testCases := []struct {

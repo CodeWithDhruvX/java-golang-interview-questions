@@ -370,6 +370,314 @@ func majorityElementBoyerMoore(nums []int) int {
 	return candidate
 }
 
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Divide and Conquer for Majority Element
+- **Recursive Division**: Split array into halves recursively
+- **Majority Propagation**: Majority element must be majority in at least one half
+- **Count Verification**: Count occurrences of candidates from subarrays
+- **Conquer Strategy**: Combine subproblem results with verification
+
+## 2. PROBLEM CHARACTERISTICS
+- **Majority Element**: Element appearing more than ⌊n/2⌋ times
+- **Guaranteed Existence**: Problem guarantees a majority element exists
+- **Frequency Analysis**: Need to find element with maximum frequency
+- **Divide Property**: Majority element propagates through divisions
+
+## 3. SIMILAR PROBLEMS
+- Majority Element (LeetCode 169) - Same problem
+- Majority Element II - Find elements > n/3 times
+- Top K Frequent Elements - Find most frequent elements
+- Find Duplicate Numbers - Frequency-based problems
+
+## 4. KEY OBSERVATIONS
+- **Majority Inheritance**: If element is majority in whole array, it's majority in at least one half
+- **Candidate Reduction**: Each division reduces candidate space
+- **Count Verification**: Need to verify candidates from subarrays
+- **Recursive Structure**: Same problem applied to smaller arrays
+
+## 5. VARIATIONS & EXTENSIONS
+- **Standard D&C**: O(N log N) time, O(log N) space
+- **Boyer-Moore**: O(N) time, O(1) space - optimal
+- **Memoization**: O(N log N) time, O(N log N) space - reduces redundancy
+- **All Majority Elements**: Find elements > n/3 times
+
+## 6. INTERVIEW INSIGHTS
+- Always clarify: "Majority guaranteed? > n/2 or > n/3? Space constraints?"
+- Edge cases: empty array, single element, no majority guarantee
+- Time complexity: O(N log N) for D&C, O(N) for Boyer-Moore
+- Space complexity: O(log N) recursion stack, O(1) for Boyer-Moore
+- Key insight: Boyer-Moore is optimal but D&C demonstrates pattern
+
+## 7. COMMON MISTAKES
+- Wrong base case handling for single elements
+- Missing count verification step
+- Incorrect candidate combination logic
+- Not handling empty arrays properly
+- Wrong majority threshold calculation
+
+## 8. OPTIMIZATION STRATEGIES
+- **Standard D&C**: O(N log N) time, O(log N) space - demonstrates pattern
+- **Boyer-Moore**: O(N) time, O(1) space - optimal solution
+- **Memoization**: O(N log N) time, O(N log N) space - reduces redundancy
+- **Early Termination**: Switch to brute force for small subarrays
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like finding the most popular candidate in an election:**
+- You have voters divided into different districts (array halves)
+- The overall winner must be the winner in at least one district
+- You can recursively find winners in each district
+- Then verify which district winner has the most votes overall
+- Like an election analyst finding the majority candidate by district results
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Array of integers with guaranteed majority element
+2. **Goal**: Find element appearing more than ⌊n/2⌋ times
+3. **Constraints**: Majority element guaranteed to exist
+4. **Output**: The majority element value
+
+#### Phase 2: Key Insight Recognition
+- **"Divide natural"** → Can split array at midpoint
+- **"Majority inheritance"** → Overall majority must be majority in at least one half
+- **"Candidate verification"** → Need to count occurrences of candidates
+- **"Recursive structure"** → Same problem applied to subarrays
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I need to find majority element (> n/2 occurrences).
+Brute force: count all elements O(N²).
+
+Divide and Conquer Approach:
+1. Split array at midpoint
+2. Recursively find majority in left half
+3. Recursively find majority in right half
+4. If both halves agree, that's the majority
+5. If different, count occurrences and return the one with more
+
+This gives O(N log N) time, O(log N) space!"
+```
+
+#### Phase 4: Edge Case Handling
+- **Empty array**: Return -1 or handle as specified
+- **Single element**: That element is majority
+- **No majority guarantee**: Need verification step
+- **Large arrays**: Recursion depth O(log N)
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Example: nums = [3, 2, 3]
+
+Human thinking:
+"Divide and Conquer Process:
+Step 1: Split at middle (index 1)
+Left: [3], Right: [2, 3]
+
+Step 2: Recursively solve left [3]
+Base case: single element
+Majority = 3
+
+Step 3: Recursively solve right [2, 3]
+Split at middle (index 2)
+LeftRight: [2], RightRight: [3]
+Majority LeftRight = 2, Majority RightRight = 3
+Different candidates, count occurrences:
+Count(2) = 1, Count(3) = 1
+Return 3 (arbitrary tie-break)
+
+Step 4: Combine results
+Left majority = 3, Right majority = 3
+Same candidate, return 3
+
+Final result: 3 ✓ (appears 2 times > 3/2 = 1.5)"
+```
+
+#### Phase 6: Intuition Validation
+- **Why divide**: Natural way to break down problem
+- **Why majority inheritance**: Overall majority must dominate at least one half
+- **Why verification**: Different candidates from halves need verification
+- **Why O(N log N)**: Each level does O(N) counting, O(log N) levels
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not just count all elements?"** → O(N²) vs O(N log N), too slow
+2. **"Should I use hash map?"** → O(N) time, O(N) space, Boyer-Moore is better
+3. **"What about tie cases?"** → Problem guarantees majority exists
+4. **"Can I skip verification?"** → Different candidates need verification
+5. **"Why Boyer-Moore?"** → O(N) time, O(1) space, optimal solution
+
+### Real-World Analogy
+**Like finding the most popular product in a store chain:**
+- You have stores in different regions (array halves)
+- The overall most popular product must be most popular in at least one region
+- You can survey each region recursively to find local favorites
+- Then verify which regional favorite has the most overall sales
+- Like a retail analyst finding the best-selling product by region analysis
+
+### Human-Readable Pseudocode
+```
+function majorityElement(nums):
+    if len(nums) == 0:
+        return -1
+    
+    return majorityElementHelper(nums, 0, len(nums) - 1)
+
+function majorityElementHelper(nums, left, right):
+    if left == right:
+        return nums[left]
+    
+    mid = (left + right) // 2
+    
+    # Find majority in left half
+    leftMajority = majorityElementHelper(nums, left, mid)
+    
+    # Find majority in right half
+    rightMajority = majorityElementHelper(nums, mid + 1, right)
+    
+    # If same, that's the majority
+    if leftMajority == rightMajority:
+        return leftMajority
+    
+    # Different candidates, count occurrences
+    leftCount = countOccurrences(nums, left, right, leftMajority)
+    rightCount = countOccurrences(nums, left, right, rightMajority)
+    
+    return leftCount > rightCount ? leftMajority : rightMajority
+```
+
+### Execution Visualization
+
+### Example: nums = [2, 2, 1, 1, 1, 2, 2]
+```
+Level 0: [2, 2, 1, 1, 1, 2, 2]
+         Split at index 3
+    Left: [2, 2, 1, 1]    Right: [1, 2, 2]
+
+Level 1: Left: [2, 2, 1, 1]
+         Split at index 1
+    LeftLeft: [2, 2]    LeftRight: [1, 1]
+
+Level 2: LeftLeft: [2, 2]
+         Split at index 0
+    [2]    [2]
+    Majority = 2, Majority = 2
+    Same candidate, return 2
+
+Level 2: LeftRight: [1, 1]
+         Split at index 2
+    [1]    [1]
+    Majority = 1, Majority = 1
+    Same candidate, return 1
+
+Level 1: Left: [2, 2, 1, 1]
+    Left majority = 2, Right majority = 1
+    Different candidates, count:
+    Count(2) = 2, Count(1) = 2
+    Return 2 (arbitrary tie-break)
+
+Level 1: Right: [1, 2, 2]
+    Similar process, majority = 2
+
+Level 0: Combine results
+    Left majority = 2, Right majority = 2
+    Same candidate, return 2
+
+Final result: 2 ✓ (appears 4 times > 7/2 = 3.5)
+```
+
+### Key Visualization Points:
+- **Recursive Splitting**: Array split until single elements
+- **Majority Propagation**: Majority element dominates subarrays
+- **Candidate Verification**: Count occurrences when candidates differ
+- **Tie Handling**: Problem guarantees majority, so ties resolve correctly
+
+### Divide and Conquer Tree Visualization:
+```
+        [2,2,1,1,1,2,2]
+       /              \
+    [2,2,1,1]        [1,2,2]
+    /      \        /      \
+ [2,2]    [1,1]  [1]    [2,2]
+  /   \    /   \        /   \
+[2]   [2][1]   [1]    [2]   [2]
+```
+
+### Time Complexity Breakdown:
+- **Standard D&C**: O(N log N) time, O(log N) space - demonstrates pattern
+- **Boyer-Moore**: O(N) time, O(1) space - optimal solution
+- **Memoization**: O(N log N) time, O(N log N) space - reduces redundancy
+- **Early Termination**: O(N log N) time, O(log N) space - practical optimization
+
+### Alternative Approaches:
+
+#### 1. Boyer-Moore Voting (O(N) time, O(1) space)
+```go
+func majorityElementBoyerMoore(nums []int) int {
+    candidate := nums[0]
+    count := 1
+    
+    for i := 1; i < len(nums); i++ {
+        if nums[i] == candidate {
+            count++
+        } else {
+            count--
+        }
+        
+        if count == 0 {
+            candidate = nums[i]
+            count = 1
+        }
+    }
+    
+    return candidate
+}
+```
+- **Pros**: Optimal O(N) time, O(1) space
+- **Cons**: Requires majority guarantee, less intuitive
+
+#### 2. Hash Map (O(N) time, O(N) space)
+```go
+func majorityElementHashMap(nums []int) int {
+    freq := make(map[int]int)
+    
+    for _, num := range nums {
+        freq[num]++
+        if freq[num] > len(nums)/2 {
+            return num
+        }
+    }
+    
+    return -1
+}
+```
+- **Pros**: Simple, early termination possible
+- **Cons**: O(N) extra space
+
+#### 3. Sorting (O(N log N) time, O(1) space)
+```go
+func majorityElementSort(nums []int) int {
+    sort.Ints(nums)
+    return nums[len(nums)/2]
+}
+```
+- **Pros**: Simple, leverages sorting
+- **Cons**: O(N log N) time, modifies array
+
+### Extensions for Interviews:
+- **Majority Element II**: Find elements > n/3 times
+- **No Guarantee**: Handle cases where majority might not exist
+- **Range Queries**: Find majority in subarrays
+- **Streaming Data**: Find majority in data stream
+- **Real-world Applications**: Voting systems, trend analysis, data analytics
+*/
 func main() {
 	// Test cases
 	fmt.Println("=== Testing Majority Element - Divide and Conquer ===")

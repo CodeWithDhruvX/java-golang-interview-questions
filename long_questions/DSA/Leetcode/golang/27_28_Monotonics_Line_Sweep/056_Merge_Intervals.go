@@ -319,6 +319,294 @@ func mergeLineSweepDetailed(intervals [][]int) ([][]int, []string) {
 	return result, explanation
 }
 
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Line Sweep for Interval Merging
+- **Event-Based Processing**: Convert intervals to start/end events
+- **Sorting**: Sort events by position, start before end
+- **Active Count Tracking**: Track number of overlapping intervals
+- **Interval Reconstruction**: Build merged intervals from active periods
+
+## 2. PROBLEM CHARACTERISTICS
+- **Interval Overlap**: Need to merge overlapping intervals
+- **Sorting Required**: Natural ordering for line sweep
+- **Event Processing**: Convert intervals to discrete events
+- **Output Construction**: Build merged intervals from active periods
+
+## 3. SIMILAR PROBLEMS
+- Insert Interval (LeetCode 57) - Insert interval into sorted list
+- Meeting Rooms (LeetCode 252) - Find minimum meeting rooms
+- Calendar Integration (LeetCode 759) - Merge worker schedules
+- Skyline Problem (LeetCode 218) - Complex interval merging
+
+## 4. KEY OBSERVATIONS
+- **Line Sweep Natural**: Events naturally model interval overlaps
+- **Sorting Critical**: Proper event ordering essential
+- **Active Count**: When count goes 0→1, start new interval
+- **End Detection**: When count goes 1→0, end current interval
+
+## 5. VARIATIONS & EXTENSIONS
+- **Priority Queue**: Handle intervals with different priorities
+- **Counting Approach**: Use difference array for range queries
+- **Tree-Based**: Use interval trees for dynamic operations
+- **Segment Trees**: Handle range updates and queries
+
+## 6. INTERVIEW INSIGHTS
+- Always clarify: "Interval format? Overlap definition? Output order?"
+- Edge cases: empty array, single interval, all overlapping
+- Time complexity: O(N log N) for sorting, O(N) for sweep
+- Space complexity: O(N) for events and result
+- Key insight: line sweep converts overlap detection to counting
+
+## 7. COMMON MISTAKES
+- Wrong event sorting (end before start at same position)
+- Incorrect active count management
+- Not handling zero-length intervals properly
+- Missing edge cases (empty, single interval)
+- Off-by-one errors in interval boundaries
+
+## 8. OPTIMIZATION STRATEGIES
+- **Basic Line Sweep**: O(N log N) time, O(N) space - standard
+- **Counting Approach**: O(N log N) time, O(N) space - for range queries
+- **Two Pointers**: O(N log N) time, O(1) space - for sorted input
+- **Priority Queue**: O(N log N) time, O(N) space - for dynamic operations
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like tracking meeting room occupancy:**
+- You have meetings with start/end times (intervals)
+- Convert each meeting to "meeting starts" and "meeting ends" events
+- Sort all events chronologically
+- Sweep through timeline, counting active meetings
+- When count goes from 0→1, meeting starts
+- When count goes from 1→0, meeting ends
+- Merge overlapping meetings into continuous blocks
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Array of intervals [start, end]
+2. **Goal**: Merge overlapping intervals
+3. **Constraints**: Intervals may overlap, be nested, or be separate
+4. **Output**: Array of non-overlapping merged intervals
+
+#### Phase 2: Key Insight Recognition
+- **"Line sweep natural fit"** → Events model interval overlaps perfectly
+- **"Active counting"** → Track how many intervals are active
+- **"Transition points"** → Start when count 0→1, end when 1→0
+- **"Event ordering"** → Start events before end events at same position
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I need to merge overlapping intervals.
+Direct pairwise comparison is O(N²).
+
+Line Sweep Approach:
+1. Convert intervals to start/end events
+2. Sort events by position (start before end at same position)
+3. Sweep through events:
+   - Track active interval count
+   - When count 0→1: start new merged interval
+   - When count 1→0: end current merged interval
+4. Build result from start/end transitions
+
+This handles all overlap patterns!"
+```
+
+#### Phase 4: Edge Case Handling
+- **Empty array**: Return empty array
+- **Single interval**: Return array with single interval
+- **All overlapping**: Return single merged interval
+- **No overlap**: Return original intervals (sorted)
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Intervals: [[1,3], [2,6], [8,10], [15,18]]
+
+Human thinking:
+"Line Sweep Approach:
+1. Create events:
+   (1,start), (3,end), (2,start), (6,end), (8,start), (10,end), (15,start), (18,end)
+
+2. Sort events:
+   (1,start), (2,start), (3,end), (6,end), (8,start), (10,end), (15,start), (18,end)
+
+3. Sweep:
+   pos=1: start, count=1, start=[1]
+   pos=2: start, count=2
+   pos=3: end, count=1
+   pos=6: end, count=0, end=[6] → add [1,6]
+   pos=8: start, count=1, start=[8]
+   pos=10: end, count=0, end=[10] → add [8,10]
+   pos=15: start, count=1, start=[15]
+   pos=18: end, count=0, end=[18] → add [15,18]
+
+Result: [[1,6], [8,10], [15,18]] ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why events work**: Convert continuous intervals to discrete points
+- **Why sorting works**: Process events in chronological order
+- **Why counting works**: Active count tells if we're inside or outside intervals
+- **Why transitions matter**: Count changes indicate interval boundaries
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not pairwise comparison?"** → O(N²) vs O(N log N)
+2. **"Should I use two pointers?"** → Only works if input already sorted
+3. **"What about nested intervals?"** → Line sweep handles naturally
+4. **"Can I optimize further?"** → O(N log N) is optimal for unsorted input
+5. **"What about floating point?"** → Same approach works with decimal values
+
+### Real-World Analogy
+**Like managing meeting room schedules:**
+- You have meeting requests with start/end times
+- Convert each meeting to "meeting starts" and "meeting ends" notifications
+- Sort all notifications chronologically
+- Track how many meetings are currently active
+- When first meeting starts, mark room as occupied
+- When all meetings end, mark room as free
+- Merge consecutive occupied periods into continuous blocks
+- Like building a master schedule from individual bookings
+
+### Human-Readable Pseudocode
+```
+function mergeIntervals(intervals):
+    if len(intervals) <= 1:
+        return intervals
+    
+    // Create events
+    events = []
+    for interval in intervals:
+        events.append((interval[0], 'start'))
+        events.append((interval[1], 'end'))
+    
+    // Sort events by position, start before end
+    sort(events, key=lambda e: (e.position, not e.is_start))
+    
+    result = []
+    active_count = 0
+    current_start = -1
+    
+    for event in events:
+        if event.is_start:
+            if active_count == 0:
+                current_start = event.position
+            active_count += 1
+        else:
+            active_count -= 1
+            if active_count == 0:
+                result.append([current_start, event.position])
+    
+    return result
+```
+
+### Execution Visualization
+
+### Example: Intervals = [[1,3], [2,6], [8,10], [15,18]]
+```
+Event Creation:
+[1,3] → (1,start), (3,end)
+[2,6] → (2,start), (6,end)
+[8,10] → (8,start), (10,end)
+[15,18] → (15,start), (18,end)
+
+Sorted Events:
+(1,start), (2,start), (3,end), (6,end), (8,start), (10,end), (15,start), (18,end)
+
+Line Sweep Process:
+pos=1: start, count=1, current_start=1
+pos=2: start, count=2
+pos=3: end, count=1
+pos=6: end, count=0, add [1,6] to result
+pos=8: start, count=1, current_start=8
+pos=10: end, count=0, add [8,10] to result
+pos=15: start, count=1, current_start=15
+pos=18: end, count=0, add [15,18] to result
+
+Final Result: [[1,6], [8,10], [15,18]] ✓
+```
+
+### Key Visualization Points:
+- **Event Creation**: Each interval becomes two events
+- **Event Sorting**: Chronological processing order
+- **Active Count**: Tracks overlapping intervals
+- **Transitions**: Count changes mark interval boundaries
+
+### Memory Layout Visualization:
+```
+Event Processing Flow:
+Initial: count=0, current_start=-1, result=[]
+
+pos=1: (1,start) → count=1, current_start=1
+pos=2: (2,start) → count=2
+pos=3: (3,end) → count=1
+pos=6: (6,end) → count=0, result=[[1,6]]
+pos=8: (8,start) → count=1, current_start=8
+pos=10: (10,end) → count=0, result=[[1,6], [8,10]]
+pos=15: (15,start) → count=1, current_start=15
+pos=18: (18,end) → count=0, result=[[1,6], [8,10], [15,18]]
+
+Active Count Evolution:
+0→1→2→1→0→1→0→1→0
+Each transition marks interval boundary
+```
+
+### Time Complexity Breakdown:
+- **Event Creation**: O(N) time, O(N) space
+- **Event Sorting**: O(N log N) time, O(N) space
+- **Line Sweep**: O(N) time, O(1) additional space
+- **Total**: O(N log N) time, O(N) space
+- **Optimal**: Cannot do better than sorting unsorted intervals
+
+### Alternative Approaches:
+
+#### 1. Two Pointers (O(N log N) time, O(1) space)
+```go
+func mergeTwoPointers(intervals [][]int) [][]int {
+    // Sort intervals first, then merge in one pass
+    // Only works if we can modify or sort input
+    // ... implementation details omitted
+}
+```
+- **Pros**: O(1) extra space after sorting
+- **Cons**: Requires sorted input or sorting step
+
+#### 2. Counting Array (O(N log N) time, O(N) space)
+```go
+func mergeCounting(intervals [][]int) [][]int {
+    // Use difference array for range queries
+    // Good for multiple range queries
+    // ... implementation details omitted
+}
+```
+- **Pros**: Efficient for multiple queries
+- **Cons**: More complex, coordinate compression needed
+
+#### 3. Interval Tree (O(N log N) time, O(N) space)
+```go
+func mergeIntervalTree(intervals [][]int) [][]int {
+    // Build interval tree for dynamic operations
+    // Overkill for simple merging
+    // ... implementation details omitted
+}
+```
+- **Pros**: Supports dynamic operations
+- **Cons**: Complex implementation, overhead for simple case
+
+### Extensions for Interviews:
+- **Dynamic Operations**: Support for insert/delete interval queries
+- **Range Queries**: Answer "how many intervals overlap point X"
+- **Priority Intervals**: Handle intervals with different priorities
+- **Multi-dimensional**: Extend to 2D rectangle merging
+- **Performance Analysis**: Discuss cache behavior and practical considerations
+*/
 func main() {
 	// Test cases
 	fmt.Println("=== Testing Merge Intervals - Line Sweep ===")

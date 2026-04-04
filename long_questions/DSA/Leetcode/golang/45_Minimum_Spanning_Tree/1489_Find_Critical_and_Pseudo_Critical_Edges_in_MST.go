@@ -440,6 +440,406 @@ func createsCycle(adj [][]int, from, to int) bool {
 	return false // Simplified for demonstration
 }
 
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Minimum Spanning Tree Edge Analysis
+- **Kruskal's Algorithm**: Greedy edge selection with Union-Find
+- **Critical Edges**: Edges that must be in all MSTs (removal increases weight)
+- **Pseudo-Critical Edges**: Edges that can be in some MSTs (alternative paths exist)
+- **Edge Classification**: Analyze edge importance in MST construction
+
+## 2. PROBLEM CHARACTERISTICS
+- **MST Analysis**: Find critical and non-critical edges in minimum spanning tree
+- **Edge Importance**: Determine which edges are essential vs optional
+- **Multiple MSTs**: Handle graphs with multiple minimum spanning trees
+- **Union-Find**: Efficient cycle detection and component management
+
+## 3. SIMILAR PROBLEMS
+- Network Delay Time (LeetCode 743) - Shortest path variants
+- Min Cost to Connect All Points (LeetCode 1584) - MST construction
+- Find the City With the Smallest Number of Neighbors (LeetCode 1334) - Graph analysis
+- Evaluate Division (LeetCode 399) - Graph connectivity
+
+## 4. KEY OBSERVATIONS
+- **Critical Edge Test**: Remove edge and check if MST weight increases
+- **Pseudo-Critical Test**: Edge can appear in some MST with same weight
+- **Union-Find Essential**: Efficiently detect cycles and manage components
+- **Edge Classification**: Each edge falls into one of three categories
+
+## 5. VARIATIONS & EXTENSIONS
+- **Standard Analysis**: Basic critical/pseudo-critical classification
+- **Optimized Version**: Early termination and adjacency tracking
+- **Union-Find Optimization**: Path compression and union by rank
+- **Multiple MST Analysis**: Handle graphs with multiple optimal trees
+
+## 6. INTERVIEW INSIGHTS
+- Always clarify: "Graph connectivity? Edge weights? Multiple MSTs?"
+- Edge cases: disconnected graphs, single nodes, uniform weights
+- Time complexity: O(E² × log V) for analysis, O(E log V) for MST
+- Space complexity: O(V + E) for Union-Find and adjacency
+- Key insight: edge importance determined by MST weight comparison
+
+## 7. COMMON MISTAKES
+- Wrong MST weight calculation
+- Incorrect edge classification logic
+- Missing Union-Find path compression
+- Not handling disconnected graphs properly
+- Wrong edge removal/reconstruction
+
+## 8. OPTIMIZATION STRATEGIES
+- **Kruskal + Union-Find**: O(E log V) time, O(V + E) space - optimal
+- **Prim's Algorithm**: O(E log V) time, O(V + E) space - alternative
+- **Optimized Analysis**: O(E² log V) time, O(V + E) space - with caching
+- **Multiple MST Handling**: O(E × MST_count) time, O(V + E) space
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like analyzing a road network's critical roads:**
+- You have cities connected by roads with construction costs
+- You want to build the cheapest network connecting all cities
+- Some roads are essential (must be built), others are optional
+- Critical roads: if removed, network becomes more expensive
+- Pseudo-critical roads: can be used in some optimal networks
+- Like a transportation planner identifying essential vs optional routes
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Graph with N nodes and weighted edges
+2. **Goal**: Classify edges as critical, pseudo-critical, or neither
+3. **Constraints**: Need to analyze edge importance in MST context
+4. **Output**: Edge classification with weights and types
+
+#### Phase 2: Key Insight Recognition
+- **"MST natural"** → Need minimum spanning tree as baseline
+- **"Edge removal test"** → Critical if removal increases MST weight
+- **"Alternative paths"** → Pseudo-critical if alternative MSTs exist
+- **"Union-Find essential"** → Efficient cycle detection for MST
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I need to classify edges by their importance in MST.
+Brute force: try all edge combinations O(2^E).
+
+Analysis Approach:
+1. Find MST weight using Kruskal's algorithm
+2. For each edge:
+   - Remove it and find new MST weight
+   - If weight increases: critical edge
+   - If weight same: pseudo-critical edge
+   - If weight infinite (disconnected): critical edge
+3. Use Union-Find for efficient cycle detection
+4. Return classification results
+
+This gives O(E² log V) time, O(V + E) space!"
+```
+
+#### Phase 4: Edge Case Handling
+- **Disconnected graph**: No MST possible, handle appropriately
+- **Single node**: No edges, return empty classification
+- **Uniform weights**: All edges potentially pseudo-critical
+- **Multiple edges**: Handle parallel edges correctly
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Example: 4 nodes, edges = [[0,1,1], [1,2,1], [2,3,1], [0,3,1]]
+
+Human thinking:
+"MST Analysis Process:
+Step 1: Find MST weight using Kruskal's
+Sort edges by weight: all weight 1
+Pick edges that don't create cycles:
+- Edge (0,1): include, components: {0,1}, {2}, {3}
+- Edge (1,2): include, components: {0,1,2}, {3}
+- Edge (2,3): include, components: {0,1,2,3}
+MST complete, weight = 3
+
+Step 2: Analyze each edge
+Edge (0,1):
+- Remove it, find new MST
+- Can use (0,3), (1,2), (2,3) = weight 3
+- Same weight → pseudo-critical
+
+Edge (1,2):
+- Remove it, find new MST
+- Can use (0,1), (0,3), (2,3) = weight 3
+- Same weight → pseudo-critical
+
+Edge (2,3):
+- Remove it, find new MST
+- Can use (0,1), (1,2), (0,3) = weight 3
+- Same weight → pseudo-critical
+
+Edge (0,3):
+- Remove it, find new MST
+- Can use (0,1), (1,2), (2,3) = weight 3
+- Same weight → pseudo-critical
+
+Result: All edges are pseudo-critical ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why MST weight**: Need baseline for comparison
+- **Why edge removal**: Tests criticality by impact on optimal solution
+- **Why Union-Find**: Efficiently manages connected components
+- **Why classification**: Three categories cover all possibilities
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not just use Prim's?"** → Kruskal better for edge analysis
+2. **"Should I check all subsets?"** → No, too expensive
+3. **"What about multiple MSTs?"** → Handle by weight comparison
+4. **"Can I optimize further?"** → Yes, with caching and early termination
+5. **"Why Union-Find?"** → Essential for efficient cycle detection
+
+### Real-World Analogy
+**Like analyzing a power grid's critical transmission lines:**
+- You have power plants and cities connected by transmission lines
+- Each line has a construction/maintenance cost
+- You want the cheapest network that powers all cities
+- Critical lines: if removed, network becomes more expensive or impossible
+- Optional lines: can be used in some optimal configurations
+- Like an electrical engineer identifying essential vs backup power lines
+
+### Human-Readable Pseudocode
+```
+function findCriticalAndPseudoCriticalEdges(n, edges):
+    if n <= 1:
+        return []
+    
+    # Find MST weight using Kruskal's algorithm
+    mstWeight = findMSTWeight(n, edges)
+    
+    result = []
+    
+    for each edge i:
+        # Remove this edge and find new MST weight
+        newWeight = findMSTWeightWithoutEdge(n, edges, i)
+        
+        if newWeight > mstWeight:
+            # Critical edge - removal increases weight
+            result.append([edge[0], edge[1], edge[2], 1])
+        elif newWeight == mstWeight:
+            # Pseudo-critical edge - alternative MST exists
+            result.append([edge[0], edge[1], edge[2], 2])
+        # else: edge not in any MST
+    
+    return result
+
+function findMSTWeight(n, edges):
+    sort edges by weight
+    parent = [0, 1, ..., n-1]
+    
+    totalWeight = 0
+    edgesUsed = 0
+    
+    for each edge (from, to, weight):
+        root1 = find(parent, from)
+        root2 = find(parent, to)
+        
+        if root1 != root2:
+            union(parent, root1, root2)
+            totalWeight += weight
+            edgesUsed++
+            
+            if edgesUsed == n-1:
+                break
+    
+    return totalWeight if edgesUsed == n-1 else infinity
+```
+
+### Execution Visualization
+
+### Example: 4 nodes, edges = [[0,1,1], [1,2,1], [2,3,1], [0,3,1]]
+```
+MST Construction (Kruskal's):
+1. Sort edges: all weight 1
+2. Edge (0,1): include ✓
+3. Edge (1,2): include ✓  
+4. Edge (2,3): include ✓
+5. Edge (0,3): skip (creates cycle)
+
+MST Weight = 3
+
+Edge Analysis:
+Edge (0,1):
+- Remove, remaining edges: [(1,2), (2,3), (0,3)]
+- New MST: (0,3), (1,2), (2,3) = weight 3
+- Same weight → Pseudo-critical
+
+Edge (1,2):
+- Remove, remaining edges: [(0,1), (2,3), (0,3)]
+- New MST: (0,1), (0,3), (2,3) = weight 3
+- Same weight → Pseudo-critical
+
+Edge (2,3):
+- Remove, remaining edges: [(0,1), (1,2), (0,3)]
+- New MST: (0,1), (1,2), (0,3) = weight 3
+- Same weight → Pseudo-critical
+
+Edge (0,3):
+- Remove, remaining edges: [(0,1), (1,2), (2,3)]
+- New MST: (0,1), (1,2), (2,3) = weight 3
+- Same weight → Pseudo-critical
+
+Result: All edges are pseudo-critical
+```
+
+### Key Visualization Points:
+- **MST Baseline**: Need optimal weight for comparison
+- **Edge Removal**: Tests criticality by impact on solution
+- **Union-Find**: Manages connected components efficiently
+- **Classification Logic**: Three categories based on weight impact
+
+### Kruskal's Algorithm Visualization:
+```
+Sort edges by weight: [e1, e2, e3, e4, ...]
+Initialize each node as separate component
+
+For each edge:
+    if edge connects different components:
+        include edge in MST
+        merge components
+    else:
+        skip edge (creates cycle)
+
+Stop when MST has n-1 edges
+```
+
+### Time Complexity Breakdown:
+- **Kruskal's MST**: O(E log V) time, O(V + E) space
+- **Edge Analysis**: O(E × (E log V)) time, O(V + E) space
+- **Union-Find**: Nearly O(1) amortized per operation
+- **Optimized Version**: O(E² log V) time, O(V + E) space
+
+### Alternative Approaches:
+
+#### 1. Prim's Algorithm (O(E log V) time, O(V + E) space)
+```go
+func findMSTWeightPrim(n int, edges [][]int) int {
+    // Build adjacency list
+    adj := buildAdjacencyList(n, edges)
+    
+    // Prim's algorithm with priority queue
+    visited := make([]bool, n)
+    minHeap := priorityQueue{}
+    
+    // Start from node 0
+    visited[0] = true
+    for _, edge := range adj[0] {
+        minHeap.push(edge)
+    }
+    
+    totalWeight := 0
+    edgesUsed := 0
+    
+    for !minHeap.empty() && edgesUsed < n-1 {
+        edge := minHeap.pop()
+        if !visited[edge.to] {
+            visited[edge.to] = true
+            totalWeight += edge.weight
+            edgesUsed++
+            
+            for _, nextEdge := range adj[edge.to] {
+                if !visited[nextEdge.to] {
+                    minHeap.push(nextEdge)
+                }
+            }
+        }
+    }
+    
+    return totalWeight
+}
+```
+- **Pros**: Good for dense graphs, no need to sort all edges
+- **Cons**: More complex, requires priority queue
+
+#### 2. Optimized Edge Analysis (O(E² log V) time, O(V + E) space)
+```go
+func findCriticalAndPseudoCriticalEdgesOptimized(n int, edges [][]int) [][]int {
+    // Pre-compute MST weight
+    mstWeight := findMSTWeight(n, edges)
+    
+    // Build MST adjacency for quick edge lookup
+    mstAdj := buildMSTAdjacency(n, edges)
+    
+    result := make([][]int, 0)
+    
+    for i, edge := range edges {
+        // Quick check if edge is in MST
+        inMST := isInMST(mstAdj, edge)
+        
+        if inMST {
+            // Only test edges that are in MST
+            newWeight := findMSTWeightWithoutEdge(n, edges, i)
+            if newWeight > mstWeight {
+                result = append(result, []int{edge[0], edge[1], edge[2], 1})
+            } else {
+                result = append(result, []int{edge[0], edge[1], edge[2], 2})
+            }
+        }
+    }
+    
+    return result
+}
+```
+- **Pros**: Faster in practice, skips unnecessary computations
+- **Cons**: Still O(E²) worst case, more complex
+
+#### 3. Multiple MST Handling (O(E × MST_count) time, O(V + E) space)
+```go
+func findAllMSTClassifications(n int, edges [][]int) [][]int {
+    // Find all possible MST weights
+    mstWeights := findAllMSTWeights(n, edges)
+    
+    if len(mstWeights) == 0 {
+        return []
+    }
+    
+    minWeight := mstWeights[0]
+    
+    // Classify edges based on appearance in any MST
+    result := make([][]int, 0)
+    
+    for _, edge := range edges {
+        appearsInAnyMST := false
+        for _, weight := range mstWeights {
+            if edgeInMST(n, edges, edge, weight) {
+                appearsInAnyMST = true
+                break
+            }
+        }
+        
+        if appearsInAnyMST {
+            // Check criticality by removal test
+            newWeight := findMSTWeightWithoutEdge(n, edges, findEdgeIndex(edges, edge))
+            if newWeight > minWeight {
+                result = append(result, []int{edge[0], edge[1], edge[2], 1})
+            } else {
+                result = append(result, []int{edge[0], edge[1], edge[2], 2})
+            }
+        }
+    }
+    
+    return result
+}
+```
+- **Pros**: Handles multiple optimal solutions correctly
+- **Cons**: Complex, finding all MSTs is computationally expensive
+
+### Extensions for Interviews:
+- **Edge Weight Changes**: How do classifications change with weight updates?
+- **Dynamic Graphs**: Handle edge additions/removals incrementally
+- **Constrained MST**: MST with specific edge requirements
+- **Network Design**: Apply to real-world network optimization
+- **Real-world Applications**: Network design, circuit design, resource allocation
+*/
 func main() {
 	// Test cases
 	fmt.Println("=== Testing Critical and Pseudo-Critical Edges in MST ===")

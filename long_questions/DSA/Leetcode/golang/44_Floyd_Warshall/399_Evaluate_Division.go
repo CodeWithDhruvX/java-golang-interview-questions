@@ -353,6 +353,346 @@ func calcEquationUnionFind(equations [][]string, values []float64, queries [][]s
 	return calcEquation(equations, values, queries)
 }
 
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Floyd-Warshall for Equation Relationships
+- **Graph Representation**: Variables as nodes, equations as weighted edges
+- **Path Multiplication**: Product of edge weights gives division result
+- **All-Pairs Queries**: Precompute all possible division results
+- **Transitive Relationships**: Chain equations for indirect divisions
+
+## 2. PROBLEM CHARACTERISTICS
+- **Division Equations**: a/b = value relationships between variables
+- **Query Processing**: Answer division queries using precomputed results
+- **Graph Connectivity**: Variables must be connected for valid results
+- **Multiplicative Composition**: Chain relationships multiply values
+
+## 3. SIMILAR PROBLEMS
+- Find the City With the Smallest Number of Neighbors (LeetCode 1334) - Same Floyd-Warshall
+- Network Delay Time (LeetCode 743) - Single-source shortest path
+- Evaluate Division (LeetCode 399) - Same problem
+- Cheapest Flights Within K Stops (LeetCode 787) - Path composition
+
+## 4. KEY OBSERVATIONS
+- **Graph Natural**: Variables as nodes, equations as directed edges
+- **Multiplication Instead of Addition**: Product of edge weights for paths
+- **Bidirectional**: a/b = value implies b/a = 1/value
+- **Disconnected**: Unconnected variables return -1.0
+
+## 5. VARIATIONS & EXTENSIONS
+- **Standard Floyd-Warshall**: Basic all-pairs division computation
+- **Path Tracking**: Store intermediate variables for explanation
+- **Dynamic Updates**: Add equations incrementally
+- **Cycle Detection**: Identify inconsistent equations
+
+## 6. INTERVIEW INSIGHTS
+- Always clarify: "Variable count? Equation consistency? Query patterns?"
+- Edge cases: unknown variables, zero division, self-division
+- Time complexity: O(N³ + Q) where N=variables, Q=queries
+- Space complexity: O(N²) for distance matrix
+- Key insight: Floyd-Warshall perfect for all-pairs equation queries
+
+## 7. COMMON MISTAKES
+- Wrong initialization (should use 1.0 for self-division)
+- Missing bidirectional relationships
+- Incorrect multiplication logic
+- Not handling unknown variables properly
+- Floating point precision issues
+
+## 8. OPTIMIZATION STRATEGIES
+- **Floyd-Warshall**: O(N³ + Q) time, O(N²) space - optimal for many queries
+- **Union-Find with Weights**: O(E + Q) time, O(N) space - better for sparse graphs
+- **DFS/BFS**: O(N + E + Q) time, O(N²) space - per query computation
+- **Path Compression**: Store only reachable pairs
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like a currency conversion system:**
+- Each variable is a currency (USD, EUR, GBP)
+- Each equation is an exchange rate (USD/EUR = 0.85)
+- You can convert between any two connected currencies
+- Chain conversions multiply rates (USD→EUR→GBP = USD/EUR × EUR/GBP)
+- You precompute all possible conversions for fast queries
+- Like a currency exchange calculating all possible conversions upfront
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Division equations a/b = value, queries a/b
+2. **Goal**: Answer division queries using given equations
+3. **Constraints**: Variables may be unknown, equations may be chained
+4. **Output**: Division results or -1.0 for impossible
+
+#### Phase 2: Key Insight Recognition
+- **"Graph natural"** → Variables as nodes, equations as edges
+- **"Multiplication composition"** → Chain equations multiply values
+- **"All-pairs needed"** → Need all variable pair divisions
+- **"Floyd-Warshall perfect"** → Ideal for all-pairs path computation
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I need to answer division queries using equations.
+Brute force: DFS/BFS for each query O(N×E×Q).
+
+Floyd-Warshall Approach:
+1. Map variables to indices
+2. Initialize distance matrix (1.0 for self, -1.0 for unknown)
+3. Fill direct equations (a/b = value, b/a = 1/value)
+4. For each intermediate variable k:
+   - Update all pairs (i,j) through k
+   - dist[i][j] = min(dist[i][j], dist[i][k] * dist[k][j])
+5. Answer queries directly from matrix
+
+This gives O(N³ + Q) time, O(N²) space!"
+```
+
+#### Phase 4: Edge Case Handling
+- **Unknown variables**: Return -1.0 for queries with unknown variables
+- **Self-division**: Always return 1.0 if variable exists
+- **Zero division**: Handle zero values properly (avoid division by zero)
+- **Disconnected components**: Return -1.0 for unconnected variables
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Example: equations = [["a","b"], ["b","c"]], values = [2.0, 3.0]
+queries = [["a","c"], ["c","a"], ["b","a"]]
+
+Human thinking:
+"Floyd-Warshall Process:
+Step 1: Map variables to indices
+a→0, b→1, c→2
+
+Step 2: Initialize distance matrix
+  1.0  -1.0  -1.0
+ -1.0   1.0  -1.0
+ -1.0  -1.0   1.0
+
+Step 3: Fill direct equations
+  1.0   2.0  -1.0   (a/b = 2.0)
+  0.5   1.0  -1.0   (b/a = 1/2.0)
+ -1.0   1.0   3.0   (b/c = 3.0)
+ -1.0  1/3.0  1.0   (c/b = 1/3.0)
+
+Step 4: k=0 (variable a as intermediate)
+No improvements (only a→b and b→a)
+
+Step 5: k=1 (variable b as intermediate)
+Update paths through b:
+a→c: dist[a][b] * dist[b][c] = 2.0 * 3.0 = 6.0
+c→a: dist[c][b] * dist[b][a] = (1/3.0) * 0.5 = 1/6.0
+
+Final matrix:
+  1.0   2.0   6.0
+  0.5   1.0   3.0
+ 1/6.0  1/3.0  1.0
+
+Step 6: Answer queries
+a/c = dist[0][2] = 6.0 ✓
+c/a = dist[2][0] = 1/6.0 ✓
+b/a = dist[1][0] = 0.5 ✓
+
+Result: [6.0, 1/6.0, 0.5] ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why multiplication**: Division chains multiply (a/b × b/c = a/c)
+- **Why bidirectional**: a/b = value implies b/a = 1/value
+- **Why Floyd-Warshall**: Computes all variable pair divisions efficiently
+- **Why -1.0 for unknown**: Represents impossible division
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not use addition?"** → Division chains multiply, not add
+2. **"Should I use Union-Find?"** → Yes, for sparse graphs with few queries
+3. **"What about floating point?"** → Use precision tolerance for comparisons
+4. **"Can I handle zeros?"** → Yes, but avoid division by zero
+5. **"Why precompute everything?"** → Faster for many queries
+
+### Real-World Analogy
+**Like a unit conversion calculator:**
+- You have conversion factors between units (meters→feet, feet→inches)
+- Each conversion factor is an equation (1 meter = 3.28 feet)
+- You can convert between any two connected units
+- Chain conversions multiply factors (meters→feet→inches)
+- You precompute all conversions for instant answers
+- Like a physics calculator storing all possible unit conversions
+
+### Human-Readable Pseudocode
+```
+function calcEquation(equations, values, queries):
+    # Map variables to indices
+    varMap = {}
+    idx = 0
+    for each equation [a, b]:
+        if a not in varMap: varMap[a] = idx++
+        if b not in varMap: varMap[b] = idx++
+    
+    n = len(varMap)
+    
+    # Initialize distance matrix
+    dist = n×n matrix
+    for i from 0 to n-1:
+        for j from 0 to n-1:
+            if i == j: dist[i][j] = 1.0
+            else: dist[i][j] = -1.0
+    
+    # Fill direct equations
+    for i, equation in enumerate(equations):
+        from = varMap[equation[0]]
+        to = varMap[equation[1]]
+        dist[from][to] = values[i]
+        dist[to][from] = 1.0 / values[i]
+    
+    # Floyd-Warshall
+    for k from 0 to n-1:
+        for i from 0 to n-1:
+            for j from 0 to n-1:
+                if dist[i][k] > 0 and dist[k][j] > 0:
+                    product = dist[i][k] * dist[k][j]
+                    if dist[i][j] < 0 or product < dist[i][j]:
+                        dist[i][j] = product
+    
+    # Answer queries
+    result = []
+    for each query [a, b]:
+        if a in varMap and b in varMap:
+            result.append(dist[varMap[a]][varMap[b]])
+        else:
+            result.append(-1.0)
+    
+    return result
+```
+
+### Execution Visualization
+
+### Example: equations = [["a","b"], ["b","c"]], values = [2.0, 3.0]
+```
+Variable Mapping: a→0, b→1, c→2
+
+Initial Distance Matrix:
+    a    b    c
+a [1.0, -1.0, -1.0]
+b [-1.0, 1.0, -1.0]
+c [-1.0, -1.0, 1.0]
+
+After Direct Equations:
+    a    b    c
+a [1.0, 2.0, -1.0]
+b [0.5, 1.0, 3.0]
+c [-1.0, 1/3.0, 1.0]
+
+After Floyd-Warshall:
+    a    b    c
+a [1.0, 2.0, 6.0]
+b [0.5, 1.0, 3.0]
+c [1/6.0, 1/3.0, 1.0]
+
+Query Results:
+a/c = 6.0 (a→b→c = 2.0 × 3.0)
+c/a = 1/6.0 (c→b→a = 1/3.0 × 0.5)
+b/a = 0.5 (direct)
+```
+
+### Key Visualization Points:
+- **Variable Mapping**: String variables to integer indices
+- **Bidirectional Edges**: a/b = value and b/a = 1/value
+- **Path Multiplication**: Chain equations multiply values
+- **Complete Matrix**: All possible variable divisions
+
+### Floyd-Warshall Process Visualization:
+```
+For each intermediate variable k:
+  For each source variable i:
+    For each target variable j:
+      if i→k exists and k→j exists:
+        i→j = min(i→j, i→k × k→j)
+
+This builds all possible division paths by considering
+each variable as a potential intermediate step.
+```
+
+### Time Complexity Breakdown:
+- **Floyd-Warshall**: O(N³ + Q) time, O(N²) space - optimal for many queries
+- **Union-Find with Weights**: O(E + Q) time, O(N) space - better for sparse graphs
+- **DFS/BFS per Query**: O(Q × (N + E)) time, O(N²) space - for few queries
+- **Path Tracking**: O(N³ + Q) time, O(N²) space - with explanation paths
+
+### Alternative Approaches:
+
+#### 1. Union-Find with Weights (O(E + Q) time, O(N) space)
+```go
+func calcEquationUnionFind(equations [][]string, values []float64, queries [][]string) []float64 {
+    parent := make(map[string]string)
+    weight := make(map[string]float64)
+    
+    find := func(x string) (string, float64) {
+        if parent[x] != x {
+            root, w := find(parent[x])
+            weight[x] *= w
+            parent[x] = root
+        }
+        return parent[x], weight[x]
+    }
+    
+    union := func(x, y string, value float64) {
+        rootX, weightX := find(x)
+        rootY, weightY := find(y)
+        
+        if rootX != rootY {
+            parent[rootY] = rootX
+            weight[rootY] = weightX * value / weightY
+        }
+    }
+    
+    // Initialize and union based on equations
+    // Answer queries using find function
+    
+    return result
+}
+```
+- **Pros**: Linear time, efficient for sparse graphs
+- **Cons**: More complex path tracking
+
+#### 2. DFS/BFS per Query (O(Q × (N + E)) time, O(N²) space)
+```go
+func calcEquationDFS(equations [][]string, values []float64, queries [][]string) []float64 {
+    // Build adjacency list
+    adj := make(map[string][]pair)
+    
+    // For each query, run DFS/BFS to find path
+    // Multiply edge weights along path
+    
+    return result
+}
+```
+- **Pros**: Simple, no precomputation
+- **Cons**: Slow for many queries
+
+#### 3. Optimized Floyd-Warshall (O(N³ + Q) time, O(N²) space)
+```go
+func calcEquationOptimized(equations [][]string, values []float64, queries [][]string) []float64 {
+    // Same as Floyd-Warshall but with optimizations:
+    // - Early termination for unreachable nodes
+    // - Sparse matrix representation
+    // - Parallel computation
+}
+```
+- **Pros**: Same asymptotic, better constants
+- **Cons**: Still O(N³) worst case
+
+### Extensions for Interviews:
+- **Path Explanation**: Show intermediate variables for each result
+- **Dynamic Updates**: Add/remove equations incrementally
+- **Consistency Checking**: Detect contradictory equations
+- **Approximate Results**: Handle floating point precision
+- **Real-world Applications**: Currency conversion, unit conversion, physics calculations
+*/
 func main() {
 	// Test cases
 	fmt.Println("=== Testing Floyd-Warshall for Division ===")
