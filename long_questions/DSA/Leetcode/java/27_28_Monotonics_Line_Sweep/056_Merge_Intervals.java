@@ -402,4 +402,243 @@ public class MergeIntervals {
         int[][] pqTest = {{1, 4}, {2, 5}, {3, 6}, {7, 8}};
         System.out.printf("Priority queue: %s\n", Arrays.deepToString(mi.mergeLineSweepPriorityQueue(pqTest)));
     }
-}
+
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Line Sweep Algorithm
+- **Event Processing**: Convert intervals to start/end events
+- **Sweeping Motion**: Process events in chronological order
+- **Overlap Detection**: Track active intervals during sweep
+- **Interval Merging**: Combine overlapping intervals
+
+## 2. PROBLEM CHARACTERISTICS
+- **Interval Collection**: Array of [start, end] intervals
+- **Merging Goal**: Combine overlapping intervals
+- **Temporal Processing**: Process events along time axis
+- **Efficient Solution**: O(N log N) vs O(N²) naive
+
+## 3. SIMILAR PROBLEMS
+- Meeting Rooms
+- Insert Interval
+- Non-overlapping Intervals
+- Calendar Conflicts
+
+## 4. KEY OBSERVATIONS
+- Sorting by start time enables chronological processing
+- Line sweep tracks active interval count
+- Event-based approach handles complex overlaps
+- Multiple algorithms: two-pointer, priority queue, difference array
+- Time complexity: O(N log N) dominated by sorting
+
+## 5. VARIATIONS & EXTENSIONS
+- Different overlap definitions
+- Weighted intervals
+- Multiple interval merging
+- Real-time processing
+
+## 6. INTERVIEW INSIGHTS
+- Clarify: "Are intervals inclusive or exclusive?"
+- Edge cases: empty array, single interval, all overlapping
+- Time complexity: O(N log N) vs O(N²) naive
+- Space complexity: O(N) vs O(1) in-place
+
+## 7. COMMON MISTAKES
+- Not sorting intervals first
+- Incorrect overlap condition
+- Forgetting to add last interval
+- Off-by-one errors in boundary checks
+- Not handling edge cases properly
+
+## 8. OPTIMIZATION STRATEGIES
+- In-place modification saves space
+- Early termination for non-overlapping intervals
+- Custom comparator for sorting
+- Choose appropriate algorithm based on constraints
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like scheduling meetings:**
+- You have meetings (intervals) with start and end times
+- You want to merge overlapping meetings into longer meetings
+- Sort meetings by start time to process chronologically
+- As you sweep through time, track which meetings are active
+- When meetings overlap, merge them into one longer meeting
+- Continue until all meetings processed
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Array of [start, end] intervals
+2. **Goal**: Merge all overlapping intervals
+3. **Output**: Array of non-overlapping merged intervals
+
+#### Phase 2: Key Insight Recognition
+- **"How to detect overlap?"** → current.end >= next.start
+- **"How to merge?"** → start = current.start, end = max(current.end, next.end)
+- **"What order to process?"** → Sort by start time
+- **"Why line sweep?"** → Natural way to handle temporal overlaps
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I'll use line sweep:
+1. Sort intervals by start time
+2. Convert intervals to start/end events
+3. Process events chronologically
+4. Track active interval count
+5. When active count goes from 0→1, start new interval
+6. When active count goes from 1→0, end current interval
+7. This handles all overlap scenarios"
+```
+
+#### Phase 4: Edge Case Handling
+- **Empty array**: Return empty array
+- **Single interval**: Return that interval
+- **All overlapping**: Return one merged interval
+- **No overlapping**: Return all original intervals
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Intervals: [[1,3], [2,6], [8,10], [15,18]]
+
+Human thinking:
+"Let's use line sweep with events:
+
+Create events:
+[1, start], [3, end], [2, start], [6, end],
+[8, start], [10, end], [15, start], [18, end]
+
+Sort events by position:
+[1, start], [2, start], [3, end], [6, end],
+[8, start], [10, end], [15, start], [18, end]
+
+Process events:
+Position 1: start → active=1, startNew=1
+Position 2: start → active=2 (still in same interval)
+Position 3: end → active=1
+Position 6: end → active=0, add [1,6] to result
+Position 8: start → active=1, startNew=8
+Position 10: end → active=0, add [8,10] to result
+Position 15: start → active=1, startNew=15
+Position 18: end → active=0, add [15,18] to result
+
+Result: [[1,6], [8,10], [15,18]] ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why it works**: Event processing handles all overlaps naturally
+- **Why it's efficient**: Sorting dominates, linear sweep after
+- **Why it's correct**: All interval boundaries are processed
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not try all pairs?"** → O(N²) vs O(N log N)
+2. **"What about two-pointers?"** → Works but less intuitive
+3. **"How to handle events?"** → Need proper sorting and processing
+4. **"What about edge cases?"** → Handle empty, single, all overlapping
+
+### Real-World Analogy
+**Like managing room reservations:**
+- You have room bookings (intervals) with start and end times
+- Some bookings overlap and can be consolidated
+- Sort bookings by start time
+- As you sweep through time, track which rooms are occupied
+- When bookings overlap, merge them into longer bookings
+- This frees up time slots for other bookings
+- Final schedule has no overlapping bookings
+
+### Human-Readable Pseudocode
+```
+function mergeIntervals(intervals):
+    if intervals.length <= 1:
+        return intervals
+    
+    // Create events
+    events = []
+    for [start, end] in intervals:
+        events.append((start, true))   // Start event
+        events.append((end, false))   // End event
+    
+    // Sort events by position
+    sort(events, (a, b) -> compare(a.position, b.position))
+    
+    result = []
+    activeCount = 0
+    currentStart = -1
+    
+    for (position, isStart) in events:
+        if isStart:
+            if activeCount == 0:
+                currentStart = position
+            activeCount++
+        else:
+            activeCount--
+            if activeCount == 0:
+                result.append([currentStart, position])
+    
+    return result
+```
+
+### Execution Visualization
+
+### Example: [[1,3], [2,6], [8,10], [15,18]]
+```
+Event Creation:
+[1, start], [3, end], [2, start], [6, end],
+[8, start], [10, end], [15, start], [18, end]
+
+Sorted Events:
+Position 1: start → active=1, startNew=1
+Position 2: start → active=2
+Position 3: end → active=1
+Position 6: end → active=0, add [1,6]
+Position 8: start → active=1, startNew=8
+Position 10: end → active=0, add [8,10]
+Position 15: start → active=1, startNew=15
+Position 18: end → active=0, add [15,18]
+
+Result: [[1,6], [8,10], [15,18]] ✓
+
+Visualization:
+Time: 1----2----3----6----8----10----15----18
+Events: S---S--E----E---S---E----S---E
+Active: 1----2----1----0----1----0----1----0
+Result: [1,6] [8,10] [15,18]
+```
+
+### Key Visualization Points:
+- **Event creation** converts intervals to temporal points
+- **Chronological sorting** ensures proper processing order
+- **Active counting** tracks overlap state
+- **Interval reconstruction** builds merged intervals
+
+### Memory Layout Visualization:
+```
+Event Processing Flow:
+Events: [(1,S), (3,E), (2,S), (6,E), (8,S), (10,E), (15,S), (18,E)]
+Sorted: [(1,S), (2,S), (3,E), (6,E), (8,S), (10,E), (15,S), (18,E)]
+
+Processing:
+Pos=1: active=1, start=1
+Pos=2: active=2
+Pos=3: active=1
+Pos=6: active=0 → result=[1,6]
+Pos=8: active=1, start=8
+Pos=10: active=0 → result=[1,6], [8,10]
+Pos=15: active=1, start=15
+Pos=18: active=0 → result=[1,6], [8,10], [15,18]
+```
+
+### Time Complexity Breakdown:
+- **Event Creation**: O(N) where N is number of intervals
+- **Event Sorting**: O(N log N) where 2N events
+- **Event Processing**: O(N) linear sweep through events
+- **Total**: O(N log N) time, O(N) space
+- **Optimal**: Cannot do better than O(N log N) for this problem
+- **vs Naive**: O(N²) checking all interval pairs
+*/

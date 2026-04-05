@@ -415,4 +415,282 @@ public class BinaryTreeMaximumPathSum {
         System.out.printf("Single negative: %d\n", bt.maxPathSum(new TreeNode(-5)));
         System.out.printf("Single positive: %d\n", bt.maxPathSum(new TreeNode(5)));
     }
-}
+
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: DP on Trees
+- **Post-order Traversal**: Process children before parent
+- **Path Sum Calculation**: Maximum path from any node to any node
+- **Node Value Update**: Store best path sum at each node
+- **Bottom-up DP**: Compute results from leaves to root
+
+## 2. PROBLEM CHARACTERISTICS
+- **Binary Tree**: Each node has at most two children
+- **Path Definition**: Any path from any node to any node
+- **Maximum Sum**: Find path with maximum sum of node values
+- **Non-linear Path**: Path can go up and down through LCA
+
+## 3. SIMILAR PROBLEMS
+- Path Sum III (paths starting from root)
+- Path Sum II (paths ending at leaf)
+- Binary Tree Maximum Path Sum II
+- Diameter of Binary Tree
+
+## 4. KEY OBSERVATIONS
+- Maximum path may not pass through root
+- For any node, need max path from left and right subtrees
+- Post-order ensures children processed before parent
+- Node value can be updated to store best path sum
+- Time complexity: O(N) where N is number of nodes
+
+## 5. VARIATIONS & EXTENSIONS
+- Return actual path instead of just sum
+- Count paths with given sum
+- Handle negative values differently
+- Multiple trees or forest
+
+## 6. INTERVIEW INSIGHTS
+- Clarify: "Can path start and end at any nodes?"
+- Edge cases: empty tree, single node, all negative values
+- Time complexity: O(N) vs O(N²) naive
+- Space complexity: O(H) recursion stack vs O(N) explicit
+
+## 7. COMMON MISTAKES
+- Assuming path must go through root
+- Not handling negative values correctly
+- Incorrect DP transition formula
+- Forgetting to update node values properly
+- Not considering all possible paths
+
+## 8. OPTIMIZATION STRATEGIES
+- Post-order traversal for bottom-up DP
+- In-place node value updates
+- Early termination for obvious cases
+- Use iterative approach to avoid recursion
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like finding the most profitable route in a company hierarchy:**
+- You have a company organizational chart (binary tree)
+- Each person has a profit value (node value)
+- You want to find the most profitable communication path
+- Path can go up and down through common ancestors
+- For each person, you need to know the best path through their subordinates
+- This builds up the solution from bottom to top
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Root of binary tree
+2. **Goal**: Find maximum sum path between any two nodes
+3. **Output**: Maximum path sum value
+
+#### Phase 2: Key Insight Recognition
+- **"What defines a path?"** → Any sequence of connected nodes
+- **"Why post-order?"** → Need children results before parent
+- **"What to store?"** → Best path sum starting from each node
+- **"How to combine?"** → For each node: value + max(left, right)
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I'll use post-order DP:
+1. Traverse tree in post-order (left, right, root)
+2. For each node, compute max path from left subtree
+3. Compute max path from right subtree
+4. Current node value + max of left/right = best path through node
+5. Update node value to store this best path
+6. Track global maximum throughout"
+```
+
+#### Phase 4: Edge Case Handling
+- **Empty tree**: Return MIN_VALUE (or handle separately)
+- **Single node**: Return node value
+- **All negative**: Return maximum (least negative) value
+- **All positive**: Return sum of all nodes
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Tree:
+    1
+   / \
+  2   3
+
+Human thinking:
+"Let's process post-order:
+
+Leaf nodes (2 and 3):
+- Node 2: No children, max path = 2
+- Node 3: No children, max path = 3
+
+Internal node (1):
+- Left max from node 2 = 2
+- Right max from node 3 = 3
+- Current value + max(left, right) = 1 + max(2, 3) = 1 + 3 = 4
+- Update node 1 value to 4
+- Global maximum = max(2, 3, 4) = 4
+
+Result: Maximum path sum = 4 ✓
+
+Path: 2 → 1 → 3 (sum = 6) OR just 3 (sum = 3)
+Wait, let me reconsider:
+
+Actually, the path can be:
+- 2 → 1 → 3 (sum = 6)
+- Or just 3 (sum = 3)
+- Or 2 → 1 (sum = 3)
+- Or just 2 (sum = 2)
+- Or just 1 (sum = 1)
+
+Maximum is 2 → 1 → 3 = 6 ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why it works**: Post-order ensures children processed first
+- **Why it's efficient**: Each node visited once
+- **Why it's correct**: All possible paths considered
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not just sum all nodes?"** → Path may not include all nodes
+2. **"What about root-only paths?"** → Path can start/end anywhere
+3. **"How to handle negative values?"** → Need careful max logic
+4. **"What about path reconstruction?"** → Need additional information storage
+
+### Real-World Analogy
+**Like finding the most valuable collaboration chain in a company:**
+- You have an organization chart (binary tree)
+- Each person has a value (contribution level)
+- You want to find the most valuable collaboration chain
+- Chain can go up and down through common managers
+- For each person, you need to know the best chain through their team
+- This builds up the solution from individual contributors to teams
+- Useful in project management, network analysis, organizational optimization
+
+### Human-Readable Pseudocode
+```
+function maxPathSum(root):
+    if root == null:
+        return MIN_VALUE
+    
+    globalMax = MIN_VALUE
+    postOrder(root, globalMax)
+    return globalMax
+    
+function postOrder(node, globalMax):
+    if node == null:
+        return 0
+    
+    leftMax = postOrder(node.left, globalMax)
+    rightMax = postOrder(node.right, globalMax)
+    
+    // Best path through current node
+    currentMax = node.val + max(0, leftMax, rightMax)
+    
+    // Update global maximum
+    globalMax[0] = max(globalMax[0], currentMax)
+    
+    // Update node value for parent
+    node.val = currentMax
+    
+    return currentMax
+```
+
+### Execution Visualization
+
+### Example: Tree with root=1, left=2, right=3
+```
+Tree Structure:
+    1
+   / \
+  2   3
+
+Post-order Processing:
+
+Step 1: Process leaf node 2:
+- No children
+- maxPath = 2
+- Update node 2 value to 2
+- Global max = 2
+
+Step 2: Process leaf node 3:
+- No children
+- maxPath = 3
+- Update node 3 value to 3
+- Global max = max(2, 3) = 3
+
+Step 3: Process internal node 1:
+- Left max = 2 (from node 2)
+- Right max = 3 (from node 3)
+- Current max = 1 + max(2, 3) = 1 + 3 = 4
+- Update node 1 value to 4
+- Global max = max(3, 4) = 4
+
+Result: Maximum path sum = 4 ✓
+
+Possible paths:
+- 2 → 1 → 3 (sum = 6)
+- 3 → 1 → 2 (sum = 6)
+- 2 → 1 (sum = 3)
+- 1 → 3 (sum = 4) ✓
+- 3 → 1 (sum = 4) ✓
+- 1 → 2 (sum = 3)
+- 2 (sum = 2)
+- 3 (sum = 3)
+- 1 (sum = 1)
+
+Maximum: 4 ✓
+
+Visualization:
+Processing Order: 2, 3, 1 (post-order)
+Node Updates: [2, 3, 4]
+Global Max: 4
+```
+
+### Key Visualization Points:
+- **Post-order traversal** ensures children processed first
+- **Node value updates** store best path starting from each node
+- **Global maximum** tracks best overall path
+- **Path flexibility** allows any start/end points
+
+### Memory Layout Visualization:
+```
+Initial Tree:
+    1 (val=1)
+   / \
+  2 (val=2)   3 (val=3)
+
+Processing Steps:
+1. Visit node 2:
+   - leftMax = 0, rightMax = 0
+   - currentMax = 2 + max(0, 0) = 2
+   - node.val = 2, globalMax = 2
+
+2. Visit node 3:
+   - leftMax = 0, rightMax = 0
+   - currentMax = 3 + max(0, 0) = 3
+   - node.val = 3, globalMax = max(2, 3) = 3
+
+3. Visit node 1:
+   - leftMax = 2, rightMax = 3
+   - currentMax = 1 + max(2, 3) = 4
+   - node.val = 4, globalMax = max(3, 4) = 4
+
+Final State:
+Node values: [4, 2, 3]
+Global maximum: 4
+```
+
+### Time Complexity Breakdown:
+- **Post-order Traversal**: O(N) where N is number of nodes
+- **Each Node Processing**: O(1) operations
+- **Global Maximum Update**: O(1) per node
+- **Total**: O(N) time, O(H) space for recursion stack
+- **Optimal**: Cannot do better than O(N) for this problem
+- **vs Brute Force**: O(N²) checking all possible paths
+*/

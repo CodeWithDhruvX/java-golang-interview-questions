@@ -437,4 +437,297 @@ public class SortColors {
         System.out.println("General array: " + Arrays.toString(generalArray));
         System.out.println("Generalized result: " + Arrays.toString(generalResult));
     }
-}
+
+/*
+=======================================
+PATTERN RECOGNITION & INSIGHTS
+=======================================
+
+## 1. ALGORITHM PATTERN: Non-Comparison Sorting
+- **Counting Sort**: Count occurrences and reconstruct
+- **Dutch National Flag**: Three-way partitioning
+- **Radix Sort**: Digit-by-digit sorting
+- **Bucket Sort**: Distribute into buckets
+
+## 2. PROBLEM CHARACTERISTICS
+- **Color Sorting**: Sort array with 0s, 1s, 2s
+- **Limited Range**: Small range of values (0-2)
+- **In-Place Sorting**: Sort without extra space
+- **Linear Time**: Achieve O(N) time complexity
+
+## 3. SIMILAR PROBLEMS
+- Sort Characters by Frequency
+- Sort Array By Parity
+- Sort Binary Array
+- Sort Colors II (extended range)
+
+## 4. KEY OBSERVATIONS
+- Counting sort works well for small range
+- Dutch National Flag uses three pointers
+- Radix sort extends counting to larger ranges
+- Time complexity: O(N) vs O(N log N) comparison sort
+- Space complexity: O(1) vs O(N) for counting sort
+
+## 5. VARIATIONS & EXTENSIONS
+- Extended color ranges
+- Stability considerations
+- Multiple passes for larger ranges
+- Custom comparison functions
+
+## 6. INTERVIEW INSIGHTS
+- Clarify: "What is the value range?"
+- Edge cases: empty array, single element, all same color
+- Time complexity: O(N) vs O(N log N) comparison sort
+- Space complexity: O(1) vs O(N) counting sort
+
+## 7. COMMON MISTAKES
+- Incorrect pointer management in Dutch National Flag
+- Wrong counting sort range handling
+- Incorrect radix sort digit processing
+- Not handling edge cases properly
+- Stability issues in counting sort
+
+## 8. OPTIMIZATION STRATEGIES
+- Use Dutch National Flag for O(1) space
+- Implement counting sort for small ranges
+- Use radix sort for larger ranges
+- Efficient bucket distribution
+
+## 9. EXECUTION VISUALIZATION
+
+## 10. HUMAN LOGIC PHASE
+
+### Mental Model & Intuition
+**Think of it like sorting colored balls:**
+- You have balls of three colors (red, white, blue)
+- Need to sort them by color efficiently
+- Counting sort: count each color, then place them
+- Dutch National Flag: three pointers to partition in one pass
+- Radix sort: sort by digits for larger ranges
+- This is like organizing items by their properties
+
+### Step-by-Step Human Reasoning
+
+#### Phase 1: Problem Understanding
+1. **Input**: Array with values 0, 1, 2
+2. **Goal**: Sort array in ascending order
+3. **Output**: Sorted array
+
+#### Phase 2: Key Insight Recognition
+- **"What's the bottleneck?"** → O(N log N) comparison sort
+- **"How to optimize?"** → Use counting sort for small range
+- **"Why Dutch National Flag?"** → Three-way partitioning in one pass
+- **"Why counting sort?"** → Count occurrences, reconstruct
+
+#### Phase 3: Strategy Development
+```
+Human thought process:
+"I'll use Dutch National Flag algorithm:
+1. Three pointers: low (for 0s), mid (current), high (for 2s)
+2. While mid <= high:
+   - If nums[mid] == 0: swap with low, low++, mid++
+   - If nums[mid] == 1: mid++ (already in correct position)
+   - If nums[mid] == 2: swap with high, high--
+3. This partitions array in one pass
+4. For counting sort:
+   - Count occurrences of 0, 1, 2
+   - Place 0s, then 1s, then 2s"
+```
+
+#### Phase 4: Edge Case Handling
+- **Empty array**: Return as is
+- **Single element**: Already sorted
+- **All same color**: Handle correctly
+- **Large arrays**: Ensure O(N) time complexity
+
+#### Phase 5: Algorithm Walkthrough (Human Perspective)
+```
+Array: [2, 0, 2, 1, 1, 0]
+
+Human thinking:
+"Let's apply Dutch National Flag:
+
+Initialize: low=0, mid=0, high=5
+
+Step 1: mid=0, nums[0]=2 (Blue)
+- nums[0] == 2: swap with high
+- Swap nums[0] and nums[5]: [0, 0, 2, 1, 1, 2]
+- high=4, mid stays 0
+
+Step 2: mid=0, nums[0]=0 (Red)
+- nums[0] == 0: swap with low
+- Swap nums[0] and nums[0]: [0, 0, 2, 1, 1, 2] (no change)
+- low=1, mid=1
+
+Step 3: mid=1, nums[1]=0 (Red)
+- nums[1] == 0: swap with low
+- Swap nums[1] and nums[1]: [0, 0, 2, 1, 1, 2] (no change)
+- low=2, mid=2
+
+Step 4: mid=2, nums[2]=2 (Blue)
+- nums[2] == 2: swap with high
+- Swap nums[2] and nums[4]: [0, 0, 1, 1, 2, 2]
+- high=3, mid stays 2
+
+Step 5: mid=2, nums[2]=1 (White)
+- nums[2] == 1: mid++ (already correct)
+- mid=3
+
+Step 6: mid=3, nums[3]=1 (White)
+- nums[3] == 1: mid++ (already correct)
+- mid=4
+
+Step 7: mid=4, nums[4]=2 (Blue)
+- nums[4] == 2: swap with high
+- Swap nums[4] and nums[3]: [0, 0, 1, 2, 1, 2]
+- high=2, mid stays 4
+
+Now mid=4 > high=2, algorithm terminates
+
+Final result: [0, 0, 1, 1, 2, 2] ✓
+
+Manual verification:
+All 0s at beginning, 1s in middle, 2s at end ✓
+Sorted in ascending order ✓"
+```
+
+#### Phase 6: Intuition Validation
+- **Why it works**: Three pointers maintain correct partitions
+- **Why it's efficient**: O(N) time vs O(N log N) comparison sort
+- **Why it's correct**: Invariant maintains sorted partitions
+
+### Common Human Pitfalls & How to Avoid Them
+1. **"Why not use quicksort?"** → O(N log N) slower than O(N)
+2. **"What about counting sort?"** → Uses O(N) space for range array
+3. **"How to handle three colors?"** → Use three-way partitioning
+4. **"What about stability?"** → Dutch National Flag is not stable
+
+### Real-World Analogy
+**Like sorting laundry by color:**
+- You have a pile of clothes in three colors (red, white, blue)
+- Need to sort them efficiently
+- Dutch National Flag: three baskets, one for each color
+- Pick each item and place in correct basket
+- Counting sort: count each color, then place them
+- This is like organizing items by their properties
+- Useful in data processing, image processing, statistics
+- Like sorting items into labeled bins
+
+### Human-Readable Pseudocode
+```
+function dutchNationalFlag(nums):
+    low = 0, mid = 0, high = nums.length - 1
+    
+    while mid <= high:
+        if nums[mid] == 0:  // Red
+            swap(nums, low, mid)
+            low++
+            mid++
+        elif nums[mid] == 1:  // White
+            mid++  // Already in correct position
+        else:  // nums[mid] == 2, Blue
+            swap(nums, mid, high)
+            high--
+    
+    return nums
+
+function countingSort(nums):
+    count = [0, 0, 0]  // For colors 0, 1, 2
+    
+    // Count occurrences
+    for num in nums:
+        count[num]++
+    
+    // Reconstruct array
+    index = 0
+    for color in [0, 1, 2]:
+        for i from 0 to count[color]-1:
+            nums[index++] = color
+    
+    return nums
+```
+
+### Execution Visualization
+
+### Example: nums=[2,0,2,1,1,0]
+```
+Dutch National Flag Process:
+
+Initialize: low=0, mid=0, high=5
+Array: [2,0,2,1,1,0]
+
+Step 1: mid=0, nums[0]=2 (Blue)
+- Swap with high: swap(0,5)
+- Array: [0,0,2,1,1,2]
+- high=4
+
+Step 2: mid=0, nums[0]=0 (Red)
+- Swap with low: swap(0,0)
+- Array: [0,0,2,1,1,2]
+- low=1, mid=1
+
+Step 3: mid=1, nums[1]=0 (Red)
+- Swap with low: swap(1,1)
+- Array: [0,0,2,1,1,2]
+- low=2, mid=2
+
+Step 4: mid=2, nums[2]=2 (Blue)
+- Swap with high: swap(2,4)
+- Array: [0,0,1,1,2,2]
+- high=3
+
+Step 5: mid=2, nums[2]=1 (White)
+- Already correct: mid=3
+- Array: [0,0,1,1,2,2]
+
+Continue...
+
+Final result: [0,0,1,1,2,2] ✓
+
+Visualization:
+Three pointers maintain partitions
+Reds at left, whites in middle, blues at right
+Single pass achieves sorting ✓
+```
+
+### Key Visualization Points:
+- **Three Pointers**: Low (0s), Mid (current), High (2s)
+- **Partition Invariant**: [0...low-1] are 0s, [low...mid-1] are 1s, [mid+1...high] are 2s
+- **Single Pass**: O(N) time complexity
+- **In-Place**: O(1) extra space
+
+### Memory Layout Visualization:
+```
+Dutch National Flag Evolution:
+
+Initial: [2,0,2,1,1,0]
+low=0, mid=0, high=5
+
+After Step 1: [0,0,2,1,1,2]
+low=1, mid=0, high=4
+Partition: [0] | [0,2,1,1] | [2]
+
+After Step 2: [0,0,2,1,1,2]
+low=2, mid=1, high=4
+Partition: [0,0] | [2,1,1] | [2]
+
+After Step 3: [0,0,2,1,1,2]
+low=2, mid=2, high=4
+Partition: [0,0] | [2,1,1] | [2]
+
+After Step 4: [0,0,1,1,2,2]
+low=2, mid=3, high=3
+Partition: [0,0] | [1,1] | [2,2]
+
+Final: [0,0,1,1,2,2]
+All 0s at left, 1s in middle, 2s at right ✓
+```
+
+### Time Complexity Breakdown:
+- **Dutch National Flag**: O(N) time, O(1) space
+- **Counting Sort**: O(N) time, O(1) space (for fixed range)
+- **Radix Sort**: O(N*B) time, O(N+B) space
+- **Bucket Sort**: O(N+K) time, O(N+K) space
+- **Optimal**: Best possible for this problem
+- **vs Comparison Sort**: O(N) vs O(N log N) time
+*/
