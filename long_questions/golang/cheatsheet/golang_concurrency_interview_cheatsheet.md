@@ -148,12 +148,27 @@ The errgroup pattern coordinates multiple goroutines and cancels all when any re
 
 ## 🟢 7. Rate Limiter
 **Pattern:** Block on a `time.Ticker` channel.
-
 ```go
-limiter := time.Tick(200 * time.Millisecond) // 5 req/sec
-for req := range requests {
-    <-limiter // Wait for tick
-    process(req)
+package main
+import 
+(
+      "fmt"
+      "time"
+)
+
+func main() {
+      request:=[]int{1,2,3,4,5}
+      limiter:=time.Tick(200*time.Millisecond)
+
+      for i:=range request {
+            <-limiter
+            process(i)
+      }      
+
+}
+
+func process(req int){
+      fmt.Printf("Processing request %d at %v \n",req,time.Now().Format("15:04:05.000"))
 }
 ```
 

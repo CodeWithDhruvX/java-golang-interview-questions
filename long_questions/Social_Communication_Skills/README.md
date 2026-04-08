@@ -18,6 +18,7 @@
 | 06 | [Client & Business Communication](./06_Client_Business_Communication/) | Client psychology, role-based questions, executive vocab |
 | 07 | [Negotiation Skills](./07_Negotiation_Skills/) | Salary, deals, real estate, partnerships, relationships |
 | 08 | [Corporate Survival – India Context](./08_Corporate_Survival_India/) | Micromanagement, politics, promotion, EQ in workplace |
+| 09 | [Agile & Team Lead Communication](./09_Agile_Team_Lead_Communication/) | Agile methodology, team leadership, stakeholder management |
 
 ---
 
@@ -79,4 +80,7 @@ Social_Communication_Skills/
     ├── 05_fear_speaking_meetings.md
     ├── 06_office_politics.md
     └── 07_lack_of_promotion.md
+└── 09_Agile_Team_Lead_Communication/
+    ├── 01_agile_methodology_conversations.md
+    └── 02_team_lead_role_scenarios.md
 ```

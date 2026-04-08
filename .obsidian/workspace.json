@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "long_questions/kubernetes/theory/01_Basics_And_Architecture.md",
+                "file": "long_questions/java/java questions/formatted_answers/02_Intermediate.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01_Basics_And_Architecture"
+              "title": "02_Intermediate"
             }
           }
         ]
@@ -204,6 +204,15 @@
   },
   "active": "8c0ba7082c7e79a1",
   "lastOpenFiles": [
+    "long_questions/DSA/Leetcode/golang/1_Array_Traversal/485_subprobelms/1004_Max_Consecutive_Ones_III.go",
+    "long_questions/DSA/Leetcode/golang/1_Array_Traversal/485_subprobelms",
+    "long_questions/DSA/Leetcode/golang/1_Array_Traversal/1004_Max_Consecutive_Ones_III.go",
+    "long_questions/java/practical/Intermediate/java_intermediate_concurrency.md",
+    "long_questions/golang/cheatsheet/golang_concurrency_interview_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_concurrency_cheatsheet.md",
+    "long_questions/golang/cheatsheet/golang_oops_cheatsheet.md",
+    "long_questions/golang/cheatsheet/go_cheatsheet.md",
+    "long_questions/kubernetes/theory/01_Basics_And_Architecture.md",
     "long_questions/AI/road-map/AI-roadmap.md",
     "long_questions/AI/road-map",
     "long_questions/DSA/Leetcode/golang/24_Binary_Search_Tree_Properties/230_Kth_Smallest_Element_in_a_BST.go",
@@ -213,8 +222,6 @@
     "long_questions/DSA/Leetcode/golang/36_Segment_Tree/715_Range_Module.go",
     "long_questions/DSA/Leetcode/golang/36_Segment_Tree/218_The_Skyline_Problem.go",
     "long_questions/DSA/Leetcode/golang/36_Segment_Tree/307_Range_Sum_Query_Mutable.go",
-    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/787_Cheapest_Flights_Within_K_Stops.go",
-    "long_questions/DSA/Leetcode/golang/35_Shortest_Path/1514_Path_with_Maximum_Probability.go",
     "long_questions/DSA/Leetcode/golang/README.md",
     "Companies/java/virtusa/behavior_interview_answers_spoken.md",
     "Companies/java/virtusa/behavior_interview_questions_only.md",
@@ -233,13 +240,6 @@
     "long_questions/Design Pattern/product_based_companies/01_advanced_creational_patterns.md",
     "long_questions/microservices/theory/02_Communication.md",
     "long_questions/architecture/theory/01_Architecture_Fundamentals.md",
-    "long_questions/java/theory/theory-focused/05_jvm_performance.md",
-    "long_questions/java/experience/product_based_companies/04_jvm_internals.md",
-    "long_questions/java/spring-boot/spring_boot_batch_401_440.md",
-    "long_questions/java/spring-boot/spring_boot_batch_221_240.md",
-    "short_questions/java/spring_boot_all_questions_formatted.md",
-    "long_questions/java/experience/product_based_companies/README.md",
-    "long_questions/java/practical/README.md",
     "Untitled.canvas"
   ]
 }
