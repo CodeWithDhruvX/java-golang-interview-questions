@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "app_name": "Advanced Hello World",
+  "author": "Your Name",
+  
+  "greetings": {
+    "enabled": true,
+    "languages": [
+      "Hello",
+      "Hi",
+      "Hey",
+      "Greetings",
+      "Welcome",
+      "Bonjour",
+      "Hola",
+      "Ciao",
+      "Namaste",
+      "Konnichiwa",
+      "Guten Tag",
+      "Salaam"
+    ],
+    "random_selection": true
+  },
+  
+  "user_input": {
+    "min_name_length": 2,
+    "max_name_length": 50,
+    "allow_empty": false
+  },
+  
+  "age_calculation": {
+    "enabled": true,
+    "current_year": null,
+    "age_groups": {
+      "child": {
+        "min": 0,
+        "max": 12,
+        "message": "You're a young explorer!"
+      },
+      "teen": {
+        "min": 13,
+        "max": 19,
+        "message": "Teenage years full of discovery!"
+      },
+      "adult": {
+        "min": 20,
+        "max": 59,
+        "message": "Adulting like a pro!"
+      },
+      "senior": {
+        "min": 60,
+        "max": 120,
+        "message": "Wisdom comes with experience!"
+      }
+    }
+  },
+  
+  "logging": {
+    "enabled": true,
+    "log_file": "greeting_log.txt",
+    "log_format": "[{timestamp}] {message}",
+    "timestamp_format": "%Y-%m-%d %H:%M:%S",
+    "encoding": "utf-8"
+  },
+  
+  "display": {
+    "show_banner": true,
+    "show_python_facts": true,
+    "show_timestamp": true,
+    "enable_colors": false,
+    "color_scheme": {
+      "banner": "cyan",
+      "greeting": "green",
+      "error": "red",
+      "info": "blue",
+      "warning": "yellow"
+    }
+  },
+  
+  "python_facts": [
+    "Python was created by Guido van Rossum in 1991",
+    "Python is named after Monty Python's Flying Circus",
+    "Python supports multiple programming paradigms",
+    "Python emphasizes code readability with significant indentation",
+    "Python has a comprehensive standard library",
+    "Python is used by Google, NASA, Netflix, and many more",
+    "Python 2 reached end-of-life in 2020",
+    "Python 3.11+ has significant performance improvements"
+  ],
+  
+  "error_handling": {
+    "show_full_traceback": false,
+    "log_errors": true,
+    "graceful_degradation": true
+  },
+  
+  "advanced_features": {
+    "enable_type_hints": true,
+    "enable_docstrings": true,
+    "enable_main_guard": true
+  }
+}

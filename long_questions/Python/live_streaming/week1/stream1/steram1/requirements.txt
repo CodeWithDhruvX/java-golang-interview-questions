@@ -1,0 +1,6 @@
+# Advanced Hello World Project
+# No external packages needed for this project
+# Using only Python standard library
+
+# For homework enhancements:
+# colorama>=0.4.6
